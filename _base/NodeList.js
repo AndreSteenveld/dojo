@@ -1,4 +1,4 @@
-define("dojo/_base/NodeList", ["dojo/lib/kernel", "dojo/_base/lang", "dojo/_base/array", "dojo/_base/connect", "dojo/_base/html"], function(dojo){
+define("dojo/_base/NodeList", ["dojo/lib/kernel", "dojo/listen", "dojo/_base/lang", "dojo/_base/array", "dojo/_base/html"], function(dojo, listen){
 
 //>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 (function(){
@@ -239,10 +239,14 @@ define("dojo/_base/NodeList", ["dojo/lib/kernel", "dojo/_base/lang", "dojo/_base
 	});
 
 	// add forEach actions
-	d.forEach(["connect", "addClass", "removeClass", "replaceClass", "toggleClass", "empty", "removeAttr"], function(name){
+	d.forEach(["addClass", "removeClass", "replaceClass", "toggleClass", "empty", "removeAttr"], function(name){
 		nlp[name] = adaptAsForEach(d[name]);
 	});
-
+	// don't bind early to dojo.connect since we no longer explicitly depend on it
+	nlp.connect = adaptAsForEach(function(){
+		return d.connect.apply(this, arguments);
+	});
+	
 	dojo.extend(dojo.NodeList, {
 		_normalize: function(/*String||Element||Object||NodeList*/content, /*DOMNode?*/refNode){
 			// summary:
@@ -370,6 +374,43 @@ define("dojo/_base/NodeList", ["dojo/lib/kernel", "dojo/_base/lang", "dojo/_base
 			//
 			this._parent = parent;
 			return this; //dojo.NodeList
+		},
+
+		on: function(eventName, listener){
+			// summary:
+			//		Listen for events on the nodes in the NodeList. Basic usage is:
+			//		| query(".my-class").on("click", listener);
+			// 		This supports event delegation by using selectors as the first argument with the event names as 
+			//		pseudo selectors. For example:
+			//		| dojo.query("#my-list").on("li:click", listener);
+			//		This will listen for click events within <li> elements that are inside the #my-list element.
+			//		Because on supports CSS selector syntax, we can use comma-delimited events as well:
+			//		| dojo.query("#my-list").on("li button:mouseover, li:click", listener);
+			var events = eventName.split(",");
+			var i = 0;
+			var queryResults = this;
+			while(eventName = events[i++]){
+				var selector = eventName.match(/(.*):(.*)/);
+				// if we have pseudo, the last one is interpreted as an event
+				if(selector){
+					eventName = selector[2];
+					selector = selector[1];
+				}
+				// add listener for each node
+				this.forEach(function(node){
+					listen(node, eventName, selector ? function(event){
+						var target = event.target;
+						// there is a selector, so make sure it matches
+						while(!dojo.query.matches(target, selector, node)){
+							if(target == node || !target){
+								return;
+							}
+							target = target.parentNode;
+						}
+						listener.call(target, event);
+					} : listener);
+				});
+			}
 		},
 
 		end: function(){
