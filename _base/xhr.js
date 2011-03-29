@@ -1,4 +1,4 @@
-define("dojo/_base/xhr", ["dojo/lib/kernel", "dojo/_base/Deferred", "dojo/_base/json", "dojo/_base/lang", "dojo/_base/query"], function(dojo){
+define("dojo/_base/xhr", ["dojo/lib/kernel", "dojo/_base/Deferred", "dojo/_base/json", "dojo/_base/lang"], function(dojo){
 
 //>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 (function(){
@@ -45,11 +45,13 @@ define("dojo/_base/xhr", ["dojo/lib/kernel", "dojo/_base/Deferred", "dojo/_base/
 					if(item.checked){ ret = item.value; }
 				}else if(item.multiple){
 					ret = [];
-					_d.query("option", item).forEach(function(opt){
+					var options = item.getElementsByTagName("option");
+					for(var i = 0; i < options.length; i++){
+						var opt = options[i];
 						if(opt.selected){
 							ret.push(opt.value);
 						}
-					});
+					}
 				}else{
 					ret = item.value;
 				}
