@@ -1,4 +1,4 @@
-define("dojo/store/util/QueryResults", ["dojo"], function(dojo) {
+define("dojo/store/util/QueryResults", ["dojo/lib/kernel", "dojo/_base/lang", "dojo/_base/Deferred"], function(dojo) {
 dojo.getObject("store.util", true, dojo);
 
 dojo.store.util.QueryResults = function(results){
