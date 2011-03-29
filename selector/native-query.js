@@ -1,4 +1,6 @@
 define([], function(){
+	var div = document.createElement("div");
+	var matchesSelector = div.matchesSelector || div.webkitMatchesSelector || div.mozMatchesSelector || div.msMatchesSelector;
 	// native QSA with speed-ups where possible, taken from Sizzle
 	return {
 		search: function(query, context){
@@ -48,41 +50,46 @@ define([], function(){
 			// and working up from there (Thanks to Andrew Dupont for the technique)
 			// IE 8 doesn't work on object elements
 			} else if ( context.nodeType === 1 && context.nodeName.toLowerCase() !== "object" ) {
-				var oldContext = context,
-					old = context.getAttribute( "id" ),
-					nid = old || "__dojo__",
-					hasParent = context.parentNode,
-					relativeHierarchySelector = /^\s*[+~]/.test( query );
-
-				if ( !old ) {
-					context.setAttribute( "id", nid );
-				} else {
-					nid = nid.replace( /'/g, "\\$&" );
-				}
-				if ( relativeHierarchySelector && hasParent ) {
-					context = context.parentNode;
-				}
-
-				try {
-					if ( !relativeHierarchySelector || hasParent ) {
-						return context.querySelectorAll( "[id='" + nid + "'] " + query );
-					}
-
-				} finally {
-					if ( !old ) {
-						oldContext.removeAttribute( "id" );
-					}
-				}
+				return useRoot(context, query, context.querySelectorAll);
 			}
 		},
 		match: function(node, selector, root){
-			// check the matching nodes for the query to see if any match the given node 
-			var nl = (root || document).querySelectorAll(selector);
-			for(var i = 0; i < nl.length; i++){
-				if(nl[i] == node){
-					return true;
-				}
+			if(root){
+				return useRoot(root, selector, function(query){
+					return matchesSelector.call(node, query);
+				});
+			}else{
+				matchesSelector.call(node, selector);
 			}
 		}
 	};
+	function useRoot(context, query, method){
+		var oldContext = context,
+			old = context.getAttribute( "id" ),
+			nid = old || "__dojo__",
+			hasParent = context.parentNode,
+			relativeHierarchySelector = /^\s*[+~]/.test( query );
+
+		if ( !old ) {
+			context.setAttribute( "id", nid );
+		} else {
+			nid = nid.replace( /'/g, "\\$&" );
+		}
+		if ( relativeHierarchySelector && hasParent ) {
+			context = context.parentNode;
+		}
+
+		try {
+			if ( !relativeHierarchySelector || hasParent ) {
+				return method.call(context, "[id='" + nid + "'] " + query );
+			}
+
+		} finally {
+			if ( !old ) {
+				oldContext.removeAttribute( "id" );
+			}
+		}
+		
+	
+	}
 });
