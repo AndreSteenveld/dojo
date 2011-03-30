@@ -115,7 +115,7 @@ dojo.connect = function(/*Object|null*/ obj,
 }
 
 dojo._connect = function(obj, event, context, method, dontFix){
-	if(event.substring(0, 2) == "on"){
+	if(typeof event == "string" && event.substring(0, 2) == "on"){
 		event = event.substring(2);
 	}else if(!obj || !(obj.addEventListener || obj.attachEvent)){
 		// it is a not a DOM node and we are using the dojo.connect style of treating a
