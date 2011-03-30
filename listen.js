@@ -93,7 +93,7 @@ define("dojo/listen", ["dojo/aspect", "dojo/lib/kernel"], function(aspect, dojo)
         	usedEvents[type] = true; // register it as one of the used events
         }
        // use aop
-        return after(this, "on" + type, listener);
+        return after(this, "on" + type, listener, true);
     }
 	listen.destroy = function(node, listener){
 		// summary:
