@@ -1,40 +1,297 @@
-(function(){
+define("dojo/query", ["dojo/lib/kernel", "dojo/_base/NodeList"], 
+		function(dojo, NodeList){	
 "use strict";
+var testDiv = document.createElement("div");
+var matchesSelector = testDiv.matchesSelector || testDiv.webkitMatchesSelector || testDiv.mozMatchesSelector || testDiv.msMatchesSelector; // IE9, WebKit, Firefox have this, but not Opera yet
+var querySelectorAll = testDiv.querySelectorAll;
 var features = {
-	// if selector engine is explicitly specified, we use that one
-	"config-selector-engine": window.dojo && dojo.config.selectorEngine,
-	"dom-qsa": (function(){ 
+	"dom-matches-selector": matchesSelector,
+	"dom-qsa": querySelectorAll, 
+	"dom-compliant-qsa": (function(){ 
 			// test to see if we have a reasonable native selector engine available
 			try{
-				var div = document.createElement("div");
-				div.innerHTML = "<p class='TEST'></p>"; // test kind of from sizzle
+				testDiv.innerHTML = "<p class='TEST'></p>"; // test kind of from sizzle
 				// Safari can't handle uppercase or unicode characters when
 				// in quirks mode, IE8 can't handle pseudos like :empty 
-				return div.querySelectorAll(".TEST:empty").length == 1;
+				return querySelectorAll.call(testDiv, ".TEST:empty").length == 1;
 			}catch(e){}
 		})()
 }; 
 function has(feature){
 	return features[feature];
 }
-define("dojo/query", ["dojo/lib/kernel", "dojo/_base/NodeList", has("config-selector-engine") ? has("config-selector-engine") : has("dom-qsa") ? "dojo/selector/native-query" : "dojo/selector/Slick.Finder"], 
-		function(dojo, NodeList, selectorEngine){	
-	var query = dojo.query = function(/*String*/ query, /*String|DOMNode?*/ root){
-		var results = selectorEngine.search(query, root);
-		if(!(results instanceof Array)){
-			// let selector engines directly return DOM NodeLists, we will convert them to arrays here if necessary 
-			var array = [];
-			for(var i = 0, l = results.length; i < l; i++){
-				array.push(results[i]);
+if(!has("dom-qsa")){
+	var combine = function(selector, root){
+		// combined queries
+		selector = selector.split(/\s*,\s*/);
+		var totalResults = [];
+		var unique = {};
+		// add all results and keep unique ones
+		for(var i = 0; i < selector.length; i++){
+			var results = selectorEngine(selector[i], root);
+			for(var j = 0, l = results.length; j < l; j++){
+				var node = results[j];
+				var id = node.uniqueID;
+				// only add it if unique
+				if(!(id in unique)){
+					totalResults.push(node);
+					unique[id] = true;
+				}
 			}
-			results = array;
 		}
-		return NodeList._wrap(results);
+		return totalResults;
 	};
-	query.matches = function(node, selector, root){
-		// TODO: if root is included, ensure an id and do a rooted CSS selector
-		return selectorEngine.match(node, selector, root);
-	};
-	return query;
+}
+var fullEngine, selectorEngine = function(selector, root){
+	if(combine && selector.indexOf(',') > -1){
+		return combine(selector, root);
+	}
+	var match = (querySelectorAll ? 
+		/^#([\w\-]+$)|^(\.)([\w\-\*]+$)|^(\w+$)/ : // this one only matches on simple queries where we can beat qSA with specific methods
+		/^#([\w\-]+)(?:\s+(.*))?$|(?:^|(.+\s+))([\w\-\*]+)(\S*$)/) // this one matches parts of the query that we can use to speed up manual filtering
+			.exec(selector);
+	root = root || document;
+	if(match){
+		// fast path regardless of whether or not querySelectorAll exists
+		if(match[1] && root == document){
+			// an #id
+			root = root.getElementById(match[1]);
+			return root && root.parentNode ? 
+				match[2] ?
+					selectorEngine(match[2], root) 
+					: [root] 
+						: [];
+		}
+		if(match[2] && root.getElementsByClassName){
+			// a .class
+			return root.getElementsByClassName(match[3]);
+		}
+		var found;
+		if(match[4]){
+			// a tag
+			found = root.getElementsByTagName(match[4]);
+			if(match[3] || match[5]){
+				selector = (match[3] || "") + match[5];
+			}else{
+				// that was the entirety of the query, return results
+				return found;
+			}
+		}
+	}
+	if(querySelectorAll){
+		// qSA works strangely on Element-rooted queries
+		// We can work around this by specifying an extra ID on the root
+		// and working up from there (Thanks to Andrew Dupont for the technique)
+		// IE 8 doesn't work on object elements
+		if (root.nodeType === 1 && root.nodeName.toLowerCase() !== "object"){				
+			return useRoot(root, selector, root.querySelectorAll);
+		}else{
+			// we can use the native qSA
+			return root.querySelectorAll(selector);
+		}
+	}else if(!found){
+		// search all children and then filter
+		found = root.getElementsByTagName("*");
+	}
+	// now we filter the nodes that were found using the matchesSelector
+	var results = [];
+	for(var i = 0, l = found.length; i < l; i++){
+		var node = found[i];
+		if(jsMatchesSelector(node, selector, root)){
+			results.push(node);
+		}
+	}
+	return results;
+};
+var nextId = 1,
+	useRoot = function(context, query, method){
+	var oldContext = context,
+		old = context.getAttribute( "id" ),
+		nid = old || "__dojo__",
+		hasParent = context.parentNode,
+		relativeHierarchySelector = /^\s*[+~]/.test( query );
+
+	if ( !old ) {
+		context.setAttribute( "id", nid );
+	} else {
+		nid = nid.replace( /'/g, "\\$&" );
+	}
+	if ( relativeHierarchySelector && hasParent ) {
+		context = context.parentNode;
+	}
+
+	try {
+		if ( !relativeHierarchySelector || hasParent ) {
+			return method.call(context, "[id='" + nid + "'] " + query );
+		}
+
+	} finally {
+		if ( !old ) {
+			oldContext.removeAttribute( "id" );
+		}
+	}
+};
+
+if(!has("dom-matches-selector")){
+	var jsMatchesSelector = (function(){
+		var caseFix = testDiv.tagName == "div" ? "toLowerCase" : "toUpperCase";
+		function tag(tagName){
+			tagName = tagName[caseFix]();
+			return function(node){
+				return node.tagName == tagName;
+			}
+		}
+		function id(id){
+			return function(node){
+				return node.id == id;
+			}
+		}
+		function className(className){
+			var classNameSpaced = ' ' + className + ' ';
+			return function(node){
+				return node.className.indexOf(className) > -1 && (' ' + node.className + ' ').indexOf(classNameSpaced) > -1;
+			}
+		}
+		function attr(name, value, type){
+			value = value.replace(/'|"/g,''); // what are you supposed to do with quotes, do they follow JS rules for escaping?
+			return type == "^=" ? function(node){
+				var thisValue = node.getAttribute(name);
+				return thisValue && thisValue.substring(0, value.length) == value;
+			} :
+			type == "$=" ? function(node){
+				var thisValue = node.getAttribute(name);
+				return thisValue && thisValue.substring(thisValue.length - value.length, thisValue.length) == value;
+			} :
+			type == "=" ? function(node){
+				return node.getAttribute(name) == value;
+			}:
+			function(node){
+				return node.getAttribute(name);
+			}; 
+		}
+		function ancestor(matcher){
+			return function(node, root){
+				while((node = node.parentNode) != root){
+					if(matcher(node, root)){
+						return true;
+					}
+				}
+			};
+		}
+		function parent(matcher){
+			return function(node, root){
+				node = node.parentNode;
+				return matcher ? 
+					node != root && matcher(node, root)
+					: node == root;
+			};
+		}
+		var cache = {};
+		function and(matcher, next){
+			return matcher ?
+				function(node, root){
+					return next(node) && matcher(node, root);
+				}
+				: next;
+		}
+		return function(node, selector, root){
+			var matcher = cache[selector];
+			if(!matcher){
+				if(selector.replace(/(\s*>\s*)|(\s+)|(#|\.)?([\w-]+)|\[([\w-]+)\s*(.?=)?\s*([^\]]*)\]/g, function(t, desc, space, type, value, attrName, attrType, attrValue){
+					if(value){
+						if(type == "."){
+							matcher = and(matcher, className(value));
+						}
+						else if(type == "#"){
+							matcher = and(matcher, id(value));
+						}
+						else{
+							matcher = and(matcher, tag(value));
+						}
+					}
+					else if(space){
+						matcher = ancestor(matcher);
+					}
+					else if(desc){
+						matcher = parent(matcher);
+					}
+					else if(attrName){
+						matcher = and(matcher, attr(attrName, attrValue, attrType));
+					}
+					return "";
+				})){
+					throw new Error("Syntax error in query");
+				}
+				if(!matcher){
+					return true;
+				}
+				cache[selector] = matcher;
+			}
+			return matcher(node, root);
+		};
+	})();
+}
+
+selectorEngine.match = matchesSelector ? function(node, selector){
+	// we have a native matchesSelector, use that
+	return matchesSelector.call(node, selector);
+} : jsMatchesSelector; // otherwise use the JS matches impl
+
+
+var query = dojo.query = function(/*String*/ query, /*String|DOMNode?*/ root){
+	//	summary:
+	//		Returns nodes which match the given CSS2 selector, searching the
+	//		entire document by default but optionally taking a node to scope
+	//		the search by. Returns an instance of dojo.NodeList.
+	if(typeof root == "string"){
+		root = dojo.byId(root);
+		if(!root){
+			return NodeList._wrap([]);
+		}
+	}
+	var results = query.nodeType ? [query] : selectorEngine(query, root);
+	if(!(results instanceof Array)){
+		// let selector engines directly return DOM NodeLists, we will convert them to arrays here if necessary 
+		var array = [];
+		for(var i = 0, l = results.length; i < l; i++){
+			array.push(results[i]);
+		}
+		results = array;
+	}
+	return NodeList._wrap(results);
+};
+query.setEngine = function(engine){
+	fullEngine = selectorEngine = engine;
+	if(engine.match){
+		// the engine provides a match function, use it to for matching
+		query.matches = function(node, selector, root){
+			if(root && engine.match.length < 3){
+				// doesn't support three args, use rooted id trick
+				return useRoot(root, selector, function(query){
+					return engine.match(node, query);
+				});
+			}else{
+				return engine.match(node, selector, root);
+			}
+		}
+	}
+}
+query.setEngine(selectorEngine);
+fullEngine = null; // the first one is not a full engine
+query.load = function(id, parentRequire, loaded, config){
+	// can be used a AMD plugin to conditionally load new query engine
+	if(id.charAt(id.length-1) == '?'){
+		// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
+		if(has("dom-compliant-qsa") || fullEngine){
+			return loaded(query);
+		}
+		id = id.substring(0,id.length - 1);
+	}
+	// load the referenced selector engine
+	parentRequire([id], function(engine){
+		query.setEngine(engine);
+		loaded(query);
+	});
+};
+return query;
 });
-})();
