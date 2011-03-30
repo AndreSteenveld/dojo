@@ -20,28 +20,63 @@ var features = {
 function has(feature){
 	return features[feature];
 }
-if(!has("dom-qsa")){
-	var combine = function(selector, root){
-		// combined queries
-		selector = selector.split(/\s*,\s*/);
-		var totalResults = [];
-		var unique = {};
-		// add all results and keep unique ones
-		for(var i = 0; i < selector.length; i++){
-			var results = selectorEngine(selector[i], root);
-			for(var j = 0, l = results.length; j < l; j++){
-				var node = results[j];
-				var id = node.uniqueID;
-				// only add it if unique
-				if(!(id in unique)){
-					totalResults.push(node);
-					unique[id] = true;
-				}
+
+var query = dojo.query = function(/*String*/ query, /*String|DOMNode?*/ root){
+	//	summary:
+	//		Returns nodes which match the given CSS selector, searching the
+	//		entire document by default but optionally taking a node to scope
+	//		the search by. Returns an instance of dojo.NodeList.
+	if(typeof root == "string"){
+		root = dojo.byId(root);
+		if(!root){
+			return NodeList._wrap([]);
+		}
+	}
+	var results = query.nodeType ? [query] : selectorEngine(query, root);
+	if(!(results instanceof Array)){
+		// let selector engines directly return DOM NodeLists, we will convert them to arrays here if necessary 
+		var array = [];
+		for(var i = 0, l = results.length; i < l; i++){
+			array.push(results[i]);
+		}
+		results = array;
+	}
+	return NodeList._wrap(results);
+};
+query.setEngine = function(engine){
+	fullEngine = selectorEngine = engine;
+	if(engine.match){
+		// the engine provides a match function, use it to for matching
+		query.matches = function(node, selector, root){
+			if(root && engine.match.length < 3){
+				// doesn't support three args, use rooted id trick
+				return useRoot(root, selector, function(query){
+					return engine.match(node, query);
+				});
+			}else{
+				return engine.match(node, selector, root);
 			}
 		}
-		return totalResults;
-	};
+	}
 }
+query.load = function(id, parentRequire, loaded, config){
+	// can be used a AMD plugin to conditionally load new query engine
+	if(id.charAt(id.length-1) == '?'){
+		// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
+		if(has("dom-compliant-qsa") || fullEngine){
+			return loaded(query);
+		}
+		id = id.substring(0,id.length - 1);
+	}
+	// load the referenced selector engine
+	parentRequire([id], function(engine){
+		query.setEngine(engine);
+		loaded(query);
+	});
+};
+
+// this is a default simple query engine. It has handles basic selectors, and for simple
+// common selectors is extremely fast
 var fullEngine, selectorEngine = function(selector, root){
 	if(combine && selector.indexOf(',') > -1){
 		return combine(selector, root);
@@ -98,6 +133,7 @@ var fullEngine, selectorEngine = function(selector, root){
 	for(var i = 0, l = found.length; i < l; i++){
 		var node = found[i];
 		if(jsMatchesSelector(node, selector, root)){
+			// keep the nodes that match the selector
 			results.push(node);
 		}
 	}
@@ -105,6 +141,7 @@ var fullEngine, selectorEngine = function(selector, root){
 };
 var nextId = 1,
 	useRoot = function(context, query, method){
+	// this function creates a temporary id so we can do rooted qSA queries, this is taken from sizzle
 	var oldContext = context,
 		old = context.getAttribute( "id" ),
 		nid = old || "__dojo__",
@@ -134,6 +171,7 @@ var nextId = 1,
 
 if(!has("dom-matches-selector")){
 	var jsMatchesSelector = (function(){
+		// a JS implementation of CSS selector matching, first we start with the various handlers
 		var caseFix = testDiv.tagName == "div" ? "toLowerCase" : "toUpperCase";
 		function tag(tagName){
 			tagName = tagName[caseFix]();
@@ -195,8 +233,11 @@ if(!has("dom-matches-selector")){
 				: next;
 		}
 		return function(node, selector, root){
-			var matcher = cache[selector];
+			// this returns true or false based on if the node matches the selector (optionally within the given root)
+			var matcher = cache[selector]; // check to see if we have created a matcher function for the given selector
 			if(!matcher){
+				// create a matcher function for the given selector
+				// parse the selectors
 				if(selector.replace(/(\s*>\s*)|(\s+)|(#|\.)?([\w-]+)|\[([\w-]+)\s*(.?=)?\s*([^\]]*)\]/g, function(t, desc, space, type, value, attrName, attrType, attrValue){
 					if(value){
 						if(type == "."){
@@ -227,9 +268,32 @@ if(!has("dom-matches-selector")){
 				}
 				cache[selector] = matcher;
 			}
+			// now run the matcher function on the node
 			return matcher(node, root);
 		};
 	})();
+}
+if(!has("dom-qsa")){
+	var combine = function(selector, root){
+		// combined queries
+		selector = selector.split(/\s*,\s*/);
+		var totalResults = [];
+		var unique = {};
+		// add all results and keep unique ones
+		for(var i = 0; i < selector.length; i++){
+			var results = selectorEngine(selector[i], root);
+			for(var j = 0, l = results.length; j < l; j++){
+				var node = results[j];
+				var id = node.uniqueID;
+				// only add it if unique
+				if(!(id in unique)){
+					totalResults.push(node);
+					unique[id] = true;
+				}
+			}
+		}
+		return totalResults;
+	};
 }
 
 selectorEngine.match = matchesSelector ? function(node, selector){
@@ -238,60 +302,8 @@ selectorEngine.match = matchesSelector ? function(node, selector){
 } : jsMatchesSelector; // otherwise use the JS matches impl
 
 
-var query = dojo.query = function(/*String*/ query, /*String|DOMNode?*/ root){
-	//	summary:
-	//		Returns nodes which match the given CSS2 selector, searching the
-	//		entire document by default but optionally taking a node to scope
-	//		the search by. Returns an instance of dojo.NodeList.
-	if(typeof root == "string"){
-		root = dojo.byId(root);
-		if(!root){
-			return NodeList._wrap([]);
-		}
-	}
-	var results = query.nodeType ? [query] : selectorEngine(query, root);
-	if(!(results instanceof Array)){
-		// let selector engines directly return DOM NodeLists, we will convert them to arrays here if necessary 
-		var array = [];
-		for(var i = 0, l = results.length; i < l; i++){
-			array.push(results[i]);
-		}
-		results = array;
-	}
-	return NodeList._wrap(results);
-};
-query.setEngine = function(engine){
-	fullEngine = selectorEngine = engine;
-	if(engine.match){
-		// the engine provides a match function, use it to for matching
-		query.matches = function(node, selector, root){
-			if(root && engine.match.length < 3){
-				// doesn't support three args, use rooted id trick
-				return useRoot(root, selector, function(query){
-					return engine.match(node, query);
-				});
-			}else{
-				return engine.match(node, selector, root);
-			}
-		}
-	}
-}
 query.setEngine(selectorEngine);
 fullEngine = null; // the first one is not a full engine
-query.load = function(id, parentRequire, loaded, config){
-	// can be used a AMD plugin to conditionally load new query engine
-	if(id.charAt(id.length-1) == '?'){
-		// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
-		if(has("dom-compliant-qsa") || fullEngine){
-			return loaded(query);
-		}
-		id = id.substring(0,id.length - 1);
-	}
-	// load the referenced selector engine
-	parentRequire([id], function(engine){
-		query.setEngine(engine);
-		loaded(query);
-	});
-};
+
 return query;
 });
