@@ -1,4 +1,4 @@
-define("dojo/listen", ["dojo/aspect", "dojo/lib/kernel"], function(aspect, dojo){
+define("dojo/listen", ["dojo/aspect", "dojo/lib/kernel", "dojo/has"], function(aspect, dojo, has){
 /*
  * An events module built using very minimal code needed. The export of this module 
  * is a function that can be used to listen for events on a target:
@@ -24,14 +24,12 @@ define("dojo/listen", ["dojo/aspect", "dojo/lib/kernel"], function(aspect, dojo)
  */
  	"use strict";
 	var attachEvent, after = aspect.after;
-	function has(feature){
-		var major = window.ScriptEngineMajorVersion;
-		return {
-			"dom-addeventlistener": document.addEventListener,
-			"config-allow-leaks": dojo.config._allow_leaks,
-			"jscript": major && (major() + ScriptEngineMinorVersion() / 10) 
-		}[feature];
-	}
+	var major = window.ScriptEngineMajorVersion;
+	has.add({
+		"dom-addeventlistener": !!document.addEventListener,
+		"config-allow-leaks": dojo.config._allow_leaks, // TODO: I think we can have config settings be assigned in kernel or bootstrap
+		"jscript": major && (major() + ScriptEngineMinorVersion() / 10) 
+	});
 	var undefinedThis = (function(){
 		return this; // this depends on strict mode
 	})();
