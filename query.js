@@ -42,16 +42,17 @@ var query = dojo.query = function(/*String*/ query, /*String|DOMNode?*/ root){
 };
 query.setEngine = function(engine){
 	fullEngine = selectorEngine = engine;
-	if(engine.match){
+	var matchesSelector = engine.match || engine.matchesSelector;
+	if(matchesSelector){
 		// the engine provides a match function, use it to for matching
 		query.matches = function(node, selector, root){
-			if(root && engine.match.length < 3){
+			if(root && matchesSelector.length < 3){
 				// doesn't support three args, use rooted id trick
 				return useRoot(root, selector, function(query){
-					return engine.match(node, query);
+					return matchesSelector(node, query);
 				});
 			}else{
-				return engine.match(node, selector, root);
+				return matchesSelector(node, selector, root);
 			}
 		}
 	}
@@ -63,14 +64,15 @@ query.load = function(id, parentRequire, loaded, config){
 		id = id.substring(0,id.length - 1);
 		optionalLoad = true;
 	}
+	var module = function(){return query};
 	// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
 	if(optionalLoad && (has("dom-compliant-qsa") || fullEngine)){
-		return loaded(query);
+		return loaded(module);
 	}
 	// load the referenced selector engine
 	parentRequire([id], function(engine){
 		query.setEngine(engine);
-		loaded(query);
+		loaded(module);
 	});
 };
 
@@ -178,11 +180,6 @@ if(!has("dom-matches-selector")){
 				return node.tagName == tagName;
 			}
 		}
-		function id(id){
-			return function(node){
-				return node.id == id;
-			}
-		}
 		function className(className){
 			var classNameSpaced = ' ' + className + ' ';
 			return function(node){
@@ -237,13 +234,10 @@ if(!has("dom-matches-selector")){
 			if(!matcher){
 				// create a matcher function for the given selector
 				// parse the selectors
-				if(selector.replace(/(\s*>\s*)|(\s+)|(#|\.)?([\w-]+)|\[([\w-]+)\s*(.?=)?\s*([^\]]*)\]/g, function(t, desc, space, type, value, attrName, attrType, attrValue){
+				if(selector.replace(/(\s*>\s*)|(\s+)|(.)?([\w-]+)|\[([\w-]+)\s*(.?=)?\s*([^\]]*)\]/g, function(t, desc, space, type, value, attrName, attrType, attrValue){
 					if(value){
 						if(type == "."){
 							matcher = and(matcher, className(value));
-						}
-						else if(type == "#"){
-							matcher = and(matcher, id(value));
 						}
 						else{
 							matcher = and(matcher, tag(value));
