@@ -1,13 +1,13 @@
-define("dojo/query", ["dojo/lib/kernel", "dojo/_base/NodeList"], 
-		function(dojo, NodeList){	
+define("dojo/query", ["dojo/lib/kernel", "dojo/_base/NodeList", "dojo/has"], 
+		function(dojo, NodeList, has){	
 "use strict";
 var testDiv = document.createElement("div");
 var matchesSelector = testDiv.matchesSelector || testDiv.webkitMatchesSelector || testDiv.mozMatchesSelector || testDiv.msMatchesSelector; // IE9, WebKit, Firefox have this, but not Opera yet
 var querySelectorAll = testDiv.querySelectorAll;
-var features = {
-	"dom-matches-selector": matchesSelector,
-	"dom-qsa": querySelectorAll, 
-	"dom-compliant-qsa": (function(){ 
+has.add({
+	"dom-matches-selector": !!matchesSelector,
+	"dom-qsa": !!querySelectorAll, 
+	"dom-compliant-qsa": function(){
 			// test to see if we have a reasonable native selector engine available
 			try{
 				testDiv.innerHTML = "<p class='TEST'></p>"; // test kind of from sizzle
@@ -15,11 +15,8 @@ var features = {
 				// in quirks mode, IE8 can't handle pseudos like :empty 
 				return querySelectorAll.call(testDiv, ".TEST:empty").length == 1;
 			}catch(e){}
-		})()
-}; 
-function has(feature){
-	return features[feature];
-}
+		}
+});
 
 var query = dojo.query = function(/*String*/ query, /*String|DOMNode?*/ root){
 	//	summary:
@@ -61,12 +58,14 @@ query.setEngine = function(engine){
 }
 query.load = function(id, parentRequire, loaded, config){
 	// can be used a AMD plugin to conditionally load new query engine
+	var optionalLoad = has("config-use-native-qsa");
 	if(id.charAt(id.length-1) == '?'){
-		// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
-		if(has("dom-compliant-qsa") || fullEngine){
-			return loaded(query);
-		}
 		id = id.substring(0,id.length - 1);
+		optionalLoad = true;
+	}
+	// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
+	if(optionalLoad && (has("dom-compliant-qsa") || fullEngine)){
+		return loaded(query);
 	}
 	// load the referenced selector engine
 	parentRequire([id], function(engine){
