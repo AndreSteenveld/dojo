@@ -13,6 +13,8 @@ define("dojo/has", [], function(){
 	//			  fn.apply(context, arguments);
 	//		  }
 	//	  }
+
+	// Should we grab the global has if it exists? 
 	
 	var /* Not including the full has.js arguments unless we are sure we need it
 		NON_HOST_TYPES = { "boolean": 1, "number": 1, "string": 1, "undefined": 1 },
@@ -48,8 +50,11 @@ define("dojo/has", [], function(){
 		//	  the presence of a feature or bug.
 		//
 		// example:
-		//	  A redundant test, testFn with immediate execution:
-		//  |	   has.add("javascript", function(){ return true; }, true);
+		//	  Add a set of has tests:
+		//  |	   has.add({
+		//  |		"javascript": true,
+		//  |		"dom": function(){ return typeof document != "undefined'; }
+		//  |		});
 		//
 		// example:
 		//	  Again with the redundantness. You can do this in your tests, but we should
@@ -73,7 +78,15 @@ define("dojo/has", [], function(){
 			testCache[name] = test;
 		}
 	};
-	// TODO: Should some common tests go in here like touch and device width?
+	var agent = navigator.userAgent;
+	// Common application level tests
+	has.add({
+		"touch": "ontouchstart" in document,
+		// I don't know if any of these tests are really correct, just a rough guess
+		"device-width": screen.availWidth || innerWidth,
+		"agent-ios": !!agent.match(/iPhone|iP[ao]d/),
+		"agent-android": agent.indexOf("android") > 1
+	});
 	return has;
 
 });
