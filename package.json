@@ -17,5 +17,6 @@
   ],
   "bugs": "http://bugs.dojotoolkit.org/",
   "keywords": ["JavaScript", "Dojo", "Toolkit"],
-  "homepage": "http://dojotoolkit.org/"
+  "homepage": "http://dojotoolkit.org/",
+  "icon": "http://packages.dojofoundation.org/images/dojo.png"
 }
