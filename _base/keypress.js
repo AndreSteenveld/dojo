@@ -182,7 +182,9 @@ else{
 			});
 		};
 	}else{
-		return listen(object, "keypress", listener);
+		return function(object, listener){ 		
+			return listen(object, "keypress", listener);
+		};
 	}
 }
 });
