@@ -502,12 +502,23 @@
 						function connect(){
 							var ih = "<div><span></span></div><span class='thud'><button>blah</button></span>";
 
-							var tn = document.createElement("div");
+							tn = document.createElement("div");
 							tn.innerHTML = ih;
 							dojo.body().appendChild(tn);
 
 							var ctr = 0;
 							var nl = dojo.query("button", tn).connect("onclick", function(){
+								ctr++;
+							});
+							nl[0].click();
+							doh.is(1, ctr);
+							nl[0].click();
+							nl[0].click();
+							doh.is(3, ctr);
+						},
+						function on(){
+							var ctr = 0;
+							var nl = dojo.query("button", tn).on("click", function(){
 								ctr++;
 							});
 							nl[0].click();
