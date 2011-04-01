@@ -18,67 +18,59 @@ has.add({
 		}
 });
 
-var query = dojo.query = function(/*String*/ query, /*String|DOMNode?*/ root){
-	//	summary:
-	//		Returns nodes which match the given CSS selector, searching the
-	//		entire document by default but optionally taking a node to scope
-	//		the search by. Returns an instance of dojo.NodeList.
-	if(typeof root == "string"){
-		root = dojo.byId(root);
-		if(!root){
-			return NodeList._wrap([]);
-		}
-	}
-	var results = query.nodeType ? [query] : selectorEngine(query, root);
-	if(!(results instanceof Array)){
-		// let selector engines directly return DOM NodeLists, we will convert them to arrays here if necessary 
-		var array = [];
-		for(var i = 0, l = results.length; i < l; i++){
-			array.push(results[i]);
-		}
-		results = array;
-	}
-	return NodeList._wrap(results);
-};
-query.setEngine = function(engine){
-	fullEngine = selectorEngine = engine;
-	var matchesSelector = engine.match || engine.matchesSelector;
-	if(matchesSelector){
-		// the engine provides a match function, use it to for matching
-		query.matches = function(node, selector, root){
-			if(root && matchesSelector.length < 3){
-				// doesn't support three args, use rooted id trick
-				return useRoot(root, selector, function(query){
-					return matchesSelector(node, query);
-				});
-			}else{
-				return matchesSelector(node, selector, root);
+function queryForEngine(engine){
+	var query = function(/*String*/ query, /*String|DOMNode?*/ root){
+		//	summary:
+		//		Returns nodes which match the given CSS selector, searching the
+		//		entire document by default but optionally taking a node to scope
+		//		the search by. Returns an instance of dojo.NodeList.
+		if(typeof root == "string"){
+			root = dojo.byId(root);
+			if(!root){
+				return NodeList._wrap([]);
 			}
 		}
+		var results = query.nodeType ? [query] : engine(query, root);
+		if(!(results instanceof Array)){
+			// let selector engines directly return DOM NodeLists, we will convert them to arrays here if necessary 
+			var array = [];
+			for(var i = 0, l = results.length; i < l; i++){
+				array.push(results[i]);
+			}
+			results = array;
+		}
+		return NodeList._wrap(results);
+	};
+	var matchesSelector = engine.match || engine.matchesSelector || defaultMatches;
+	// the engine provides a match function, use it to for matching
+	query.matches = function(node, selector, root){
+		if(root && matchesSelector.length < 3){
+			// doesn't support three args, use rooted id trick
+			return useRoot(root, selector, function(query){
+				return matchesSelector(node, query);
+			});
+		}else{
+			return matchesSelector(node, selector, root);
+		}
+	};
+	query.setEngine = function(newEngine){
+		// replace the matchesSelector
+		matchesSelector = newEngine.match || newEngine.matchesSelector || defaultMatches;
+		// replace parent engine
+		engine = typeof newEngine == "function" ? newEngine : function(selector, root){
+			// Slick does it backwards
+			return newEngine.search(root || document, selector);
+		};
+		fullEngine = true; // now we have a full engine, so the loader won't load unnecessary engines
+		return queryForEngine(engine);
 	}
-}
-query.load = function(id, parentRequire, loaded, config){
-	// can be used a AMD plugin to conditionally load new query engine
-	var optionalLoad = has("config-use-native-qsa");
-	if(id.charAt(id.length-1) == '?'){
-		id = id.substring(0,id.length - 1);
-		optionalLoad = true;
-	}
-	var module = function(){return query};
-	// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
-	if(optionalLoad && (has("dom-compliant-qsa") || fullEngine)){
-		return loaded(module);
-	}
-	// load the referenced selector engine
-	parentRequire([id], function(engine){
-		query.setEngine(engine);
-		loaded(module);
-	});
+	return query;
 };
 
-// this is a default simple query engine. It has handles basic selectors, and for simple
+
+// this is a default simple qery engine. It has handles basic selectors, and for simple
 // common selectors is extremely fast
-var fullEngine, selectorEngine = function(selector, root){
+var fullEngine, defaultEngine = function(selector, root){
 	if(combine && selector.indexOf(',') > -1){
 		return combine(selector, root);
 	}
@@ -94,7 +86,7 @@ var fullEngine, selectorEngine = function(selector, root){
 			root = root.getElementById(match[1]);
 			return root && root.parentNode ? 
 				match[2] ?
-					selectorEngine(match[2], root) 
+					defaultEngine(match[2], root) 
 					: [root] 
 						: [];
 		}
@@ -274,7 +266,7 @@ if(!has("dom-qsa")){
 		var unique = {};
 		// add all results and keep unique ones
 		for(var i = 0; i < selector.length; i++){
-			var results = selectorEngine(selector[i], root);
+			var results = defaultEngine(selector[i], root);
 			for(var j = 0, l = results.length; j < l; j++){
 				var node = results[j];
 				var id = node.uniqueID;
@@ -289,14 +281,28 @@ if(!has("dom-qsa")){
 	};
 }
 
-selectorEngine.match = matchesSelector ? function(node, selector){
+var defaultMatches = matchesSelector ? function(node, selector){
 	// we have a native matchesSelector, use that
 	return matchesSelector.call(node, selector);
 } : jsMatchesSelector; // otherwise use the JS matches impl
 
+var query = dojo.query = queryForEngine(defaultEngine);
 
-query.setEngine(selectorEngine);
-fullEngine = null; // the first one is not a full engine
-
+query.load = function(id, parentRequire, loaded, config){
+	// can be used a AMD plugin to conditionally load new query engine
+	var optionalLoad = has("config-use-native-qsa");
+	if(id.charAt(id.length-1) == '?'){
+		id = id.substring(0,id.length - 1);
+		optionalLoad = true;
+	}
+	// the query engine is optional, only load it if a native one is not available or existing one has not been loaded 
+	if(optionalLoad && (has("dom-compliant-qsa") || fullEngine)){
+		return loaded(function(){return query});
+	}
+	// load the referenced selector engine
+	parentRequire([id], function(engine){
+		loaded(function(){return query.setEngine(engine)});
+	});
+};
 return query;
 });
