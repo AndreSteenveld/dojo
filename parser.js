@@ -394,7 +394,7 @@ dojo.parser = new function(){
 		//				multi-version support is used, when it will be something like dojo16, dojo20, etc.)
 		//			* propsThis: Object
 		//				If specified, "this" referenced from data-dojo-props will refer to propsThis.
-		//				Intended for use from the widgets-in-template feature of `dijit._Templated`
+		//				Intended for use from the widgets-in-template feature of `dijit._WidgetsInTemplateMixin`
 		//
 		// example:
 		//		Parse all widgets on a page:
@@ -525,21 +525,9 @@ dojo.parser = new function(){
 
 //Register the parser callback. It should be the first callback
 //after the a11y test.
-
-(function(){
-	var parseRunner = function(){
-		if(dojo.config.parseOnLoad){
-			dojo.parser.parse();
-		}
-	};
-
-	// FIXME: need to clobber cross-dependency!!
-	if(dojo.getObject("dijit.wai.onload") === dojo._loaders[0]){
-		dojo._loaders.splice(1, 0, parseRunner);
-	}else{
-		dojo._loaders.unshift(parseRunner);
-	}
-})();
+if(dojo.config.parseOnLoad){
+  dojo.ready(100, dojo.parser, "parse");
+}
 
 return dojo.parser;
 });

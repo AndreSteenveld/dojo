@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>dojo.require dojo.provide/require modules</title>
+    <script type="text/javascript" src="../../../dojo.js"></script>
+    <script type="text/javaScript">
+      function check(cond) {
+        if (!cond) {
+          console.error("FAIL");
+        } else {
+          console.log("OK");
+        }
+      }
+      var 
+      a= dojo.require("dojo.tests._base.loader.a");
+      b= dojo.require("dojo.tests._base.loader.b");
+      c= dojo.require("dojo.tests._base.loader.c");
+      d= dojo.require("dojo.tests._base.loader.d");
+      check(a.name=="a");
+      check(b.name=="b");
+      check(b.a===a);
+      check(c.name=="c");
+      check(d.name=="d");
+      check(d.c===c);
+    </script>
+  </head>
+  <body>
+    <h1>Description</h1>
+    <ul>
+      <li>
+        This test is executed in synchronous mode (the default for v1.7).
+      </li><li>
+       AMD modules "dojo/tests/_base/loader/a" and "dojo/tests/_base/loader/b" are defined.
+       dojo.provide/require modules "dojo/tests/_base/loader/c" and "dojo/tests/_base/loader/d" are defined.
+      </li><li>
+        a depends on b
+        d depends on c
+      </li><li>
+        dojo.require all modules (AMD then dojo.require modules) results in all definitions being loaded correctly.
+      </li>
+    </ul>
+    <p>Check console for results.<p>
+  </body>
+</html>

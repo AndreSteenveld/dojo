@@ -3,13 +3,13 @@
 <html dir="LTR">
 	<head>
 		<title>testing Core _isBodyLtr function</title>
-		<script type="text/javascript" 
-			src="../../dojo.js" 
-			djConfig="isDebug: true"></script>
 		<script type="text/javascript">
-			dojo.require("doh.runner");
+      location.search=="?async" && (dojoConfig= {async:1});
+    </script>
+		<script type="text/javascript" src="../../dojo.js"></script>
+		<script type="text/javascript">
+      require(["dojo", "doh"], function(dojo, doh){
 			
-			dojo.addOnLoad(function(){
 				doh.register("t", 
 					[
 						function testRtl(t){
@@ -46,8 +46,9 @@
 						}
 					]
 				);
-				doh.run();
-			});
+				doh.runOnLoad();
+
+      });
 		</script>
 	</head>
 	<body dir="rtl">

@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<!-- 
+  Demonstrates/tests bootstrap dojo with the combined AMD, sync, xdmoain loader.
+-->
+<html>
+  <head>
+    <title>dojo bootstrap + loader in asynchronous mode</title>
+    <script type="text/javaScript">
+      var start= (new Date()).getTime();
+    </script>
+    <!-- notice "async:1" to put load in async mode -->
+    <script data-dojo-config="async:1" type="text/javascript" src="../../../dojo.js"></script>
+    <style>
+      table{border-collapse:collapse;}
+      td{border:1px solid black; padding:3px;}
+    </style>
+    <script type="text/javaScript">
+      // can't use dojo here for dev version since dojo is not yet defined (would be OK for build version)
+      console.log("dojo is " + this.dojo);
+
+      require.ready(function(){
+        // using global dojo; see async-no-global-dojo-smoke.html for demo of non-global dojo
+
+        dojo.byId("status").innerHTML= "The dojo package has been loaded.";
+        dojo.byId("time").innerHTML= (((new Date()).getTime() - start) / 1000) + "s";
+
+        var moduleReport= "<table>";
+        if (require.modules) {
+          var modules= [];
+          for (var p in require.modules) {
+            var module= require.modules[p];
+            modules[module.evalOrder]= p;
+          }
+          for (var i= 0; i<modules.length; i++) if (modules[i]) moduleReport+= "<tr><td>" + i + "</td><td>" + modules[i] + "</td></tr>";
+          moduleReport+= "</table>"     
+        } else {
+          moduleReport= "don't know how to report for this loader";
+        }
+        dojo.byId("modules").innerHTML= moduleReport;
+
+        var 
+          has= require("dojo/_base/has"),
+          hasReport= "<table>";
+        for (var p in has.cache) {
+          hasReport+= "<tr><td>" + p + "</td><td>" + has(p) + "</td></tr>";
+        }
+        hasReport+= "</table>";
+        dojo.byId("has").innerHTML= hasReport;
+      });
+    </script>
+  </head>
+  <body class="tundra">
+    <h1>Description</h1>
+    <p>This demonstration shows the 1.7 bootstrap/loader in <b>asynchronous</b> mode. This particular demonstration
+    loades, v1.x synch modules, v1.x xdomain modules, and AMD modules.</p>
+    <h1>Status</h1>
+    <p id="status">loading</p>
+    <h1>Load Time</h1>
+    <p id="time"></p>
+    <h1>Plugin Smoke Test</h1>
+    <p id="i18n"></p>
+    <p id="text"></p>
+    <h1>Modules Loaded</h1>
+    <p id="modules"></p>
+    <h1>Has Features Detected</h1>
+    <p id="has"></p>
+  </body>
+</html>

@@ -3,13 +3,13 @@
 <html>
 	<head>
 		<title>testing Core _docScroll function</title>
-		<script type="text/javascript" 
-			src="../../dojo.js" 
-			djConfig="isDebug: true"></script>
 		<script type="text/javascript">
-			dojo.require("doh.runner");
+      location.search=="?async" && (dojoConfig= {async:1});
+    </script>
+		<script type="text/javascript" src="../../dojo.js"></script>
+		<script type="text/javascript">
+      require(["dojo", "doh"], function(dojo, doh){
 			
-			dojo.addOnLoad(function(){
 				doh.register("t", 
 					[
 						function testNonScrolled(t){
@@ -82,8 +82,8 @@
 						}
 					]
 				);
-				doh.run();
-			});
+				doh.runOnLoad();
+      });
 		</script>
 	</head>
 	<body>
@@ -93,9 +93,11 @@
 		</div>
 		<script type="text/javascript">
 			// make sure div is too big to display
-			var div = dojo.byId('div');
-			div.style.height = (dojo.doc.documentElement.clientHeight + 2) + "px";
-			div.style.width = (dojo.doc.documentElement.clientWidth + 1) + "px";
+      require(["dojo"], function(dojo) {
+  			var div = dojo.byId('div');
+	  		div.style.height = (dojo.doc.documentElement.clientHeight + 2) + "px";
+		  	div.style.width = (dojo.doc.documentElement.clientWidth + 1) + "px";
+      });
 		</script>
 	</body>
 </html>

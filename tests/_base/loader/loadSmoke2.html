@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>AMD require a then b</title>
+    <script type="text/javascript" src="../../../dojo.js"></script>
+    <script type="text/javaScript">
+      function check(cond) {
+        if (!cond) {
+          console.error("FAIL");
+        } else {
+          console.log("OK");
+        }
+      }
+      var rememberB;
+      require(["dojo/tests/_base/loader/b"], function(b) {
+        rememberB= b;
+        check(b.name=="b");
+        check(b.a.name=="a");
+        check(require("dojo/tests/_base/loader/a").name=="a");
+      });
+
+      require(["dojo/tests/_base/loader/a"], function(a) {
+        check(a.name=="a");
+        check(require("dojo/tests/_base/loader/b")==rememberB);
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Description</h1>
+    <ul>
+      <li>
+        This test is executed in synchronous mode (the default for v1.7).
+      </li><li>
+        AMD modules "dojo/tests/_base/loader/a" and "dojo/tests/_base/loader/b" are defined.
+      </li><li>
+        b depends on a
+      </li><li>
+        require b defines both a and b
+      </li><li>
+        require a defines a; since b has already been defined, require("a") returns a immediately
+      </li>
+    </ul>
+    <p>Check console for results.<p>
+  </body>
+</html>

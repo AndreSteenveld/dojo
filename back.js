@@ -1,4 +1,11 @@
-define("dojo/back", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/back
+  //  summary:
+  //    bla bla
+  //  description:
+  //    bla bla
+
 dojo.getObject("back", true, dojo);
 
 /*=====

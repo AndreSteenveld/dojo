@@ -1,8 +1,43 @@
-define("dojo/_base/xhr", ["dojo/lib/kernel", "dojo/_base/Deferred", "dojo/_base/json", "dojo/_base/lang", "dojo/_base/query"], function(dojo){
+define(["./kernel", "../has", "./Deferred", "./json", "./lang", "./query"], function(dojo, has){
 
 //>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 (function(){
 //>>excludeEnd("webkitMobile");
+
+  if (has("native-xhr")){
+    dojo._xhrObj = function(){
+      // summary:
+      //    does the work of portably generating a new XMLHTTPRequest object.
+      try{
+        return new XMLHttpRequest();
+      }catch(e){
+        throw new Error("XMLHTTP not available: "+e);
+      }
+    };
+  }else{
+    // PROGIDs are in order of decreasing likelihood; this will change in time.
+    for(var XMLHTTP_PROGIDS = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'], progid, i = 0; i<3;){
+      try{
+        progid = XMLHTTP_PROGIDS[i++];
+        if (new ActiveXObject(progid)) {
+          // this progid works; therefore, use it from now on
+          break;
+        }
+      }catch(e){
+        // squelch; we're just trying to find a good ActiveX PROGID
+        // if they all fail, then progid ends up as the last attempt and that will signal the error
+        // the first time the client actually tries to exec an xhr
+      }
+    }
+    dojo._xhrObj= function() {
+      try{
+        return new ActiveXObject(progid); 
+      }catch(e){
+        throw new Error("XMLHTTP not available: "+e);
+      }    
+    };
+  }
+
 	var _d = dojo, cfg = _d.config;
 
 	function setValue(/*Object*/obj, /*String*/name, /*String*/value){

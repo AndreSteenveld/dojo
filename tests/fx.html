@@ -3,13 +3,9 @@
 <html>
 	<head>
 		<title>Testing dojo.fx</title>
-		<script type="text/javascript" src="../dojo.js" djConfig="isDebug: true"></script>
+		<script type="text/javascript" src="../dojo.js"></script>
 		<script type="text/javascript">
-			dojo.require("doh.runner");
-			dojo.require("dojo.fx");
-			dojo.require("dojo.fx.easing");
-
-			dojo.addOnLoad(function(){
+      require(["dojo", "doh", "dojo/fx", "dojo/fx/easing"], function(dojo, doh){
 				doh.register("t", 
 					[
 						function slideTo(t){

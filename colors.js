@@ -1,4 +1,4 @@
-define("dojo/colors", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
 dojo.getObject("colors", true, dojo);
 
 //TODO: this module appears to break naming conventions

@@ -1,4 +1,4 @@
-define("dojo/_base/array", ["dojo/lib/kernel", "dojo/_base/lang"], function(dojo){
+define(["./kernel", "./lang"], function(dojo){
 
 //>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 (function(){

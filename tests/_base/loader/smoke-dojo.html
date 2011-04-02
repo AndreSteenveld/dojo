@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<!-- 
+  Demonstrates/tests bootstrap dojo with the combined AMD, sync, xdmoain loader.
+-->
+<html>
+  <head>
+    <title>dojo bootstrap + loader in synchronous mode</title>
+    <script type="text/javaScript">
+      var start= (new Date()).getTime();
+    </script>
+    <script type="text/javascript" src="../../../dojo.js"></script>
+    <style>
+      table{border-collapse:collapse;}
+      td{border:1px solid black; padding:3px;}
+    </style>
+    <script type="text/javaScript">
+      // in synchronous mode (the default) dojo is guaranteed immediately after injecting dojo.js
+      console.log(dojo.version);
+
+      // report about the bootstrap...
+      dojo.ready(function(){
+        dojo.byId("status").innerHTML= "The dojo package has been loaded.";
+        dojo.byId("time").innerHTML= (((new Date()).getTime() - start) / 1000) + "s";
+
+        var moduleReport= "<table>";
+        if (require.modules) {
+          var modules= [];
+          for (var p in require.modules) {
+            var module= require.modules[p];
+            modules[module.evalOrder]= p;
+          }
+          for (var i= 0; i<modules.length; i++) if (modules[i]) moduleReport+= "<tr><td>" + i + "</td><td>" + modules[i] + "</td></tr>";
+          moduleReport+= "</table>"     
+        } else {
+          moduleReport= "don't know how to report for this loader";
+        }
+        dojo.byId("modules").innerHTML= moduleReport;
+
+        var 
+          has= require("dojo/_base/has"),
+          hasReport= "<table>";
+        for (var p in has.cache) {
+          hasReport+= "<tr><td>" + p + "</td><td>" + has(p) + "</td></tr>";
+        }
+        hasReport+= "</table>";
+        dojo.byId("has").innerHTML= hasReport;
+      });
+    </script>
+  </head>
+  <body class="tundra">
+    <h1>Description</h1>
+    <p>This demonstration shows the 1.7 bootstrap/loader in synchronous mode which is designed to be 100% compatible
+    with dojo v1.6-.</p>
+    <h1>Status</h1>
+    <p id="status">loading</p>
+    <h1>Load Time</h1>
+    <p id="time"></p>
+    <h1>Plugin Smoke Test</h1>
+    <p id="i18n"></p>
+    <p id="text"></p>
+    <h1>Modules Loaded</h1>
+    <p id="modules"></p>
+    <h1>Has Features Detected</h1>
+    <p id="has"></p>
+  </body>
+</html>

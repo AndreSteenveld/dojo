@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>AMD require a then b</title>
+    <script type="text/javascript" src="../../../dojo.js"></script>
+    <script type="text/javaScript">
+      function check(cond) {
+        if (!cond) {
+          console.error("FAIL");
+        } else {
+          console.log("OK");
+        }
+      }
+      
+      check(typeof dojo!="undefined");
+      check(typeof dijit!="undefined");
+      check(typeof dojox!="undefined");
+      check(dojo.dijit===dijit);
+      check(dojo.dojox===dojox);
+      check(dojo.require("dojo")===dojo);
+      check(dojo.require("dijit")===dijit);
+      check(dojo.require("dojox")===dojox);
+    </script>
+  </head>
+  <body>
+    <h1>Description</h1>
+    <p>Check console for results.<p>
+  </body>
+</html>

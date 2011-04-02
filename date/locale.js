@@ -1,4 +1,4 @@
-define("dojo/date/locale", ["dojo", "dojo/date", "dojo/cldr/supplemental", "dojo/regexp", "dojo/string", "dojo/i18n", "i18n!dojo/cldr/nls/gregorian"], function(dojo) {
+define(["..", "../date", "../cldr/supplemental", "../regexp", "../string", "../i18n", "../i18n!../cldr/nls/gregorian"], function(dojo) {
 dojo.getObject("date.locale", true, dojo);
 
 // Localization methods for Date.   Honor local customs using locale-dependent dojo.cldr data.
@@ -77,7 +77,7 @@ dojo.getObject("date.locale", true, dojo);
 					break;
 				case 'a':
 					var timePeriod = (dateObject.getHours() < 12) ? 'am' : 'pm';
-					s = bundle['dayPeriods-format-wide-' + timePeriod];
+					s = options[timePeriod] || bundle['dayPeriods-format-wide-' + timePeriod];
 					break;
 				case 'h':
 				case 'H':
