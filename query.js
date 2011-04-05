@@ -1,4 +1,4 @@
-define("dojo/query", ["dojo/lib/kernel", "dojo/_base/NodeList", "dojo/has"], 
+define(["./_base/kernel", "./_base/NodeList", "./has"], 
 		function(dojo, NodeList, has){	
 "use strict";
 var testDiv = document.createElement("div");

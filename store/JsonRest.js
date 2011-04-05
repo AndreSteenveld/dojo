@@ -1,4 +1,4 @@
-define(["../lib/kernel", "../_base/xhr", "../json", "../_base/declare", "./util/QueryResults"], function(dojo, xhr, JSON, declare, QueryResults) {
+define(["../_base/kernel", "../_base/xhr", "../json", "../_base/declare", "./util/QueryResults"], function(dojo, xhr, JSON, declare, QueryResults) {
   //  module:
   //    dojo/store/JsonRest
   //  summary:

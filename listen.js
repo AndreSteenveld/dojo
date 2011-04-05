@@ -1,4 +1,4 @@
-define("dojo/listen", ["dojo/aspect", "dojo/lib/kernel", "dojo/has"], function(aspect, dojo, has){
+define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 /*
  * An events module built using very minimal code needed. The export of this module 
  * is a function that can be used to listen for events on a target:

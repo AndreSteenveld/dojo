@@ -1,4 +1,4 @@
-define("dojo/mouse", ["dojo/lib/kernel", "dojo/listen"], function(dojo, listen){
+define(["./_base/kernel", "./listen"], function(dojo, listen){
 	function has(feature){
 		return {
 			"dom-quirks": document.compatMode == "BackCompat",
