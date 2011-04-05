@@ -17,5 +17,15 @@
   ],
   "bugs": "http://bugs.dojotoolkit.org/",
   "keywords": ["JavaScript", "Dojo", "Toolkit"],
-  "homepage": "http://dojotoolkit.org/"
+  "homepage": "http://dojotoolkit.org/",
+  "dojoBuild": {
+    "resourceTags":{
+      "test": [".*/dojo/tests.*", ".*dojo/robot.*"],
+      "amd": [".*\.js$", "!", ".*/nls/.*"]
+    },
+    "trees":[
+      // don't discover hidden (e.g., .svn), the 1.6- AMD layer, or any of the old loader
+      [".", ".", "/\\.", "/dojo/_base/_loader/", "/dojo/lib/"]
+    ]
+  }
 }

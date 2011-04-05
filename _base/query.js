@@ -657,7 +657,7 @@ var defineQuery= function(d){
 		}
 	};
 
-	var defaultGetter = (d.isIE < 9 || (dojo.isIE && dojo.isQuirks)) ? function(cond){
+	var defaultGetter = (d.isIE && (d.isIE < 9 || dojo.isQuirks)) ? function(cond){
 		var clc = cond.toLowerCase();
 		if(clc == "class"){ cond = "className"; }
 		return function(elem){
@@ -1576,8 +1576,8 @@ var defineAcme= function(){
 };
 
 //>>includeStart("amdLoader", kwArgs.asynchLoader);
-if(typeof define == "function"){
-	define("dojo/_base/query", ["dojo/lib/kernel", "dojo/_base/NodeList", "dojo/_base/lang", "dojo/_base/window"], function(dojo){
+if (typeof define == "function"){
+	define(["./kernel", "./sniff", "./NodeList", "./lang", "./window"], function(dojo){
 		defineQuery(this["queryPortability"]||this["acme"]||dojo);
 	});
 }

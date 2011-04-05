@@ -30,14 +30,13 @@
 
 		</style>
 		<title>testing dojo.NodeList</title>
-		<script type="text/javascript" src="../../dojo.js"
-			djConfig="isDebug: false"></script>
 		<script type="text/javascript">
-			dojo.require("doh.runner");
-			dojo.require("dojo.string");
-			dojo.require("dojo.parser");
+      location.search=="?async" && (dojoConfig= {async:1});
+    </script>
+		<script type="text/javascript" src="../../dojo.js"></script>
+		<script type="text/javascript">
+      require(["dojo", "doh", "dojo/string", "dojo/parser", "*ready"], function(dojo, doh){
 
-			dojo.addOnLoad(function(){
 				var c = dojo.byId("c1");
 				var t = dojo.byId("t");
 				var s = dojo.byId("sq100");
@@ -626,7 +625,7 @@
 					]
 				);
 				doh.run();
-			});
+      });
 		</script>
 	</head>
 	<body>

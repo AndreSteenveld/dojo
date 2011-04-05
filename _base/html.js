@@ -1,4 +1,4 @@
-define("dojo/_base/html", ["dojo/lib/kernel", "dojo/_base/lang"], function(dojo){
+define(["./kernel", "./lang"], function(dojo){
 
 // FIXME: need to add unit tests for all the semi-public methods
 

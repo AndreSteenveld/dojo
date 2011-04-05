@@ -1,4 +1,4 @@
-define("dojo/_base/event", ["dojo/lib/kernel", "dojo/listen", "dojo/_base/keypress"], function(dojo, listen, keypress){
+define(["./kernel", "../listen", "./keypress"], function(dojo, listen, keypress){
 	function has(feature){
 		return {
 			"dom-addeventlistener": document.addEventListener 

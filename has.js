@@ -1,43 +1,40 @@
-define("dojo/has", [], function(){
-	// summary: A simple feature detection function/framework.
-	//
-	// name: String
-	//	  The name of the feature to detect, as defined by the overall `has` tests.
-	//	  Tests can be registered via `has.add(testname, testfunction)`.
-	//
-	// example:
-	//	  mylibrary.bind = has("native-bind") ? function(fn, context){
-	//		  return fn.bind(context);
-	//	  } : function(fn, context){
-	//		  return function(){
-	//			  fn.apply(context, arguments);
-	//		  }
-	//	  }
+define(["require"], function(require) {
+  //  module:
+  //    dojo/has
+  //  summary:
+  //    Defines the has.js API and several feature tests used by dojo.
+  //  description:
+  //    This module defines and has the value of the has function as described by the 
+  //    project has.js. The has function includes the method add and the property cache; 
+  //    other methods/properties defined by the has.js project are not included.
+  // 
+  //    This module adopted from https://github.com/phiggins42/has.js; thanks has.js team! 
 
-	// Should we grab the global has if it exists? 
-	
-	var /* Not including the full has.js arguments unless we are sure we need it
-		NON_HOST_TYPES = { "boolean": 1, "number": 1, "string": 1, "undefined": 1 },
-		g = (function(){return this;})(),
-		d = isHostType(g, "document") && g.document,
-		el = d && isHostType(d, "createElement") && d.createElement("DiV"),*/
-		testCache = {};
+  var
+    global= this,
+    doc= require.isBrowser && document,
+    element= doc && doc.createElement("DiV"),
+    cache= [];
 
-	function has(/* String */name){
-		if(typeof testCache[name] == "function"){
-			testCache[name] = testCache[name](/*g, d, el*/);
-		}
-		return testCache[name]; // boolean or scalar
-	}
-	
-	// Host objects can return type values that are different from their actual
-	// data type. The objects we are concerned with usually return non-primitive
-	// types of object, function, or unknown.
-	/*has.isHostType = function(object, property){
-		var type = typeof object[property];
-		return type == 'object' ? !!object[property] : !NON_HOST_TYPES[type];
-	}*/
-	
+  function has(name){
+    //  summary: 
+    //    Return the current value of the named feature.
+    //
+    //  name: String|Integer
+    //    The name (if a string) or identifier (if an integer) of the feature to test.
+    //
+    //  description:
+    //    Returns the value of the feature named by name. The feature must have been
+    //    previously added to the cache by has.add.
+
+    if(typeof cache[name] == "function"){
+      return cache[name] = cache[name](/*global, doc, element*/); // do we need the params?
+    }
+    return cache[name]; // Boolean
+  }
+
+  has.cache= [];
+
 	has.add = function(/* String|Object */name, /* Function */test){
 		// summary: Register a new feature detection test for some named feature
 		//
@@ -75,7 +72,7 @@ define("dojo/has", [], function(){
 				has.add(i, name[i]);
 			}
 		}else{
-			testCache[name] = test;
+			cache[name] = test;
 		}
 	};
 	var agent = navigator.userAgent;
@@ -85,8 +82,33 @@ define("dojo/has", [], function(){
 		// I don't know if any of these tests are really correct, just a rough guess
 		"device-width": screen.availWidth || innerWidth,
 		"agent-ios": !!agent.match(/iPhone|iP[ao]d/),
-		"agent-android": agent.indexOf("android") > 1
-	});
-	return has;
+		"agent-android": agent.indexOf("android") > 1,
+		"dojo-load-firebug-console": !!this["loadFirebugConsole"],// the firebug 2.0 console
+  		"dojo-debug-messages": 1, // include dojo.deprecated/dojo.experimental implementations
+  		"dojo-guarantee-console": 1,  // ensure that console.log, console.warn, etc. are defined
+		"dojo-openAjax": typeof OpenAjax != "undefined", // register dojo with the OpenAjax hub
+		"dojo-sniff-config": has("dom") ? 1 : 0,
+		"dojo-v1x-i18n-Api": 1, // define the v1.x i18n functions 
+		"dojo-test-sniff": 1,
+		"loader-priority-addOnLoad": 0, // explicitly define the priority ready queue 
+		"bug-for-in-skips-shadowed": function() {
+			// does the javascript implementation skip properties that exist in Object's prototype (IE 6 - ?)
+			for(var i in {toString: 1}){
+				return 0;
+			}
+			return 1;
+		},
+		"native-xhr": typeof XMLHttpRequest != "undefined", // does the environment have a native XHR implementation
+  });
 
+  if(require.vendor=="dojotoolkit.org"){
+    var p, i, requireHas= require.has;
+    for(p in requireHas){
+      cache[p]= requireHas(p);
+    }
+    for(i= 0; i<requireHas.length||0; i++){
+      cache[i]= requireHas[i];
+    }
+  }
+  return has;
 });

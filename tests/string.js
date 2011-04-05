@@ -1,8 +1,6 @@
-dojo.provide("tests.string");
+define(["..", "doh", "../string"], function(dojo, doh){
 
-dojo.require("dojo.string");
-
-tests.register("tests.string",
+doh.register("tests.string",
 	[
 		function test_string_pad(t){
 			t.is("00001", dojo.string.pad("1", 5));
@@ -90,3 +88,5 @@ tests.register("tests.string",
 		}
 	]
 );
+
+});

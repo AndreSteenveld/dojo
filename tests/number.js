@@ -1,7 +1,5 @@
-dojo.provide("tests.number");
-
-dojo.require("dojo.number");
-
+define(["..", "doh", "../number", "../i18n"], function(dojo, doh){
+var tests= {number:{}};
 /**
  * Refer to ICU4J's NumberFormatTest.expect(...)
  */
@@ -126,9 +124,9 @@ tests.number._decimalNumberDiff = function(num1,num2){
 		return (new Number(s[1])< diffBound);
 	}
 	return false;
-}
+};
 
-tests.register("tests.number",
+doh.register("tests.number",
 	[
 		{
 			// Test formatting and parsing of currencies in various locales pre-built in dojo.cldr
@@ -139,20 +137,20 @@ tests.register("tests.number",
 			runTest: function(t){
 				var partLocaleList = ["en-us", "fr-fr", "de-de"];
 				tests.number.locale = "en-us";
-        if(dojo.global.define && define.vendor!="dojotoolkit.org"){ //tests for the asynchronous loader machinery
+        if(require.async){
             var
               def = new doh.Deferred(),
               deps= [];
             dojo.forEach(partLocaleList, function(locale){
               deps.push(dojo.getL10nName("dojo/cldr", "number", locale));
             });
-            define(deps, function(){
+            require(deps, function(){
 							def.callback(true);
             });
             return def;
         }else{ // tests for the v1.x loader/i18n machinery
   				for(var i = 0 ; i < partLocaleList.length; i ++){
-	  				dojo.requireLocalization("dojo.cldr","number",partLocaleList[i]);
+	  				dojo.i18n.getLocalization("dojo.cldr","number",partLocaleList[i]);
 		  		}
         }
 			}
@@ -1128,3 +1126,4 @@ function test_number_format_pad(){
 		}
 	]
 );
+});

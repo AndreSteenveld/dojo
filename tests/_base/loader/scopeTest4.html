@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>AMD require a then b</title>
+    <script type="text/javascript" src="../../../dojo.js"></script>
+    <script type="text/javascript">
+      // inform the loader about a new package named "myDojo" which is
+      // actually the same as the already-loaded dojo
+      require({packages:[{name:"myDojo", location:".", lib:".", packageMap:{dojo:"myDojo"}}]});  
+
+      // when it boots, put it in a different scope
+      dojoConfig= {
+        scopeMap:[
+          ["dojo", "myDojo"],
+          ["dijit", "myDijit"],
+          ["dojox", "myDojox"]
+        ]
+      };
+
+      // load the second, independent instance of dojo
+      dojo.require("myDojo");
+
+      function check(cond) {
+        if (!cond) {
+          console.error("FAIL");
+        } else {
+          console.log("OK");
+        }
+      }
+      
+      check(typeof dojo!="undefined");
+      check(typeof myDojo!="undefined");
+      check(dojo!==myDojo);
+
+      var x= dojo.require("dojo.colors");
+      var y= myDojo.require("dojo.colors");
+      check(x!==y);
+      check(x===dojo.colors);
+      check(y===myDojo.colors);
+      check(dojo.isFunction(dojo.colors.makeGrey));
+      check(dojo.isFunction(myDojo.colors.makeGrey));
+      check(dojo.colors.makeGrey!==myDojo.colors.makeGrey);
+
+      var a= dojo.require("myDojo.colors");
+      check(a===y);
+    </script>
+  </head>
+  <body>
+    <h1>Description</h1>
+    <p>Check console for results.<p>
+  </body>
+</html>

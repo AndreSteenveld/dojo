@@ -1,4 +1,4 @@
-define("dojo/_base/connect", ["dojo/lib/kernel", "dojo/listen", "dojo/aspect", "dojo/_base/event", "dojo/mouse", "dojo/_base/keypress", "dojo/_base/lang"], function(dojo, listen, aspect, eventModule, mouse, keypress){
+define(["./kernel", "../listen", "../aspect", "./event", "../mouse", "./keypress", "./lang"], function(dojo, listen, aspect, eventModule, mouse, keypress){
 
 dojo.connect = function(/*Object|null*/ obj,
 						/*String*/ event,

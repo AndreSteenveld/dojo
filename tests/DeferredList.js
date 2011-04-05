@@ -1,9 +1,6 @@
-dojo.provide("tests.DeferredList");
+define(["..", "doh", "../DeferredList"], function(dojo, doh){
 
-dojo.require("dojo.DeferredList");
-
-doh.register("tests.DeferredList",
-	[
+  doh.register("tests.DeferredList", [
 		function callback(t){
 			var d1 = new dojo.Deferred();
 			var d2 = new dojo.Deferred();
@@ -98,14 +95,9 @@ doh.register("tests.DeferredList",
 			d2.callback("bar");
             t.assertTrue(fired);
         }
-	]
-);
-dojo.provide("tests.DeferredList");
+	]);
 
-dojo.require("dojo.DeferredList");
-
-doh.register("tests.DeferredList",
-	[
+  doh.register("tests.DeferredList", [
 		function callback(t){
 			var d1 = new dojo.Deferred();
 			var d2 = new dojo.Deferred();
@@ -198,5 +190,6 @@ doh.register("tests.DeferredList",
 			d2.callback("bar");
             t.assertTrue(fired);
         }
-	]
-);
+	]);
+
+});

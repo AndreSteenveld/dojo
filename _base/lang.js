@@ -1,4 +1,4 @@
-define("dojo/_base/lang", ["dojo/lib/kernel"], function(dojo){
+define(["./kernel", "../has"], function(dojo, has){
 
 (function(){
 	var d = dojo, opts = Object.prototype.toString;
@@ -227,8 +227,7 @@ define("dojo/_base/lang", ["dojo/lib/kernel"], function(dojo){
 		return d.hitch.apply(d, arr.concat(d._toArray(arguments))); // Function
 	};
 
-	var extraNames = d._extraNames, extraLen = extraNames.length, empty = {};
-
+  var empty= {};
 	dojo.clone = function(/*anything*/ o){
 		// summary:
 		//		Clones objects (including DOM nodes) and all children.
@@ -276,18 +275,16 @@ define("dojo/_base/lang", ["dojo/lib/kernel"], function(dojo){
 				r[name] = d.clone(s);
 			}
 		}
-		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		// IE doesn't recognize some custom functions in for..in
-		if(extraLen){
-			for(i = 0; i < extraLen; ++i){
-				name = extraNames[i];
+    if (has("bug-for-in-skips-shadowed")){
+      var extraNames= d._extraNames;
+	  	for(i= extraNames.length; i;){
+				name = extraNames[--i];
 				s = o[name];
 				if(!(name in r) || (r[name] !== s && (!(name in empty) || empty[name] !== s))){
 					r[name] = s; // functions only, we don't clone them
 				}
 			}
 		}
-		//>>excludeEnd("webkitMobile");
 		return r; // Object
 	};
 

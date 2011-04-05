@@ -1,4 +1,4 @@
-define("dojo/_base/json", ["dojo/lib/kernel", "dojo/json"], function(dojo, json){
+define(["./kernel", "../json"], function(dojo, json){
 
 dojo.fromJson = function(/*String*/ js){
 	// summary:
