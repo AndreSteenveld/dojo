@@ -16,7 +16,10 @@ define(["require"], function(require) {
     global= this,
     doc= require.isBrowser && document,
     element= doc && doc.createElement("DiV"),
-    cache= [];
+    cache= [],
+      isBrowser= 
+        // the most fundamental decision: are we in the browser?
+        typeof window!="undefined";
 
   function has(name){
     //  summary: 

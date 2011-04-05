@@ -48,7 +48,7 @@ define(["./kernel", "../has"], function(dojo, has){
 
   if (!has("dojo-webkit")) {
    if(dua.indexOf("Gecko") >= 0 && !isKhtml && !isWebKit){ isMozilla = isMoz = tv; }
-    if(isMoz){
+    if(isMozilla){
       //We really need to get away from this. Consider a sane isGecko approach for the future.
       isFF = parseFloat(dua.split("Firefox/")[1] || dua.split("Minefield/")[1]) || undefined;
     }

@@ -1,4 +1,4 @@
-define("dojo/_base/keypress", ["dojo/lib/kernel", "dojo/listen"], function(dojo, listen){
+define(["./kernel", "../listen"], function(dojo, listen){
 function has(feature){
 	return {
 		"events-keypress-typed": function(){ // keypresses should only occur a printable character is hit
