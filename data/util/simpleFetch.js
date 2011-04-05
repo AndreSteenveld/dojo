@@ -1,4 +1,9 @@
-define("dojo/data/util/simpleFetch", ["dojo", "dojo/data/util/sorter"], function(dojo) {
+define(["../..", "./sorter"], function(dojo) {
+  //  module:
+  //    dojo/data/util/simpleFetch
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("data.util.simpleFetch", true, dojo);
 
 dojo.data.util.simpleFetch.fetch = function(/* Object? */ request){

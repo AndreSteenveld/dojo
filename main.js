@@ -1,8 +1,6 @@
-// AMD module id = dojo
-//
-// This is a package main module for the dojo package.
 define([
   "./_base/kernel",
+  "./has",
   "./_base/load",
   "./_base/loader",
   "./_base/lang",
@@ -11,19 +9,21 @@ define([
   "./_base/connect",
   "./_base/Deferred",
   "./_base/json",
-  "./_base/Color"].concat(require.isBrowser ? [
-    "./_base/sniff",
-    "./_base/unload",
-    "./_base/url",
-    "./_base/window",
-    "./_base/event",
-    "./_base/html",
-    "./_base/NodeList",
-    "./_base/query",
-    "./_base/xhr",
-    "./_base/fx"
-  ] : []), function(dojo){
-  // if we have a clone API, use it to get an independent config object
-  dojo.clone && (dojo.config= dojo.clone(dojo.config));
+  "./_base/Color",
+  "./has!host-browser!./_base/browser"], function(dojo, has){
+  //  module:
+  //    dojo/main
+  //  summary:
+  //    This is the package main module for the dojo package; it loads dojo base appropriate for the execution environment.
+
+  if(dojo.isArray(dojo.config.require)){
+    if(dojo.isAsync()){
+      require(dojo.config.require);
+    }else{
+      dojo.forEach(dojo.config.require, function(i){
+  	    dojo["require"](i);
+      });
+    }
+  }
   return dojo;
 });

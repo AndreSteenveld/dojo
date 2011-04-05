@@ -1,5 +1,6 @@
 exports.config= function(config) {
-  // node.js
+  //  summary:
+  //    This module provides bootstrap configuration for running dojo in node.js
 
   // any command line arguments with the load flag are pushed into deps
   for (var deps= [], args= [], i= 0; i<process.argv.length; i++) {
@@ -14,44 +15,43 @@ exports.config= function(config) {
   var fs= require("fs");
 
   // make sure global require exists
-  if (typeof global.require=="undefined") {
-    global.require= {};
-  }
+  //if (typeof global.require=="undefined") {
+  //  global.require= {};
+  //}
 
   // reset the has cache with node-appropriate values; 
-  // note: for clarity, this exactly the cache taken from dojo.js and edited
-  config.has.cache= {
+  var hasCache= {
     "host-node":1,
-    //"dom":isBrowser,
-    //"dom-addEventListener":isBrowser && !!document.addEventListener,
-    "console":1,
+    "host-browser":0,
+    "dom":0,
+    "loader-hasApi":1,
+    "loader-provides-xhr":0,
     "loader-injectApi":1,
-    //"loader-timeoutApi":1,
+    "loader-timeoutApi":0,
     "loader-traceApi":1,
     "loader-catchApi":1,
-    //"loader-pageLoadApi":1,
-    "loader-readyApi":1,
+    "loader-pageLoadApi":0,
+    "loader-priority-readyApi":1,
     "loader-errorApi":1,
-    //"loader-sniffApi":0,
-    //"loader-undefApi":0,
-    //"loader-requirejsApi":1,
-    //"loader-createHasModule":0,
-    "loader-amdFactoryScan":1,
     "loader-publish-privates":1,
-    //"dojo-sniff":1,
+    "loader-getTextApi":1,
+    "dojo-sniff":0,
     "dojo-loader":1,
     "dojo-boot":1,
-    "dojo-test-sniff":1
+    "dojo-test-xd":0,
+    "dojo-test-sniff":0
   };
+  for (var p in hasCache) {
+    config.hasCache[p]= hasCache[p];
+  }
+
 
   // reset some configuration switches with node-appropriate values
   var nodeConfig= {
     baseUrl: __dirname.match(/(.+)\/_base$/)[1],
-    host:"node",
     isBrowser:0,
     commandLineArgs:args,
     deps:deps,
-    timeout:0,
   
     // TODO: really get the locale
     locale:"us-en",
@@ -83,9 +83,7 @@ exports.config= function(config) {
       onLoad(fs.readFileSync(url, "utf8"));
     }
   };
-  for (var p in nodeConfig) {
+  for (p in nodeConfig) {
     config[p]= nodeConfig[p];
   }
-
-  return config;
 };

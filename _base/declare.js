@@ -1,6 +1,9 @@
 define(["./kernel", "../has", "./lang", "./array"], function(dojo, has){
+  //  module:
+  //    dojo/_base/declare
+  //  summary:
+  //    This module defines dojo.declare.
 
-(function(){
 	var d = dojo, mix = d._mixin, op = Object.prototype, opts = op.toString,
 		xtor = new Function, counter = 0, cname = "constructor";
 
@@ -1032,7 +1035,6 @@ define(["./kernel", "../has", "./lang", "./array"], function(dojo, has){
 		//	|	});
 	};
 	=====*/
-})();
 
-return dojo.declare;
+  return dojo.declare;
 });

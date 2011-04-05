@@ -1,4 +1,9 @@
-define("dojo/number", ["dojo", "dojo/i18n", "./i18n!./cldr/nls/number", "./string", "./regexp"], function(dojo) {
+define([".", "./i18n", "./i18n!./cldr/nls/number", "./string", "./regexp"], function(dojo) {
+  //  module:
+  //    dojo/number
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("number", true, dojo);
 
 /*=====

@@ -4,148 +4,140 @@ define(["require"], function(require) {
   //  summary:
   //    Defines the has.js API and several feature tests used by dojo.
   //  description:
-  //    This module defines and has the value of the has function as described by the 
-  //    project has.js. The has function includes the method add and the property cache; 
-  //    other methods/properties defined by the has.js project are not included.
+  //    This module defines the has API as described by the project has.js with the following additional features:
+  // 
+  //      * the has test cache is exposed at has.cache.
+  //      * the method has.add includes a forth parameter that controls whether or not existing tests are replaced
+  //      * the loader's has cache may be optionally copied into this module's has cahce.
   // 
   //    This module adopted from https://github.com/phiggins42/has.js; thanks has.js team! 
 
-  var
-    global= this,
-    doc= require.isBrowser && document,
-    element= doc && doc.createElement("DiV"),
-    cache= [];
+  // try to pull the has implementation from the loader; both the dojo loader and bdLoad provide one
+  var has= require.has;
 
-  function has(name){
-    //  summary: 
-    //    Return the current value of the named feature.
-    //
-    //  name: String|Integer
-    //    The name (if a string) or identifier (if an integer) of the feature to test.
-    //
-    //  description:
-    //    Returns the value of the feature named by name. The feature must have been
-    //    previously added to the cache by has.add.
+  if(typeof has=="function" && !has("loader-hasApi")){
+    // notice the condition is written so that if has("loader-hasApi") is transformed to 1 during a build
+    // the conditional will be (typeof has=="function" && !1) which is statically false and the closure
+    // compiler will discard the block.
+    // 
+    var
+      isBrowser= 
+        // the most fundamental decision: are we in the browser?
+        typeof window!="undefined" && 
+        typeof location!="undefined" && 
+        typeof document!="undefined" && 
+        window.location==location && window.document==document,
 
-    if(typeof cache[name] == "function"){
-      return cache[name] = cache[name](global, doc, element);
+      // has API variables
+      global= this,
+      doc= isBrowser && document,
+      element= doc && doc.createElement("DiV"),
+
+      // the has cache: an *array* that can be optimized by the builder
+      cache= [];
+  
+    function has(name){
+      //  summary: 
+      //    Return the current value of the named feature.
+      //
+      //  name: String|Integer
+      //    The name (if a string) or identifier (if an integer) of the feature to test.
+      //
+      //  description:
+      //    Returns the value of the feature named by name. The feature must have been
+      //    previously added to the cache by has.add.
+
+      return cache[name] = typeof cache[name]=="function" ? cache[name](global, doc, element) : cache[name]; // Boolean
     }
-    return cache[name]; // Boolean
+
+    has.cache= cache;
+  
+    has.add= function(name, test, now, force){
+      // summary: 
+      //   Register a new feature test for some named feature.
+      //
+      // name: String|Integer
+      //   The name (if a string) or identifier (if an integer) of the feature to test.
+      //
+      // test: Function
+      //   A test function to register. If a function, queued for testing until actually
+      //   needed. The test function should return a boolean indicating
+      //   the presence of a feature or bug.
+      //
+      // now: Boolean?
+      //   Optional. Omit if `test` is not a function. Provides a way to immediately
+      //   run the test and cache the result.
+      //
+      // force: Boolean?
+      //   Optional. If the test already exists and force is truthy, then the existing
+      //   test will be replaced; otherwise, add does not replace an existing test (that
+      //   is, by default, the first test advice wins).
+      // 
+      // example:
+      //      A redundant test, testFn with immediate execution:
+      //  |       has.add("javascript", function(){ return true; }, true);
+      //
+      // example:
+      //      Again with the redundantness. You can do this in your tests, but we should
+      //      not be doing this in any internal has.js tests
+      //  |       has.add("javascript", true);
+      //
+      // example:
+      //      Three things are passed to the testFunction. `global`, `document`, and a generic element
+      //      from which to work your test should the need arise.
+      //  |       has.add("bug-byid", function(g, d, el){
+      //  |           // g  == global, typically window, yadda yadda
+      //  |           // d  == document object
+      //  |           // el == the generic element. a `has` element.
+      //  |           return false; // fake test, byid-when-form-has-name-matching-an-id is slightly longer
+      //  |       });
+  
+      (typeof cache[name]=="undefined" || force) && (cache[name]= test);
+      return now && has(name);
+    };
+
+    // since we're operating under a loader that doesn't provide a has API, we must explicitly initialize
+    // has as it would have otherwise been initialized by the dojo loader; use has.add to the builder
+    // can optimize these away iff desired
+    has.add("host-browser", isBrowser);
+    has.add("dom", isBrowser);
+    has.add("host-addEventListener", doc && !!doc.addEventListener);
+    has.add("loader-pageLoadApi", 1);
+    has.add("dojo-sniff", 1);
   }
 
-  has.cache= [];
-
-  has.add= function(name, test, now){
-    // summary: 
-    //   Register a new feature test for some named feature.
-    //
-    // name: String|Integer
-    //   The name (if a string) or identifier (if an integer) of the feature to test.
-    //
-    // test: Function
-    //   A test function to register. If a function, queued for testing until actually
-    //   needed. The test function should return a boolean indicating
-    //   the presence of a feature or bug.
-    //
-    // now: Boolean?
-    //   Optional. Omit if `test` is not a function. Provides a way to immediately
-    //   run the test and cache the result.
-    // 
-    // example:
-    //      A redundant test, testFn with immediate execution:
-    //  |       has.add("javascript", function(){ return true; }, true);
-    //
-    // example:
-    //      Again with the redundantness. You can do this in your tests, but we should
-    //      not be doing this in any internal has.js tests
-    //  |       has.add("javascript", true);
-    //
-    // example:
-    //      Three things are passed to the testFunction. `global`, `document`, and a generic element
-    //      from which to work your test should the need arise.
-    //  |       has.add("bug-byid", function(g, d, el){
-    //  |           // g  == global, typically window, yadda yadda
-    //  |           // d  == document object
-    //  |           // el == the generic element. a `has` element.
-    //  |           return false; // fake test, byid-when-form-has-name-matching-an-id is slightly longer
-    //  |       });
-
-    cache[name] = now ? test(global, doc, element) : test;
-  };
-
   has.clearElement= function(element) {
+    // summary: 
+    //   Deletes the contents of the element passed to test functions.
     element.innerHTML= "";
     return element;
   };
 
-  var add= has.add;
-
-  add("dojo-load-firebug-console", 
-    // the firebug 2.0 console
-    !!this["loadFirebugConsole"]
-  );
+  has.load= function(mid, require, load){
+    // summary: 
+    //   Conditional loading of AMD modules based on a has feature test value.
+    //
+    // mid: String
+    //   Gives the has feature name, a module to load when the feature exists, and optionally a module
+    //   to load when the feature is false. The string had the format `"feature-name!path/to/module!path/to/other/module"`
+    //
+    // require: Function
+    //   The loader require function with respect to the module that contained the plugin resource in it's
+    //   dependency list.
+    // 
+    // load: Function
+    //   Callback to loader that consumes result of plugin demand.
   
-  add("dojo-load-firebug-console", 
-    // the firebug 2.0 console
-    !!this["loadFirebugConsole"]
-  );
-  
-  add("dojo-debug-messages", 
-    // include dojo.deprecated/dojo.experimental implementations
-    1
-  );
-
-  add("dojo-guarantee-console", 
-    // ensure that console.log, console.warn, etc. are defined
-    1
-  );
-
-  add("dojo-openAjax", 
-    // register dojo with the OpenAjax hub
-    typeof OpenAjax != "undefined"
-  );
-
-  add("dojo-sniff-config", 
-    // inspect script elements for data-dojo-config during bootstrap
-    has("dom") ? 1 : 0
-  );
-
-  add("dojo-v1x-i18n-Api", 
-    // define the v1.x i18n functions
-    1
-  );
-
-  add("dojo-test-sniff", 
-    // TODOC
-    1
-  );
-
-  add("loader-priority-addOnLoad", 
-    // explicitly define the priority ready queue
-    0
-  );
-
-  add("bug-for-in-skips-shadowed", function() {
-    // does the javascript implementation skip properties that exist in Object's prototype (IE 6 - ?)
-    for(var i in {toString: 1}){
-      return 0;
+    var parts= mid.split("!");
+    mid= has(parts[0]) ? parts[1] : parts[2];
+    if(mid){
+      require([mid], function(result){
+        load(result);
+      });
+    }else{
+      load(0);
     }
-    return 1;
-  });
+  };
 
-  add("native-xhr", function() {
-    // does the environment have a native XHR implementation
-    return !!XMLHttpRequest;
-  });
-
-  if(require.vendor=="dojotoolkit.org"){
-    var p, i, requireHas= require.has;
-    for(p in requireHas){
-      cache[p]= requireHas(p);
-    }
-    for(i= 0; i<requireHas.length||0; i++){
-      cache[i]= requireHas[i];
-    }
-  }
   return has;
 });

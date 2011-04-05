@@ -1,4 +1,9 @@
-define("dojo/io/iframe", ["dojo"], function(dojo) {
+define([".."], function(dojo) {
+  //  module:
+  //    dojo/io/iframe
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("io", true, dojo);
 
 /*=====

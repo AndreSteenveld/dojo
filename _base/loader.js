@@ -1,9 +1,9 @@
-// AMD module id = dojo/loader
-//
-// This module TODOC
-// 
-// 
 define(["./kernel", "require"], function(dojo, require) {
+  //  module:
+  //    dojo/_base/lader
+  //  summary:
+  //    This module defines the v1.x synchronous loader API.
+
   if (require.vendor!="dojotoolkit.org") {
     console.error("cannot load the Dojo v1.x loader with a foreign loader");
     return;
@@ -85,5 +85,4 @@ define(["./kernel", "require"], function(dojo, require) {
       dojo.requireLocalization(moduleName, bundleName, locale);
     };
   }
-
 });

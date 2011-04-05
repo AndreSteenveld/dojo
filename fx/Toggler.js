@@ -1,4 +1,9 @@
-define("dojo/fx/Toggler", ["dojo"], function(dojo) {
+define([".."], function(dojo) {
+  //  module:
+  //    dojo/fx/Toggler
+  //  summary:
+  //    The module defines 
+
 
 dojo.declare("dojo.fx.Toggler", null, {
 	// summary:

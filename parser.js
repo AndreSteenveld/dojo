@@ -1,4 +1,9 @@
-define("dojo/parser", ["dojo", "dojo/date/stamp"], function(dojo) {
+define([".", "./date/stamp"], function(dojo) {
+  //  module:
+  //    dojo/parser
+  //  summary:
+  //    The module defines 
+
 
 new Date("X"); // workaround for #11279, new Date("") == NaN
 

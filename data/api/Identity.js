@@ -1,4 +1,9 @@
-define("dojo/data/api/Identity", ["dojo", "dojo/data/api/Read"], function(dojo) {
+define(["../..", "./Read"], function(dojo) {
+  //  module:
+  //    dojo/data/api/Identity
+  //  summary:
+  //    The module defines 
+
 
 dojo.declare("dojo.data.api.Identity", dojo.data.api.Read, {
 	//	summary:

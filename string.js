@@ -1,4 +1,9 @@
-define("dojo/string", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/string
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("string", true, dojo);
 
 /*=====

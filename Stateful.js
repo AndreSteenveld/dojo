@@ -1,4 +1,9 @@
-define("dojo/Stateful", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/Stateful
+  //  summary:
+  //    The module defines 
+
 
 dojo.declare("dojo.Stateful", null, {
 	// summary:

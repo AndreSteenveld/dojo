@@ -1,10 +1,11 @@
 define(["./kernel", "./connect"], function(dojo){
+  //  module:
+  //    dojo/_base/event
+  //  summary:
+  //    This module defines dojo DOM event API.
+  //  notes:
+  //    This file courtesy of the TurboAjax Group, licensed under a Dojo CLA
 
-// this file courtesy of the TurboAjax Group, licensed under a Dojo CLA
-
-//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-(function(){
-//>>excludeEnd("webkitMobile");
 	// DOM event listener machinery
 	var del = (dojo._event_listener = {
 		add: function(/*DOMNode*/ node, /*String*/ name, /*Function*/ fp){
@@ -614,9 +615,6 @@ define(["./kernel", "./connect"], function(dojo){
 	//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 	}
 	//>>excludeEnd("webkitMobile");
-//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-})();
-//>>excludeEnd("webkitMobile");
 
 //>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 if(dojo.isIE){

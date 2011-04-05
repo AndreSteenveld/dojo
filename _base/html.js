@@ -1,4 +1,8 @@
 define(["./kernel", "./lang"], function(dojo){
+  //  module:
+  //    dojo/_base/html
+  //  summary:
+  //    This module defines the core dojo DOM API.
 
 // FIXME: need to add unit tests for all the semi-public methods
 

@@ -21,11 +21,11 @@
   "dojoBuild": {
     "resourceTags":{
       "test": [".*/dojo/tests.*", ".*dojo/robot.*"],
-      "amd": [".*\.js$", "!", ".*/nls/.*"]
+      "amd": [".*\.js$", "!", ".*/nls/.*", "!", "/_base/config.+", "!", "OpenAjax.js$"]
     },
     "trees":[
-      // don't discover hidden (e.g., .svn), the 1.6- AMD layer, or any of the old loader
-      [".", ".", "/\\.", "/dojo/_base/_loader/", "/dojo/lib/"]
+      // don't discover hidden (e.g., .svn), the 1.6- AMD layer, query-sizzle, or any of the old loader
+      [".", ".", "/\\.", "query-sizzle", "/dojo/_base/_loader/", "/dojo/lib/"]
     ]
   }
 }

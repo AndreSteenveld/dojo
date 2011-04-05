@@ -1,3 +1,10 @@
+  //  module:
+  //    dojo/main
+  //  summary:
+  //    This is a package main module for the dojo package.
+  //  description:
+  //    TODOC
+
 /*!
  * Sizzle CSS Selector Engine - v0.9
  *  Copyright 2009, John Resig

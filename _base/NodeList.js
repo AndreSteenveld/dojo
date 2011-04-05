@@ -1,10 +1,10 @@
 define(["./kernel", "./lang", "./array", "./connect", "./html"], function(dojo){
-
-//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-(function(){
+  //  module:
+  //    dojo/_base/NodeList
+  //  summary:
+  //    This module defines dojo.NodeList.
 
 	var d = dojo;
-//>>excludeEnd("webkitMobile");
 
 	var ap = Array.prototype, aps = ap.slice, apc = ap.concat;
 
@@ -996,9 +996,5 @@ define(["./kernel", "./lang", "./array", "./connect", "./html"], function(dojo){
 		}
 	);
 
-//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-})();
-//>>excludeEnd("webkitMobile");
-
-return dojo.NodeList;
+  return dojo.NodeList;
 });

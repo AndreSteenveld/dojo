@@ -1,4 +1,9 @@
-define("dojo/AdapterRegistry", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/AdapterRegistry
+  //  summary:
+  //    The module defines 
+
 
 dojo.AdapterRegistry = function(/*Boolean?*/ returnWrappers){
 	//	summary:

@@ -1,4 +1,9 @@
-define("dojo/uacss", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/uacss
+  //  summary:
+  //    The module defines 
+
 	// summary:
 	//		Applies pre-set CSS classes to the top-level HTML node, based on:
 	// 			- browser (ex: dj_ie)

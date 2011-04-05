@@ -1,4 +1,9 @@
-define("dojo/regexp", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/regexp
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("regexp", true, dojo);
 
 /*=====

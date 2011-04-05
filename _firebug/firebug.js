@@ -1,4 +1,9 @@
-define("dojo/_firebug/firebug", ["dojo"], function(dojo) {
+define([".."], function(dojo) {
+  //  module:
+  //    dojo/_firebug/firebug
+  //  summary:
+  //    The module defines 
+
 	
 // FIREBUG LITE
 	// summary: Firebug Lite, the baby brother to Joe Hewitt's Firebug for Mozilla Firefox

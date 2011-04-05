@@ -1,4 +1,8 @@
 define(["./kernel", "./lang"], function(dojo){
+  //  module:
+  //    dojo/_base/connect
+  //  summary:
+  //    This module defines the dojo.connect API.
 
 // this file courtesy of the TurboAjax Group, licensed under a Dojo CLA
 
