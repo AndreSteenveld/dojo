@@ -1,4 +1,4 @@
-define("dojo/json", ["dojo/lib/kernel"], function(dojo){
+define(["./_base/kernel"], function(dojo){
 (function(){
   var result;
 	var hasJSON = typeof JSON != "undefined";
