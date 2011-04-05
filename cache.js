@@ -1,8 +1,8 @@
-// AMD module id = dojo/cache
-//
-// This module defines dojo.cache which is implemented by dojo/text, the dojo/text! plugin.
-// 
-// 
-define(["dojo/text"], function(dojoTextPlugin){
-  return dojoTextPlugin.dojoCache;
+define(["dojo", "dojo/text"], function(dojo){
+  //  module:
+  //    dojo/cache
+  //  summary:
+  //    The module defines dojo.cache by loading dojo/text.
+
+  return dojo.cache;
 });

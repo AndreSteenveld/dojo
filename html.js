@@ -1,4 +1,9 @@
-define("dojo/html", ["dojo", "dojo/parser"], function(dojo) {
+define([".", "./parser"], function(dojo) {
+  //  module:
+  //    dojo/html
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("html", true, dojo);
 
 // the parser might be needed..

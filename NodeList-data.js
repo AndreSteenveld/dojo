@@ -1,4 +1,9 @@
-define("dojo/NodeList-data", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/NodeList-data
+  //  summary:
+  //    The module defines 
+
 (function(d){
 
 /*=====

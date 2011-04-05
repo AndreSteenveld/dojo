@@ -1,6 +1,16 @@
-define(["../has"], function(has){
+define(["../has", "require"], function(has, require){
+  //  module:
+  //    dojo/_base/config
+  //  summary:
+  //    This module processes the user configuration during bootstrap.
+
+  has.add("dojo-sniff", 
+    // inspect script elements for data-dojo-config during bootstrap
+    has("dom") ? 1 : 0
+  );
+
   var result= this.dojoConfig || this.djConfig || {};
-  if (has("dojo-sniff-config")) {
+  if(has("dom") && has("dojo-sniff")){
     // notice this loop breaks on first match
     for (var config, src, match, scripts = document.getElementsByTagName("script"), i= 0; i<scripts.length && !match; i++) {
       if ((src = scripts[i].getAttribute("src")) && (match = src.match(/(.*)\/?(dojo|require)\.js(\W|$)/i))) {
@@ -19,6 +29,11 @@ define(["../has"], function(has){
           }
         }
       }
+    }
+  }else{
+    var p, sniffedConfig= require.dojoConfig || {};
+    for(var p in sniffedConfig){
+      result[p]= sniffedConfig[p];
     }
   }
   return result;

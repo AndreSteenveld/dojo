@@ -1,15 +1,17 @@
-// AMD module id = dojo/i18n
-//
-// This module implements the !dojo/i18n plugin and the v1.6- i18n API
-//
-// We choose to include our own plugin to leverage functionality already contained in dojo
-// and thereby reduce the size of the plugin compared to various loader implementations. Also, this
-// allows foreign AMD loaders to be used without their plugins.
-//
-// CAUTION: this module may return improper results if the AMD loader does not support toAbsMid and client
-// code passes relative plugin resource module ids. In that case, you should consider using the i18n! plugin
-// that comes with your loader.
-define(["dojo", "require", "./has"], function(dojo, require, has) {
+define([".", "require", "./has"], function(dojo, require, has) {
+  //  module:
+  //    dojo/i18n
+  //  summary:
+  //    This module implements the !dojo/i18n plugin and the v1.6- i18n API
+  //  description:
+  //    We choose to include our own plugin to leverage functionality already contained in dojo
+  //    and thereby reduce the size of the plugin compared to various loader implementations. Also, this
+  //    allows foreign AMD loaders to be used without their plugins.
+  //
+  //    CAUTION: this module may return improper results if the AMD loader does not support toAbsMid and client
+  //    code passes relative plugin resource module ids. In that case, you should consider using the i18n! plugin
+  //    that comes with your loader.
+
   var
     thisModule= dojo.i18n=
       // the dojo.i18n module
@@ -91,6 +93,12 @@ define(["dojo", "require", "./has"], function(dojo, require, has) {
         });
       });
     };
+
+
+  has.add("dojo-v1x-i18n-Api", 
+    // if true, define the v1.x i18n functions
+    1
+  );
 
   if(has("dojo-v1x-i18n-Api")){
     var syncRequire= function(deps, callback){

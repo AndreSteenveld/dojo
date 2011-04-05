@@ -1,9 +1,9 @@
-// AMD module id = dojo/unload
-//
-// This module TODOC
-// 
-// 
 define(["./kernel", "./event"], function(dojo) {
+  //  module:
+  //    dojo/unload
+  //  summary:
+  //    This module contains the document and window unload detection API.
+
   var win = window;
 
   /*=====

@@ -1,5 +1,7 @@
 function rhinoDojoConfig(config, baseUrl, rhinoArgs) {
-  // rhino
+  //  summary:
+  //    This module provides bootstrap configuration for running dojo in rhino.
+
   // TODO: v1.6 tries to set dojo.doc and dojo.body in rhino; why?
  
   // get a minimal console up
@@ -62,40 +64,39 @@ function rhinoDojoConfig(config, baseUrl, rhinoArgs) {
   };
 
   // make sure global require exists
-  if (typeof require=="undefined") {
-    require= {};
-  }
+  //if (typeof require=="undefined") {
+  //  require= {};
+ // }
 
-  // reset the has cache with rhino-appropriate values; 
-  // note: for clarity, this exactly the cache taken from dojo.js and edited
-  config.has.cache= {
+  // reset the has cache with node-appropriate values; 
+  var hasCache= {
     "host-rhino":1,
-    //"dom":isBrowser,
-    //"dom-addEventListener":isBrowser && !!document.addEventListener,
-    "console":1,
+    "host-browser":0,
+    "dom":0,
+    "loader-hasApi":1,
+    "loader-provides-xhr":0,
     "loader-injectApi":1,
-    //"loader-timeoutApi":1,
+    "loader-timeoutApi":0,
     "loader-traceApi":1,
     "loader-catchApi":1,
-    //"loader-pageLoadApi":1,
-    "loader-readyApi":1,
+    "loader-pageLoadApi":0,
+    "loader-priority-readyApi":1,
     "loader-errorApi":1,
-    //"loader-sniffApi":0,
-    //"loader-undefApi":0,
-    //"loader-requirejsApi":1,
-    //"loader-createHasModule":0,
-    "loader-amdFactoryScan":1,
     "loader-publish-privates":1,
-    //"dojo-sniff":1,
+    "loader-getTextApi":1,
+    "dojo-sniff":0,
     "dojo-loader":1,
     "dojo-boot":1,
-    "dojo-test-sniff":1
+    "dojo-test-xd":0,
+    "dojo-test-sniff":0
   };
+  for (var p in hasCache) {
+    config.hasCache[p]= hasCache[p];
+  }
 
   // reset some configuration switches with rhino-appropriate values
   var rhinoConfig= {
     baseUrl:baseUrl,
-    host:"rhino",
     isBrowser:0,
     commandLineArgs:rhinoArgs,
     deps:deps,
@@ -124,8 +125,7 @@ function rhinoDojoConfig(config, baseUrl, rhinoArgs) {
       onLoad(isLocal(url) ? readFile(url, "UTF-8") : readUrl(url, "UTF-8"));
     }
   };
-  for (var p in rhinoConfig) {
+  for (p in rhinoConfig) {
     config[p]= rhinoConfig[p];
   }
-  return config;
 }

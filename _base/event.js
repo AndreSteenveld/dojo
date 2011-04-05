@@ -1,4 +1,8 @@
 define(["./kernel", "../listen", "./keypress"], function(dojo, listen, keypress){
+  //  module:
+  //    dojo/_base/event
+  //  summary:
+  //    This module defines dojo DOM event API.
 	function has(feature){
 		return {
 			"dom-addeventlistener": document.addEventListener 
@@ -54,4 +58,6 @@ define(["./kernel", "../listen", "./keypress"], function(dojo, listen, keypress)
 		evt.cancelBubble = true;
 		listen._preventDefault.call(evt);
 	};
+
+return dojo.connect;
 });

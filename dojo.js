@@ -82,35 +82,28 @@
   // pack: package is used internally to reference a package object (since javascript has lame reserved words including "package")
   // The integer constant 1 is used in place of true and 0 in place of false.
 
-  var
-    // this will be the global require function; define it immediately so we can start hanging things off of it
-    req= function(
-      config,       //(object, optional) hash of configuration properties
-      dependencies, //(array of commonjs.moduleId, optional) list of modules to be loaded before applying callback 
-      callback      //(function, optional) lamda expression to apply to module values implied by dependencies
-    ) {
-      return contextRequire(config, dependencies, callback, 0, req);
-    },
+    // this source version of the dojo loader makes an attempt to sniff the environment for browser | rhino | node
+    // at the cost of size (size isn't very important for local dev). The release versions are optimized but restricted:
+    //
+    //   * dojo.js:      browser only
+    //   * dojo-rhino:   rhino only
+    //   * dojo-node:    node only
+    // 
+    // See also the standard AMD main modules:
+    //   * main: for use with a generic AMD loader (e.g., bdLoad, RequireJS) in the browser
+    //   * mainNonbrowser: for use with a generic AMD loader (e.g., bdLoad, RequireJS) in nonbrowser environments 
+    //     (node.js and rhino are known to work)
 
-    has= 
-     // this implementation uses the has.js API to control feature inclusion/exclusion; publish the API for clients
-     req.has= userConfig.has || defaultConfig.has,
-
-    reqEval= 
-      // eval for use during synchronous loading
-      userConfig.eval || defaultConfig.eval,
-
-    globalSpace= 
-      // "this" is not the global namespace in node; remember what is the global space here
-     has("host-node") ? global : this;
-
-
-  // userConfig has tests override defaultConfig has tests...
-  for (var p in userConfig.hasTests) {
-    has.add(p, userConfig.hasTests[p]);
+  // the loader can be defined exactly once; look for global define which is the symbol AMD loaders are
+  // *required* to define (as opposed to require, which is optional)
+  if (this.define) {
+    console.log("global define already defined; did you try to load multiple AMD loaders?");
+    return;
   }
 
   var
+    global= this,
+
     // define a minimal library to help build the loader
     noop= function() {
     },
@@ -169,6 +162,72 @@
         ///
         // Returns a unique indentifier (within the lifetime of the document) of the form /_d+/.
         return "_" + uidSeed++; 
+      },
+
+    // this will be the global require function; define it immediately so we can start hanging things off of it
+    req= function(
+      config,       //(object, optional) hash of configuration properties
+      dependencies, //(array of commonjs.moduleId, optional) list of modules to be loaded before applying callback 
+      callback      //(function, optional) lamda expression to apply to module values implied by dependencies
+    ) {
+      return contextRequire(config, dependencies, callback, 0, req);
+    },
+
+    // the loader uses the has.js API to control feature inclusion/exclusion; define then use throughout
+    doc= global.document,
+
+    element= doc && doc.createElement("DiV"),
+
+    has= function(name) {
+      return hasCache[name] = isFunction(hasCache[name]) ? hasCache[name](global, doc, element) : hasCache[name];
+    },
+
+    hasCache= has.cache= defaultConfig.hasCache;
+
+  has.add= function(name, test, now, force){
+    (typeof hasCache[name]=="undefined" || force) && (hasCache[name]= test);
+    return now && has(name);
+  };
+
+  has.add("host-node", typeof process=="object" && /\/node/.test(process.execPath));
+  if (has("host-node")) {
+    // fixup the default config for node.js environment
+    require("./_base/configNode.js").config(defaultConfig);
+    // remember node's require (with respect to baseUrl==dojo's root)
+    defaultConfig.nodeRequire= require;
+    // recompute userConfig because passed userConfig argument was wrong in node
+    userConfig= global.dojoConfig || global.djConfig || global.require || {};
+  }
+
+  has.add("host-rhino", typeof load=="function" && (typeof Packages=="function" || typeof Packages=="object"));
+  if (has("host-rhino")) {
+    // owing to rhino's lame feature that hides the source of the script, give the user a way to specify the baseUrl...
+    for (var baseUrl= userConfig.baseUrl || ".", arg, rhinoArgs= this.arguments, i= 0; i<rhinoArgs.length;) {
+      arg= (rhinoArgs[i++]+"").split("=");
+      if (arg[0]=="baseUrl") {
+        baseUrl= arg[1];
+        break;
+      }
+    }
+    load(baseUrl + "/_base/configRhino.js");
+    rhinoDojoConfig(defaultConfig, baseUrl, rhinoArgs);
+  }
+
+  // userConfig has tests override defaultConfig has tests...
+  for (var p in userConfig.hasTests) {
+    has.add(p, userConfig.hasTests[p]);
+  }
+
+  var
+    // use the function constructor so our eval is scoped in the global space
+    // note: userConfig cannot override; default can override so hosts like node can give something different
+    // note: do this definition as a two-step since the Function constructor has problems with the firebug hint
+    eval= 
+      new Function("__text", "return eval(__text);"),
+
+    reqEval= req.eval=
+      defaultConfig.eval || function(text, hint) {
+        return eval(text + "\r\n//@ sourceURL=" + hint);
       },
 
     // the loader will use these like symbols
@@ -253,13 +312,6 @@
       // Gives the contents of a cached resource; function should cause the same actions as if the given pqn was downloaded
       // and evaluated by the host environment
       {};
-
-  // the loader can be defined exactly once; look for global define which is the symbol AMD loaders are
-  // *required* to define (as opposed to require, which is optional)
-  if (isFunction(globalSpace.define)) {
-    console.log("global define already defined; did you try to load multiple AMD loaders?");
-    return;
-  }
 
   var
     // configuration machinery
@@ -350,7 +402,7 @@
       }
     };
 
-  if (has("loader-sniffApi")) {
+  if (has("loader-sniff")) {
     for (var src, match, dataMain, scripts= doc.getElementsByTagName("script"), i= 0; i<scripts.length; i++) {
       src= scripts[i].getAttribute("src") || "";
       if ((match= src.match(/require\.js$/))) {
@@ -368,7 +420,7 @@
 
   var dojoSniffConfig= {};
   if (has("dojo-sniff")) {
-    for (var src, match, scripts = document.getElementsByTagName("script"), i= 0; i<scripts.length && !match; i++) {
+    for (var src, match, scripts = doc.getElementsByTagName("script"), i= 0; i<scripts.length && !match; i++) {
       if ((src = scripts[i].getAttribute("src")) && (match = src.match(/(.*)\/?dojo\.js(\W|$)/i))) {
         req.baseUrl= req.baseUrl || match[1];
    
@@ -396,7 +448,8 @@
   config(userConfig, 1);
   config(dojoSniffConfig, 1);
 
-  // build the basic loader
+  // build the loader
+
   var 
     injectDependencies= function(module) {
       forEach(module.deps, injectModule);
@@ -748,10 +801,64 @@
           }
         }
       }
-      if (has("loader-readyApi")) {
+      if (has("loader-priority-readyApi")) {
         onLoad();
       }
+    },
+
+    getXhr= 0;
+
+
+  // the dojo loader needs/optionally provides an XHR factory
+  if (has("dojo-loader") || has("loader-provides-xhr")) {
+    has.add("native-xhr", typeof XMLHttpRequest!="undefined");
+    if (has("native-xhr")) {
+      getXhr= function() {
+        return new XMLHttpRequest();
+      };
+    } else {
+      // if in the browser and old IE; find an xhr
+      for(var XMLHTTP_PROGIDS = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'], progid, i = 0; i<3;){
+        try{
+          progid = XMLHTTP_PROGIDS[i++];
+          if (new ActiveXObject(progid)) {
+            // this progid works; therefore, use it from now on
+            break;
+          }
+        }catch(e){
+          // squelch; we're just trying to find a good ActiveX progid
+          // if they all fail, then progid ends up as the last attempt and that will signal the error
+          // the first time the client actually tries to exec an xhr
+        }
+      }
+      getXhr= function() {
+        return new ActiveXObject(progid); 
+      };
+    }
+  }
+  req.getXhr= getXhr;
+
+  // the dojo loader needs/optionally provides a getText API
+  if (has("dojo-loader") || has("loader-getTextApi")) {
+    var getText= req.getText || function(url, async, onLoad) {
+      var xhr= getXhr();
+      if (async) {
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange= function() {
+          xhr.readyState==4 && onLoad(xhr.responseText, async);
+        };
+        xhr.send(null);
+      } else {
+        xhr.open('GET', url, false);
+        xhr.send(null);
+        if (xhr.status==200) {
+          onLoad(xhr.responseText, async);
+        } else {
+          throw new Error("synchronous XHR failed");
+        }
+      }
     };
+  }
 
   req.toAbsMid= function(id) {
     return id;
@@ -893,7 +1000,7 @@
               ++syncDepth;
               try {
                 // always synchronous...
-                req.getText(url, 0, function(text) {
+                getText(url, 0, function(text) {
                   injecting.push(module);
                   reqEval(text, module.path);
                 });
@@ -974,6 +1081,20 @@
         }
         forEach(definedModules, injectDependencies);
       };
+
+      req.boot= function(mids) {
+        var 
+          refMid= mids.shift(),
+          refModule= refMid && getModule(refMid),
+          definedModules= [],
+          args;
+        while (defQ.length) {
+          args= defQ.shift();
+          definedModules.push(defineModule(getModule(mids.shift(), refModule), args[1], args[2]));
+        }
+        forEach(definedModules, injectDependencies);
+        checkComplete();
+      };
   }
  
   if (has("loader-timeoutApi")) {
@@ -1001,29 +1122,31 @@
       startTimer= noop;
   }
 
+  if (has("dom")) {
+    has.add("dom-addEventListener", !!doc.addEventListener);
+  }
+
   if (has("dom") && (has("loader-pageLoadApi") || has("loader-injectApi"))) {
-    var 
-      doc= document,
-      on= function(node, eventName, handler, useCapture, ieEventName) {
-        // Add an event listener to a DOM node using the API appropriate for the current browser; 
-        // return a function that will disconnect the listener.
-        if (has("dom-addEventListener")) {
-          node.addEventListener(eventName, handler, !!useCapture);
+    var on= function(node, eventName, handler, useCapture, ieEventName) {
+      // Add an event listener to a DOM node using the API appropriate for the current browser; 
+      // return a function that will disconnect the listener.
+      if (has("dom-addEventListener")) {
+        node.addEventListener(eventName, handler, !!useCapture);
+        return function() {
+          node.removeEventListener(eventName, handler, !!useCapture);
+        };
+      } else {
+        if (ieEventName!==false) {
+          eventName= ieEventName || "on"+eventName;
+          node.attachEvent(eventName, handler);
           return function() {
-            node.removeEventListener(eventName, handler, !!useCapture);
+            node.detachEvent(eventName, handler);
           };
         } else {
-          if (ieEventName!==false) {
-            eventName= ieEventName || "on"+eventName;
-            node.attachEvent(eventName, handler);
-            return function() {
-              node.detachEvent(eventName, handler);
-            };
-          } else {
-            return noop;
-          }
+          return noop;
         }
-      };
+      }
+    };
   }
 
   if (has("dom") && has("loader-injectApi")) {
@@ -1116,7 +1239,7 @@
     req.pageLoaded= 1;
   }
 
-  if (has("loader-readyApi")) {
+  if (has("loader-priority-readyApi")) {
     var 
       loadQ= 
         // The queue of functions waiting to execute as soon as all conditions given
@@ -1378,13 +1501,13 @@
       };
     };
   }
-  
-  if (has("loader-createHasModule")) {
-    mix(getModule("has"), {injected:arrived, deps:[], executed:1, result:has});
-  }
 
   if (has("loader-publish-privates")) {
     mix(req, {
+      // standard API
+      vendor:"dojotoolkit.org",
+      has:has,
+
       // these may be interesting for other modules to use
       isEmpty:isEmpty,
       isFunction:isFunction,
@@ -1415,8 +1538,8 @@
     });
   }
 
-  globalSpace.define= def;
-  globalSpace.require= req;
+  global.define= def;
+  global.require= req;
 
   if (has("dojo-boot")) {
     req(["dojo"]);   
@@ -1426,209 +1549,67 @@
   };
   doWork(getPriorityProp("deps"), getPriorityProp("callback"), getPriorityProp("ready"));
 })
-// begin bootstrap configuration
-.apply(null,
-  // note: typically, this section is replaced by a purpose-built configuration vector in a built version
-  (function(eval, userConfig, rhinoArgs){
-    // compute user configuration and default configuration; return a pair of [userConfig, defaultConfig]
-    // 
-    // this source version of the dojo loader makes an attempt to sniff the environment for browser | rhino | node
-    // at the cost of size (size isn't very important for local dev). The release versions are optimized but restricted:
-    //
-    //   * dojo.js:      browser only
-    //   * dojo-rhino:   rhino only
-    //   * dojo-node:    node only
-    // 
-    // See also the standard AMD main modules:
-    //   * main: for use with a generic AMD loader (e.g., bdLoad, RequireJS) in the browser
-    //   * mainNonbrowser: for use with a generic AMD loader (e.g., bdLoad, RequireJS) in nonbrowser environments 
-    //     (node.js and rhino are known to work)
-
-    var 
-      isBrowser= 
-        // the most fundamental decision: are we in the browser? this is a good but not guaranteed calculation; if it
-        // doesn't work for you, the solution is to define a global dojoConfig and/or build a custom dojo
-        typeof window!="undefined" && 
-        typeof location!="undefined" && 
-        typeof document!="undefined" && 
-        window.location==location && window.document==document,
-
-      packages= [
-        // note: like v1.6-, this bootstrap computes baseUrl to be the dojo directory
-        {
-          name:'dojo',
-          location:'.',
-          lib:'.'
-        },{
-          name:'dijit',
-          location:'../dijit',
-          lib:'.'
-        },{
-          name:'build',
-          location:'../util/buildscripts/build',
-          lib:'.'
-        },{
-          name:'doh',
-          location:'../util/doh',
-          lib:'.'
-        },{
-          name:'dojox',
-          location:'../dojox',
-          lib:'.'
-        }
-      ],
-
-      getXhr= function() {
-        return new XMLHttpRequest();
-      },
-
-      getText= function(url, async, onLoad) {
-        var xhr= getXhr();
-        if (async) {
-          xhr.open('GET', url, true);
-          xhr.onreadystatechange= function() {
-            xhr.readyState==4 && onLoad(xhr.responseText, async);
-          };
-          xhr.send(null);
-        } else {
-          xhr.open('GET', url, false);
-          xhr.send(null);
-          if (xhr.status==200) {
-            onLoad(xhr.responseText, async);
-          } else {
-            throw new Error("synchronous XHR failed");
-          }
-        }
-      },
-     
-      has= function(name) {
-        // define has.js API for the loader
-        // WARNING: this is a naive has implementation, primarily for use bootstrapping the loader, that can handle static values only
-        return has.cache[name];
-      };
-
-    has.add= function(name, test){
-        has.cache[name] = test;
-    };
-
-    has.cache= {
-      // these are the set of feature tests used by the bootstrap and loader, set for a browser
-      // WARNING: dojo makes the assumption that if isBrowser is true, then a dom exists, and conversely
-      "host-browser":isBrowser,
-      "dom":isBrowser,
-      "dom-addEventListener":isBrowser && !!document.addEventListener,
-      "console":1,
+//>>excludeStart("replaceLoaderConfig", kwArgs.replaceLoaderConfig);
+(
+  // userConfig
+  this.dojoConfig || this.djConfig || this.require || {},
+  
+  // default config
+  {
+    // the default configuration for a browser; this will be modified by other environments
+    hasCache:{
+      "host-browser":1,
+      "dom":1,
+      "loader-hasApi":1,
+      "loader-provides-xhr":1,
       "loader-injectApi":1,
       "loader-timeoutApi":1,
       "loader-traceApi":1,
       "loader-catchApi":1,
       "loader-pageLoadApi":1,
-      "loader-readyApi":1,
+      "loader-priority-readyApi":1,
       "loader-errorApi":1,
-      "loader-sniffApi":0,
-      "loader-undefApi":0,
-      "loader-requirejsApi":1,
-      "loader-createHasModule":0,
-      "loader-amdFactoryScan":1,
       "loader-publish-privates":1,
+      "loader-getTextApi":1,
       "dojo-sniff":1,
       "dojo-loader":1,
       "dojo-boot":1,
       "dojo-test-xd":1,
-      "dojo-test-sniff":1};
-  
-    if (isBrowser && typeof XMLHttpRequest == "undefined") {
-      // if in the browser and old IE; find an xhr
-      for(var XMLHTTP_PROGIDS = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'], progid, i = 0; i<3;){
-        try{
-          progid = XMLHTTP_PROGIDS[i++];
-          if (new ActiveXObject(progid)) {
-            // this progid works; therefore, use it from now on
-            break;
-          }
-        }catch(e){
-          // squelch; we're just trying to find a good ActiveX progid
-          // if they all fail, then progid ends up as the last attempt and that will signal the error
-          // the first time the client actually tries to exec an xhr
-        }
-      }
-      getXhr= function() {
-        return new ActiveXObject(progid); 
-      };
-    }
-
-    var defaultConfig= {
-      // the default configuration for a browser; this will be modified by other environments
-      vendor:"dojotoolkit.org",
-      host:"browser",
-      isBrowser:1,
-      has:has,
-      getXhr:getXhr,
-      getText:getText,
-      timeout:0,
-      eval:eval,
-      traceSet:{
-        // these are listed so it's simple to turn them on/off while debugging the loader
-        "loader-define":0,
-        "loader-runFactory":0,
-        "loader-execModule":0,
-        "loader-execModule-out":0,
-        "loader-defineModule":0
-      },
-      packages:packages,
-      async:0
-    };
-
-    if (isBrowser) {
-      return [userConfig, defaultConfig];
-    } 
-
-    if (typeof process=="object" && /\/node/.test(process.execPath)) {
-      // node
-      defaultConfig= require("./_base/configNode.js").config(defaultConfig);
-      // remember node's require (with respect to baseUrl==dojo's root)
-      defaultConfig.nodeRequire= require;
-      return [
-        // recompute userConfig because passed userConfig argument is wrong in node
-        this.dojoConfig || this.djConfig || global.require || {},
-        defaultConfig
-      ];
-    }
-
-    if (typeof load=="function" && (typeof Packages=="function" || typeof Packages=="object")) {
-      // rhino
-      for (var baseUrl= userConfig.baseUrl || ".", arg, i= 0; i<rhinoArgs.length;) {
-        arg= (rhinoArgs[i++]+"").split("=");
-        if (arg[0]=="baseUrl") {
-          baseUrl= arg[1];
-          break;
-        }
-      }
-      load(baseUrl + "/_base/configRhino.js");
-      return [
-        userConfig,
-        rhinoDojoConfig(defaultConfig, baseUrl, rhinoArgs)
-      ];
-		}
-
-    // TODO: spidermonkey, others?
-
-    // hopefully the user has provided a fully populated dojoConfig (or djConfig or require) object
-    // note: can't give a message because we may not have a console
-    return [userConfig, {}];
-  })(
-    // at this point, we're in the global scope with zero lexical variables defined by the loader
-    // define the eval function the loader needs  so that the eval environments are pristine
-    function (__text, __firebugHint) {
-      return eval(__text + "\r\n//@ sourceURL=" + __firebugHint);
+      "dojo-test-sniff":1
     },
-    
-    // user configuration (if any) (this won't work for node because of node's require)
-    this.dojoConfig || this.djConfig || this.require || {},
+    packages:[{
+      // note: like v1.6-, this bootstrap computes baseUrl to be the dojo directory
+      name:'dojo',
+      location:'.',
+      lib:'.'
+    },{
+      name:'dijit',
+      location:'../dijit',
+      lib:'.'
+    },{
+      name:'build',
+      location:'../util/buildscripts/build',
+      lib:'.'
+    },{
+      name:'doh',
+      location:'../util/doh',
+      lib:'.'
+    },{
+      name:'dojox',
+      location:'../dojox',
+      lib:'.'
+    }],
+    traceSet:{
+      // these are listed so it's simple to turn them on/off while debugging the loader
+      "loader-define":0,
+      "loader-runFactory":0,
+      "loader-execModule":0,
+      "loader-execModule-out":0,
+      "loader-defineModule":0
+    },
+    async:0
+  }
 
-    // for rhino...
-    typeof arguments!=="undefined" && arguments
-  )
-);
-// end default bootstrap configuration
 // Copyright (c) 2008-2010, Rawld Gill and ALTOVISO LLC (www.altoviso.com).
+);
+//>>excludeEnd("replaceLoaderConfig")

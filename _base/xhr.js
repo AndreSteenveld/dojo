@@ -1,8 +1,13 @@
-define(["./kernel", "../has", "./Deferred", "./json", "./lang"], function(dojo, has){
+define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], function(dojo, has, require){
+  //  module:
+  //    dojo/_base.xhr
+  //  summary:
+  //    This modules defines the dojo.xhr* API.
 
-//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-(function(){
-//>>excludeEnd("webkitMobile");
+  has.add("native-xhr", function() {
+    // if true, the environment has a native XHR implementation
+    return !!XMLHttpRequest;
+  });
 
   if (has("native-xhr")){
     dojo._xhrObj = function(){
@@ -14,6 +19,8 @@ define(["./kernel", "../has", "./Deferred", "./json", "./lang"], function(dojo, 
         throw new Error("XMLHTTP not available: "+e);
       }
     };
+  }else if(has("loader-provides-xhr")){
+    dojo._xhrObj = require.getXhr;
   }else{
     // PROGIDs are in order of decreasing likelihood; this will change in time.
     for(var XMLHTTP_PROGIDS = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'], progid, i = 0; i<3;){
@@ -317,23 +324,24 @@ define(["./kernel", "../has", "./Deferred", "./json", "./lang"], function(dojo, 
 		xml: function(xhr){
 			// summary: A contentHandler returning an XML Document parsed from the response data
 			var result = xhr.responseXML;
-			//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-			if(_d.isIE && (!result || !result.documentElement)){
-				//WARNING: this branch used by the xml handling in dojo.io.iframe,
-				//so be sure to test dojo.io.iframe if making changes below.
-				var ms = function(n){ return "MSXML" + n + ".DOMDocument"; };
-				var dp = ["Microsoft.XMLDOM", ms(6), ms(4), ms(3), ms(2)];
-				_d.some(dp, function(p){
-					try{
-						var dom = new ActiveXObject(p);
-						dom.async = false;
-						dom.loadXML(xhr.responseText);
-						result = dom;
-					}catch(e){ return false; }
-					return true;
-				});
-			}
-			//>>excludeEnd("webkitMobile");
+      
+      if(has("ie")){
+  			if((!result || !result.documentElement)){
+  				//WARNING: this branch used by the xml handling in dojo.io.iframe,
+  				//so be sure to test dojo.io.iframe if making changes below.
+  				var ms = function(n){ return "MSXML" + n + ".DOMDocument"; };
+  				var dp = ["Microsoft.XMLDOM", ms(6), ms(4), ms(3), ms(2)];
+  				_d.some(dp, function(p){
+  					try{
+  						var dom = new ActiveXObject(p);
+  						dom.async = false;
+  						dom.loadXML(xhr.responseText);
+  						result = dom;
+  					}catch(e){ return false; }
+  					return true;
+  				});
+  			}
+     }
 			return result; // DOMDocument
 		},
 		"json-comment-optional": function(xhr){
@@ -739,11 +747,9 @@ define(["./kernel", "../has", "./Deferred", "./json", "./lang"], function(dojo, 
 
 	//Automatically call cancel all io calls on unload
 	//in IE for trac issue #2357.
-	//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-	if(_d.isIE){
+	if(has("ie")){
 		_d.addOnWindowUnload(_d._ioCancelAll);
 	}
-	//>>excludeEnd("webkitMobile");
 
 	_d._ioNotifyStart = function(/*Deferred*/dfd){
 		// summary:
@@ -966,9 +972,6 @@ define(["./kernel", "../has", "./Deferred", "./json", "./lang"], function(dojo, 
 		throw new Error("dojo.wrapForm not yet implemented");
 	}
 	*/
-//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-})();
-//>>excludeEnd("webkitMobile");
 
 return dojo.xhr;
 });

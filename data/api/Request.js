@@ -1,4 +1,9 @@
-define("dojo/data/api/Request", ["dojo"], function(dojo) {
+define(["../.."], function(dojo) {
+  //  module:
+  //    dojo/data/api/Request
+  //  summary:
+  //    The module defines 
+
 
 dojo.declare("dojo.data.api.Request", null, {
 	//	summary:

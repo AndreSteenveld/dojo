@@ -1,8 +1,12 @@
-define(["..", "../date", "../cldr/supplemental", "../regexp", "../string", "../i18n", "../i18n!../cldr/nls/gregorian"], function(dojo) {
+define(["..", "../date", "../cldr/supplemental", "../regexp", "../string", "../i18n!../cldr/nls/gregorian"], function(dojo) {
+  //  module:
+  //    dojo/date/local
+  //  summary:
+  //    This modules defines dojo.date.locale, localization methods for Date.
+
 dojo.getObject("date.locale", true, dojo);
 
 // Localization methods for Date.   Honor local customs using locale-dependent dojo.cldr data.
-
 
 // Load the bundles containing localization information for
 // names and formats
@@ -10,7 +14,6 @@ dojo.getObject("date.locale", true, dojo);
 //NOTE: Everything in this module assumes Gregorian calendars.
 // Other calendars will be implemented in separate modules.
 
-(function(){
 	// Format a pattern without literals
 	function formatPattern(dateObject, bundle, options, pattern){
 		return pattern.replace(/([a-z])\1*/ig, function(match){
@@ -566,9 +569,7 @@ function _buildDateTimeRE(tokens, bundle, options, pattern){
 		return "(" + s + ")"; // add capture
 	}).replace(/[\xa0 ]/g, "[\\s\\xa0]"); // normalize whitespace.  Need explicit handling of \xa0 for IE.
 }
-})();
 
-(function(){
 var _customFormats = [];
 dojo.date.locale.addCustomFormats = function(/*String*/packageName, /*String*/bundleName){
 	// summary:
@@ -593,7 +594,6 @@ dojo.date.locale._getGregorianBundle = function(/*String*/locale){
 	}, this);
 	return gregorian; /*Object*/
 };
-})();
 
 dojo.date.locale.addCustomFormats("dojo.cldr","gregorian");
 

@@ -1,20 +1,19 @@
-// AMD module id = dojo/text
-//
-// This module implements the !dojo/text plugin and the dojo.cache API.
-//
-// !dojo/text plugin
-//
-// We choose to include our own plugin to leverage functionality already contained in dojo
-// and thereby reduce the size of the plugin compared to various loader implementations. Also, this
-// allows foreign AMD loaders to be used without their plugins.
-//
-// CAUTION: this module may return improper results if the AMD loader does not support toAbsMid and client
-// code passes relative plugin resource module ids. In that case, you should consider using the text! plugin
-// that comes with your loader.
-//
-// CAUTION: this module is designed to optional function synchronously to support the dojo v1.x synchronous
-// loader. This feature is outside the scope of the CommonJS plugins specification.
 define(["dojo", "require", "./has"], function(dojo, require, has){
+  //  module:
+  //    dojo/text
+  //  summary:
+  //    This module implements the !dojo/text plugin and the dojo.cache API.
+  //  description:
+  //    We choose to include our own plugin to leverage functionality already contained in dojo
+  //    and thereby reduce the size of the plugin compared to various loader implementations. Also, this
+  //    allows foreign AMD loaders to be used without their plugins.
+  //
+  //    CAUTION: this module may return improper results if the AMD loader does not support toAbsMid and client
+  //    code passes relative plugin resource module ids. In that case, you should consider using the text! plugin
+  //    that comes with your loader.
+  //
+  //    CAUTION: this module is designed to optional function synchronously to support the dojo v1.x synchronous
+  //    loader. This feature is outside the scope of the CommonJS plugins specification.
 
   var getText= function(url, sync, load){
     dojo.xhrGet({url:url, sync:sync, load:load});

@@ -1,10 +1,30 @@
-// AMD module id = dojo/kernel
-//
-// This module TODOC
-// 
-//
 (function(eval) {
-define(["../has", "./config", "module"], function(has, config, module){
+define(["../has", "./config", "require"], function(has, config, require){
+  //  module:
+  //    dojo/_base/kernel
+  //  summary:
+  //    This module is the foundational module of the dojo boot sequence; it defines the dojo object.
+
+  has.add("dojo-load-firebug-console", 
+    // the firebug 2.0 console
+    !!this["loadFirebugConsole"]
+  );
+  
+  has.add("dojo-debug-messages", 
+    // include dojo.deprecated/dojo.experimental implementations
+    1
+  );
+
+  has.add("dojo-guarantee-console", 
+    // ensure that console.log, console.warn, etc. are defined
+    1
+  );
+
+  has.add("dojo-register-openAjax", 
+    // register dojo with the OpenAjax hub
+    typeof OpenAjax != "undefined"
+  );
+
   // loop variables for this module
   var i, p;
 
@@ -69,27 +89,6 @@ define(["../has", "./config", "module"], function(has, config, module){
   
   var rev = "$Rev: 23930 $".match(/\d+/);
   dojo.version= {
-    /*=====
-      dojo.version = function(){
-        // summary:
-        //    Version number of the Dojo Toolkit
-        // major: Integer
-        //    Major version. If total version is "1.2.0beta1", will be 1
-        // minor: Integer
-        //    Minor version. If total version is "1.2.0beta1", will be 2
-        // patch: Integer
-        //    Patch version. If total version is "1.2.0beta1", will be 0
-        // flag: String
-        //    Descriptor flag. If total version is "1.2.0beta1", will be "beta1"
-        // revision: Number
-        //    The SVN rev from which dojo was pulled
-        this.major = 0;
-        this.minor = 0;
-        this.patch = 0;
-        this.flag = "";
-        this.revision = 0;
-      }
-    =====*/
     major: 1, minor: 7, patch: 0, flag: "dev",
     revision: rev ? +rev[0] : NaN,
     toString: function(){
@@ -97,6 +96,12 @@ define(["../has", "./config", "module"], function(has, config, module){
       return v.major + "." + v.minor + "." + v.patch + v.flag + " (" + v.revision + ")";  // String
     }
   };
+
+
+  dojo.isAsync= function() {
+    return require.vendor!="dojotoolkit.org" || require.async;
+  };
+
 
   dojo.eval= function(text){
     return eval(dojo.global, text);
@@ -113,37 +118,43 @@ define(["../has", "./config", "module"], function(has, config, module){
   }
   
   if(has("dojo-guarantee-console")){
-    if(!has("native-console")){
-      // intentional global console
-      console || (console= {});
-      //  Be careful to leave 'log' always at the end
-      var cn = [
-        "assert", "count", "debug", "dir", "dirxml", "error", "group",
-        "groupEnd", "info", "profile", "profileEnd", "time", "timeEnd",
-        "trace", "warn", "log"
-      ];
-      var i = 0, tn;
-      while((tn=cn[i++])){
-        if(!console[tn]){
-          (function(){
-            var tcn = tn+"";
-            console[tcn] = ('log' in console) ? function(){
-              var a = Array.apply({}, arguments);
-              a.unshift(tcn+":");
-              console["log"](a.join(" "));
-            } : function(){};
-            console[tcn]._fake = true;
-          })();
-        }
+    // intentional global console
+    console || (console= {});
+    //  Be careful to leave 'log' always at the end
+    var cn = [
+      "assert", "count", "debug", "dir", "dirxml", "error", "group",
+      "groupEnd", "info", "profile", "profileEnd", "time", "timeEnd",
+      "trace", "warn", "log"
+    ];
+    var i = 0, tn;
+    while((tn=cn[i++])){
+      if(!console[tn]){
+        (function(){
+          var tcn = tn+"";
+          console[tcn] = ('log' in console) ? function(){
+            var a = Array.apply({}, arguments);
+            a.unshift(tcn+":");
+            console["log"](a.join(" "));
+          } : function(){};
+          console[tcn]._fake = true;
+        })();
       }
     }
   }
   
-  if (has("openAjax")) {
+  if (has("dojo-register-openAjax")) {
     // Register with the OpenAjax hub
     OpenAjax.hub.registerLibrary(dojo._scopeName, "http://dojotoolkit.org", dojo.version.toString());
   }
   
+
+  has.add("bug-for-in-skips-shadowed", function() {
+    // if true, the for-in interator skips object properties that exist in Object's prototype (IE 6 - ?)
+    for(var i in {toString: 1}){
+      return 0;
+    }
+    return 1;
+  });
   if (has("bug-for-in-skips-shadowed")){
     var
       extraNames = dojo._extraNames = "hasOwnProperty.valueOf.isPrototypeOf.propertyIsEnumerable.toLocaleString.toString.constructor".split("."),
@@ -398,3 +409,25 @@ define(["../has", "./config", "module"], function(has, config, module){
     return (__scope.eval || eval)(__text);
   }
 );
+
+/*=====
+  dojo.version = function(){
+    // summary:
+    //    Version number of the Dojo Toolkit
+    // major: Integer
+    //    Major version. If total version is "1.2.0beta1", will be 1
+    // minor: Integer
+    //    Minor version. If total version is "1.2.0beta1", will be 2
+    // patch: Integer
+    //    Patch version. If total version is "1.2.0beta1", will be 0
+    // flag: String
+    //    Descriptor flag. If total version is "1.2.0beta1", will be "beta1"
+    // revision: Number
+    //    The SVN rev from which dojo was pulled
+    this.major = 0;
+    this.minor = 0;
+    this.patch = 0;
+    this.flag = "";
+    this.revision = 0;
+  }
+=====*/

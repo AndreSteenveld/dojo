@@ -4,9 +4,11 @@ define(["require"], function(require) {
   //  summary:
   //    Defines the has.js API and several feature tests used by dojo.
   //  description:
-  //    This module defines and has the value of the has function as described by the 
-  //    project has.js. The has function includes the method add and the property cache; 
-  //    other methods/properties defined by the has.js project are not included.
+  //    This module defines the has API as described by the project has.js with the following additional features:
+  // 
+  //      * the has test cache is exposed at has.cache.
+  //      * the method has.add includes a forth parameter that controls whether or not existing tests are replaced
+  //      * the loader's has cache may be optionally copied into this module's has cahce.
   // 
   //    This module adopted from https://github.com/phiggins42/has.js; thanks has.js team! 
 
@@ -83,32 +85,39 @@ define(["require"], function(require) {
 		"device-width": screen.availWidth || innerWidth,
 		"agent-ios": !!agent.match(/iPhone|iP[ao]d/),
 		"agent-android": agent.indexOf("android") > 1,
-		"dojo-load-firebug-console": !!this["loadFirebugConsole"],// the firebug 2.0 console
-  		"dojo-debug-messages": 1, // include dojo.deprecated/dojo.experimental implementations
-  		"dojo-guarantee-console": 1,  // ensure that console.log, console.warn, etc. are defined
-		"dojo-openAjax": typeof OpenAjax != "undefined", // register dojo with the OpenAjax hub
-		"dojo-sniff-config": has("dom") ? 1 : 0,
-		"dojo-v1x-i18n-Api": 1, // define the v1.x i18n functions 
-		"dojo-test-sniff": 1,
-		"loader-priority-addOnLoad": 0, // explicitly define the priority ready queue 
-		"bug-for-in-skips-shadowed": function() {
-			// does the javascript implementation skip properties that exist in Object's prototype (IE 6 - ?)
-			for(var i in {toString: 1}){
-				return 0;
-			}
-			return 1;
-		},
-		"native-xhr": typeof XMLHttpRequest != "undefined", // does the environment have a native XHR implementation
-  });
-
-  if(require.vendor=="dojotoolkit.org"){
-    var p, i, requireHas= require.has;
-    for(p in requireHas){
-      cache[p]= requireHas(p);
+    // since we're operating under a loader that doesn't provide a has API, we must explicitly initialize
+    // has as it would have otherwise been initialized by the dojo loader; use has.add to the builder
+    // can optimize these away iff desired
+    "host-browser": isBrowser,
+    "dom": isBrowser,
+    "host-addEventListener": doc && !!doc.addEventListener,
+    "loader-pageLoadApi": 1,
+    "dojo-sniff": 1
+	});
+  has.load= function(mid, require, load){
+    // summary: 
+    //   Conditional loading of AMD modules based on a has feature test value.
+    //
+    // mid: String
+    //   Gives the has feature name, a module to load when the feature exists, and optionally a module
+    //   to load when the feature is false. The string had the format `"feature-name!path/to/module!path/to/other/module"`
+    //
+    // require: Function
+    //   The loader require function with respect to the module that contained the plugin resource in it's
+    //   dependency list.
+    // 
+    // load: Function
+    //   Callback to loader that consumes result of plugin demand.
+  
+    var parts= mid.split("!");
+    mid= has(parts[0]) ? parts[1] : parts[2];
+    if(mid){
+      require([mid], function(result){
+        load(result);
+      });
+    }else{
+      load(0);
     }
-    for(i= 0; i<requireHas.length||0; i++){
-      cache[i]= requireHas[i];
-    }
-  }
+  };
   return has;
 });

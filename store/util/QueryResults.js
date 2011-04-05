@@ -1,4 +1,9 @@
-define("dojo/store/util/QueryResults", ["dojo/lib/kernel", "dojo/_base/lang", "dojo/_base/Deferred"], function(dojo) {
+define(["../../lib/kernel", "../../_base/lang", "../../_base/Deferred"], function(dojo) {
+  //  module:
+  //    dojo/store/util/QueryResults
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("store.util", true, dojo);
 
 dojo.store.util.QueryResults = function(results){

@@ -1,48 +1,59 @@
-// AMD module id = dojo/sniff
-//
-// This module TODOC
-// 
-// 
 define(["./kernel", "../has"], function(dojo, has){
+  //  module:
+  //    dojo/sniff
+  //  summary:
+  //    This module populates the dojo browser version sniffing properties.
+
   var 
     n = navigator,
     dua = n.userAgent,
     dav = n.appVersion,
-    tv = parseFloat(dav);
+    tv = parseFloat(dav),
+    isOpera,
+    isAIR,
+    isKhtml,
+    isWebKit,
+    isChrome,
+    isMac ,
+    isSafari,
+    isMozilla ,
+    isIE ,
+    isFF,
+    isQuirks;
 
   dojo.isBrowser = true,
   dojo._name = "browser";
 
   // fill in the rendering support information in dojo.render.*
-  if(dua.indexOf("Opera") >= 0){ dojo.isOpera = tv; }
-  if(dua.indexOf("AdobeAIR") >= 0){ dojo.isAIR = 1; }
-  dojo.isKhtml = (dav.indexOf("Konqueror") >= 0) ? tv : 0;
-  dojo.isWebKit = parseFloat(dua.split("WebKit/")[1]) || undefined;
-  dojo.isChrome = parseFloat(dua.split("Chrome/")[1]) || undefined;
-  dojo.isMac = dav.indexOf("Macintosh") >= 0;
+  if(dua.indexOf("Opera") >= 0){ isOpera = tv; }
+  if(dua.indexOf("AdobeAIR") >= 0){ isAIR = 1; }
+  isKhtml = (dav.indexOf("Konqueror") >= 0) ? tv : 0;
+  isWebKit = parseFloat(dua.split("WebKit/")[1]) || undefined;
+  isChrome = parseFloat(dua.split("Chrome/")[1]) || undefined;
+  isMac = dav.indexOf("Macintosh") >= 0;
 
   // safari detection derived from:
   //    http://developer.apple.com/internet/safari/faq.html#anchor2
   //    http://developer.apple.com/internet/safari/uamatrix.html
   var index = Math.max(dav.indexOf("WebKit"), dav.indexOf("Safari"), 0);
-  if(index && !dojo.isChrome){
+  if(index && !isChrome){
     // try to grab the explicit Safari version first. If we don't get
     // one, look for less than 419.3 as the indication that we're on something
     // "Safari 2-ish".
-    dojo.isSafari = parseFloat(dav.split("Version/")[1]);
-    if(!dojo.isSafari || parseFloat(dav.substr(index + 7)) <= 419.3){
-      dojo.isSafari = 2;
+    isSafari = parseFloat(dav.split("Version/")[1]);
+    if(!isSafari || parseFloat(dav.substr(index + 7)) <= 419.3){
+      isSafari = 2;
     }
   }
 
   if (!has("dojo-webkit")) {
-   if(dua.indexOf("Gecko") >= 0 && !dojo.isKhtml && !dojo.isWebKit){ dojo.isMozilla = dojo.isMoz = tv; }
-    if(dojo.isMoz){
+   if(dua.indexOf("Gecko") >= 0 && !isKhtml && !isWebKit){ isMozilla = isMoz = tv; }
+    if(isMoz){
       //We really need to get away from this. Consider a sane isGecko approach for the future.
-      dojo.isFF = parseFloat(dua.split("Firefox/")[1] || dua.split("Minefield/")[1]) || undefined;
+      isFF = parseFloat(dua.split("Firefox/")[1] || dua.split("Minefield/")[1]) || undefined;
     }
-    if(document.all && !dojo.isOpera){
-      dojo.isIE = parseFloat(dav.split("MSIE ")[1]) || undefined;
+    if(document.all && !isOpera){
+      isIE = parseFloat(dav.split("MSIE ")[1]) || undefined;
       //In cases where the page has an HTTP header or META tag with
       //X-UA-Compatible, then it is in emulation mode.
       //Make sure isIE reflects the desired version.
@@ -50,22 +61,36 @@ define(["./kernel", "../has"], function(dojo, has){
       //Only switch the value if documentMode's major version
       //is different from isIE's major version.
       var mode = document.documentMode;
-      if(mode && mode != 5 && Math.floor(dojo.isIE) != mode){
-        dojo.isIE = mode;
+      if(mode && mode != 5 && Math.floor(isIE) != mode){
+        isIE = mode;
       }
     }
   
     //Workaround to get local file loads of dojo to work on IE 7
     //by forcing to not use native xhr.
-    if(dojo.isIE && window.location.protocol === "file:"){
+    if(isIE && window.location.protocol === "file:"){
+//TODO: look at this with respect to v1.7 loader changes
       dojo.config.ieForceActiveXXhr=true;
     }
     dojo.locale= n.language.toLowerCase();
   } else {
-    dojo.locale = (dojo.isIE ? n.userLanguage : n.language).toLowerCase();
+    dojo.locale = (isIE ? n.userLanguage : n.language).toLowerCase();
   }
 
-  dojo.isQuirks = document.compatMode == "BackCompat";
+  isQuirks = document.compatMode == "BackCompat";
+
+  has.add("browser", 1);
+  has.add("opera", dojo.isOpera= isOpera);
+  has.add("air", dojo.isAIR= isAIR);
+  has.add("khtml", dojo.isKhtml= isKhtml);
+  has.add("webKit", dojo.isWebKit= isWebKit);
+  has.add("chrome", dojo.isChrome= isChrome);
+  has.add("mac ", dojo.isMac = isMac );
+  has.add("safari", dojo.isSafari= isSafari);
+  has.add("Mozilla ", dojo.isMozilla = isMozilla );
+  has.add("ie ", dojo.isIE = isIE );
+  has.add("ff", dojo.isFF= isFF);
+  has.add("quirks", dojo.isQuirks= isQuirks);
 
   dojo._isDocumentOk = function(http){
     var stat = http.status || 0;
@@ -76,6 +101,8 @@ define(["./kernel", "../has"], function(dojo, has){
       !stat; // OR we're Titanium/browser chrome/chrome extension requesting a local file
   };
 
+  has.add("vml", isIE);
+
   if (has("vml")) {
     // TODO: can this be moved to a more-appropriate module?
     // TODO: can the try-catch be removed if we know that vml is supported?
@@ -84,7 +111,7 @@ define(["./kernel", "../has"], function(dojo, has){
         document.namespaces.add("v", "urn:schemas-microsoft-com:vml");
         var vmlElems = ["*", "group", "roundrect", "oval", "shape", "rect", "imagedata", "path", "textpath", "text"],
           i = 0, l = 1, s = document.createStyleSheet();
-        if(dojo.isIE >= 8){
+        if(isIE >= 8){
           i = 1;
           l = vmlElems.length;
         }

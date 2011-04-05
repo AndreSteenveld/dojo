@@ -1,4 +1,8 @@
 define(["./kernel", "../listen", "../aspect", "./event", "../mouse", "./keypress", "./lang"], function(dojo, listen, aspect, eventModule, mouse, keypress){
+  //  module:
+  //    dojo/_base/connect
+  //  summary:
+  //    This module defines the dojo.connect API.
 
 dojo.connect = function(/*Object|null*/ obj,
 						/*String*/ event,

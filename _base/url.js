@@ -1,9 +1,9 @@
-// AMD module id = dojo/url
-//
-// This module TODOC
-// 
-// 
 define(["./kernel"], function(dojo) {
+  //  module:
+  //    dojo/url
+  //  summary:
+  //    This module contains dojo._Url
+
   var
     ore = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?$"),
     ire = new RegExp("^((([^\\[:]+):)?([^@]+)@)?(\\[([^\\]]+)\\]|([^\\[:]*))(:([0-9]+))?$");

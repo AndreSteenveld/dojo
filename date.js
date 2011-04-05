@@ -1,4 +1,9 @@
-define("dojo/date", ["dojo"], function(dojo) {
+define(["."], function(dojo) {
+  //  module:
+  //    dojo/date
+  //  summary:
+  //    The module defines 
+
 dojo.getObject("date", true, dojo);
 
 /*=====

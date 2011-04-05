@@ -1,4 +1,9 @@
-define("dojo/store/Cache", ["dojo"], function(dojo) {
+define([".."], function(dojo) {
+  //  module:
+  //    dojo/store/Cache
+  //  summary:
+  //    The module defines 
+
 
 /*=====
 dojo.declare("dojo.store.__CacheArgs", null, {

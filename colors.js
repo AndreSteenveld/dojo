@@ -1,5 +1,10 @@
 define(["."], function(dojo) {
-dojo.getObject("colors", true, dojo);
+  //  module:
+  //    dojo/colors
+  //  summary:
+  //    This module defines the dojo.colors API.
+
+dojo.colors= dojo.colors || {};
 
 //TODO: this module appears to break naming conventions
 

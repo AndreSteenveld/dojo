@@ -1,4 +1,9 @@
-define("dojo/store/Memory", ["dojo", "dojo/store/util/QueryResults", "dojo/store/util/SimpleQueryEngine"], function(dojo) {
+define(["..", "./util/QueryResults", "./util/SimpleQueryEngine"], function(dojo) {
+  //  module:
+  //    dojo/store/Memory
+  //  summary:
+  //    The module defines 
+
 
 dojo.declare("dojo.store.Memory", null, {
 	constructor: function(/*dojo.store.Memory*/ options){
