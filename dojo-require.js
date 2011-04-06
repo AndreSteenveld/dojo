@@ -1,4 +1,12 @@
 define(["dojo", "./text"], function(dojo, textPlugin){
+	// summary:
+	//		Plugin for loading legacy dojo modules (that use dojo.provide/dojo.require)
+	// 		with the async loader. For example:
+	//		|	define(["dojo/dojo-require!dojox.cometd"], function(){
+	//		|		dojox.cometd.init("/cometd");
+	//		|		...
+	//		|	});
+	//		This will load dojox.cometd and all it's dependencies asynchronously.
 	if(dojo.require){
 		// just use existing dojo.require
 		return {
