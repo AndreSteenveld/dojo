@@ -24,12 +24,14 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
  */
  	"use strict";
 	var attachEvent, after = aspect.after;
-	var major = window.ScriptEngineMajorVersion;
-	has.add({
-		"dom-addeventlistener": !!document.addEventListener,
-		"config-allow-leaks": dojo.config._allow_leaks, // TODO: I think we can have config settings be assigned in kernel or bootstrap
-		"jscript": major && (major() + ScriptEngineMinorVersion() / 10) 
-	});
+	if(typeof window != "undefined"){ // check to make sure we are in a browser, this module should work anywhere
+		var major = window.ScriptEngineMajorVersion;
+		has.add({
+			"dom-addeventlistener": !!document.addEventListener,
+			"config-allow-leaks": dojo.config._allow_leaks, // TODO: I think we can have config settings be assigned in kernel or bootstrap
+			"jscript": major && (major() + ScriptEngineMinorVersion() / 10) 
+		});
+	}
 	var undefinedThis = (function(){
 		return this; // this depends on strict mode
 	})();
@@ -151,6 +153,32 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return listen(node, "page", listener);
 		}
     }
+	var objectDispatch = listen.dispatch = function(target, event){
+		// summary:
+		//		Fires an event on the target object.
+		//	target:
+		//		The target object to fire the event on
+		//	event:
+		//		An object to use as the event. See https://developer.mozilla.org/en/DOM/event.initEvent for some of the properties.
+		//	example:
+		//		To fire our own click event
+		//	|	listen.dispatch(dojo.byId("button"), {
+		//	|		type: "click",
+		//	|		cancelable: true,
+		//	|		bubbles: true,
+		//	|		screenX: 33,
+		//	|		screenY: 44
+		//	|	});
+		//		We can also fire our own custom events:
+		//	|	listen.dispatch(dojo.byId("slider"), {
+		//	|		type: "swipe",
+		//	|		cancelable: true,
+		//	|		bubbles: true,
+		//	|		direction: "left-to-right"
+		//	|	});
+		var type = "on" + event.type;
+		return this[type] && this[type](event);
+	};
 
 	if(!has("dom-addeventlistener")){
 		listen._fixEvent = function(evt, sender){
@@ -237,7 +265,22 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			}
 			this.returnValue = false;
 		};
-				
+	}else{
+		listen.dispatch = function(target, event){
+			if(target.dispatchEvent && document.createEvent){
+				// use the native event dispatching mechanism if it is available on the target object
+				// create a generic event
+				var nativeEvent = document.createEvent("HTMLEvents");
+				nativeEvent.initEvent(event.type, event.bubbles, event.cancelable);
+				// and copy all our properties over
+				for(var i in event){
+					nativeEvent[i] = event[i];
+				}
+				return target.dispatchEvent(nativeEvent);
+			}
+			return objectDispatch(target, event);
+		};
+		
 	}
 	listen.publish = prototype.emit = /*prototype.publish = prototype.dispatchEvent = */function(type, event){
 		type = "on" + type;
