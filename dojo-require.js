@@ -6,7 +6,7 @@ define(["dojo", "./text"], function(dojo, textPlugin){
 	//		|		dojox.cometd.init("/cometd");
 	//		|		...
 	//		|	});
-	//		This will load dojox.cometd and all it's dependencies asynchronously.
+	//		This will load dojox.cometd and all it's dependencies asynchronously. 
 	if(dojo.require){
 		// just use existing dojo.require
 		return {
