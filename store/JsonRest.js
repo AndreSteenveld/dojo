@@ -5,6 +5,10 @@ define(["../_base/kernel", "../_base/xhr", "../json", "../_base/declare", "./uti
   //    The module defines 
 
 declare("dojo.store.JsonRest", null, {
+	// summary:
+	//		This is a basic store for RESTful communicating with a server through JSON
+	//		formatted data. It implements dojo.store.api.Store.
+
 	constructor: function(/*dojo.store.JsonRest*/ options){
 		// summary:
 		//		This is a basic store for RESTful communicating with a server through JSON
@@ -55,7 +59,7 @@ declare("dojo.store.JsonRest", null, {
 		//		if the object has an id, otherwise it will trigger a POST request.
 		// object: Object
 		//		The object to store.
-		// options: Object?
+		// options: dojo.store.api.Store.PutDirectives?
 		//		Additional metadata for storing the data.  Includes an "id"
 		//		property if a specific id is to be used.
 		//	returns: Number
@@ -79,7 +83,7 @@ declare("dojo.store.JsonRest", null, {
 		//		if the object has an id, otherwise it will trigger a POST request.
 		// object: Object
 		//		The object to store.
-		// options: Object?
+		// options: dojo.store.api.Store.PutDirectives?
 		//		Additional metadata for storing the data.  Includes an "id"
 		//		property if a specific id is to be used.
 		options = options || {};
@@ -101,9 +105,9 @@ declare("dojo.store.JsonRest", null, {
 		//		query added as a query string.
 		// query: Object
 		//		The query to use for retrieving objects from the store.
-		//	options: dojo.store.util.SimpleQueryEngine.__queryOptions?
+		//	options: dojo.store.api.Store.QueryOptions?
 		//		The optional arguments to apply to the resultset.
-		//	returns: dojo.store.util.QueryResults
+		//	returns: dojo.store.api.Store.QueryResults
 		//		The results of the query, extended with iterative methods.
 		var headers = {Accept: "application/javascript, application/json"};
 		options = options || {};
