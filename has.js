@@ -97,7 +97,7 @@ define(["require"], function(require) {
     "loader-pageLoadApi": 1,
     "dojo-sniff": 1
 	});
-  has.load= function(mid, require, load){
+  has.load= function(id, parentRequire, loaded){
     // summary: 
     //   Conditional loading of AMD modules based on a has feature test value.
     //
@@ -112,15 +112,34 @@ define(["require"], function(require) {
     // load: Function
     //   Callback to loader that consumes result of plugin demand.
   
-    var parts= mid.split("!");
-    mid= has(parts[0]) ? parts[1] : parts[2];
-    if(mid){
-      require([mid], function(result){
-        load(result);
-      });
-    }else{
-      load(0);
-    }
+		var tokens = id.match(/[\?:]|[^:\?]*/g), i = 0;
+		function get(skip){
+			var operator, term = tokens[i++];
+			if(term == ":"){
+				// empty string module name, resolves to undefined
+				return;
+			}else{
+				// postfixed with a ? means it is a feature to branch on, the term is the name of the feature
+				if(tokens[i++] == "?"){
+					if(!skip && has(term)){
+						// matched the feature, get the first value from the options 
+						return get();
+					}else{
+						// did not match, get the second value, passing over the first
+						get(true);
+						return get(skip);
+					}
+				}
+				// a module
+				return term;
+			}
+		}
+		id = get();
+		if(id){
+			parentRequire([id], loaded);
+		}else{
+			loaded();
+		}
   };
   return has;
 });
