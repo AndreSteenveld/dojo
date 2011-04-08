@@ -1,75 +1,4 @@
-(function(){
-  if(typeof define!="function"){
-   	// a self-sufficient query impl
-    var acme = {
-  		trim: function(/*String*/ str){
-  			// summary:
-  			//		trims whitespaces from both sides of the string
-  			str = str.replace(/^\s+/, '');
-  			for(var i = str.length - 1; i >= 0; i--){
-  				if(/\S/.test(str.charAt(i))){
-  					str = str.substring(0, i + 1);
-  					break;
-  				}
-  			}
-  			return str;	// String
-  		},
-  		forEach: function(/*String*/ arr, /*Function*/ callback, /*Object?*/ thisObject){
-  			//	summary:
-  			// 		an iterator function that passes items, indexes,
-  			// 		and the array to a callback
-  			if(!arr || !arr.length){ return; }
-  			for(var i=0,l=arr.length; i<l; ++i){
-  				callback.call(thisObject||window, arr[i], i, arr);
-  			}
-  		},
-  		byId: function(id, doc){
-  			// 	summary:
-  			//		a function that return an element by ID, but also
-  			//		accepts nodes safely
-  			if(typeof id == "string"){
-  				return (doc||document).getElementById(id); // DomNode
-  			}else{
-  				return id; // DomNode
-  			}
-  		},
-  		// the default document to search
-  		doc: document,
-  		// the constructor for node list objects returned from query()
-  		NodeList: Array
-  	};
-  
-  	// define acme.isIE, acme.isSafari, acme.isOpera, etc.
-  	var n = navigator;
-  	var dua = n.userAgent;
-  	var dav = n.appVersion;
-  	var tv = parseFloat(dav);
-  	acme.isOpera = (dua.indexOf("Opera") >= 0) ? tv: undefined;
-  	acme.isKhtml = (dav.indexOf("Konqueror") >= 0) ? tv : undefined;
-  	acme.isWebKit = parseFloat(dua.split("WebKit/")[1]) || undefined;
-  	acme.isChrome = parseFloat(dua.split("Chrome/")[1]) || undefined;
-  	var index = Math.max(dav.indexOf("WebKit"), dav.indexOf("Safari"), 0);
-  	if(index && !acme.isChrome){
-  		acme.isSafari = parseFloat(dav.split("Version/")[1]);
-  		if(!acme.isSafari || parseFloat(dav.substr(index + 7)) <= 419.3){
-  			acme.isSafari = 2;
-  		}
-  	}
-  	if(document.all && !acme.isOpera){
-  		acme.isIE = parseFloat(dav.split("MSIE ")[1]) || undefined;
-  	}
-  
-  	Array._wrap = function(arr){ return arr; };
-
-    define= function(deps, factory) {
-      factory(this.queryPortability || (this.acme= acme), function(){return acme.isWebKit;});
-    };
-    define.dojoQueryFakeShim= 1;
-  }
-})();
-
-
-define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], function(dojo, has){
+define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_base/window"], function(dojo, has){
   //  module:
   //    dojo/_base/query
   //  summary:
@@ -78,52 +7,10 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
   var d= dojo;
 
 	var ctr = 0;
-  if(has("webkit")){
-		d.query= function(query, root){
-			d._NodeListCtor = dojo.NodeList;
-			if(!query){
-				return new d._NodeListCtor();
-			}
-
-			if(query.constructor == d._NodeListCtor){
-				return query;
-			}
-
-			if(typeof query != "string"){ // inline'd type check
-				return new d._NodeListCtor(query); // dojo.NodeList
-			}
-
-			if(typeof root == "string"){ // inline'd type check
-				root = dojo.byId(root);
-				if(!root){ return new d._NodeListCtor(); }
-			}
-
-			root = root||dojo.doc;
-			var rootIsDoc = (root.nodeType == 9);
-			var doc = rootIsDoc ? root : (root.ownerDocument||dojo.doc);
-			// rewrite the query to be ID rooted
-			if(!rootIsDoc || (">~+".indexOf(query.charAt(0)) >= 0)){
-				root.id = root.id||("qUnique"+(ctr++));
-				query = "#"+root.id+" "+query;
-			}
-			// rewrite the query to not choke on something like ".yada.yada >"
-			// by adding a final descendant component
-
-			if(">~+".indexOf(query.slice(-1)) >= 0){
-				query += " *";
-			}
-			return d._NodeListCtor._wrap(
-				Array.prototype.slice.call(
-					doc.querySelectorAll(query)
-				)
-			);
-		};
-	}
-
 /*
-	dojo.query() architectural overview:
+	acme architectural overview:
 
-		dojo.query is a relatively full-featured CSS3 query library. It is
+		acme is a relatively full-featured CSS3 query library. It is
 		designed to take any valid CSS3 selector and return the nodes matching
 		the selector. To do this quickly, it processes queries in several
 		steps, applying caching where profitable.
@@ -157,7 +44,7 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 	// Toolkit aliases
 	////////////////////////////////////////////////////////////////////////
 
-	// if you are extracting dojo.query for use in your own system, you will
+	// if you are extracting acme for use in your own system, you will
 	// need to provide these methods and properties. No other porting should be
 	// necessary, save for configuring the system to use a class other than
 	// dojo.NodeList as the return instance instantiator
@@ -168,7 +55,6 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 	// 					d.isOpera; // float
 	// 					d.isWebKit; // float
 	// 					d.doc ; // document element
-	var qlc = (d._NodeListCtor = 		d.NodeList);
 
 	var getDoc = function(){ return d.doc; };
 	// NOTE(alex): the spec is idiotic. CSS queries should ALWAYS be case-sensitive, but nooooooo
@@ -203,7 +89,7 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 		//		state machine for query tokenization
 		//	description:
 		//		instead of using a brittle and slow regex-based CSS parser,
-		//		dojo.query implements an AST-style query representation. This
+		//		acme implements an AST-style query representation. This
 		//		representation is only generated once per query. For example,
 		//		the same query run multiple times or under different root nodes
 		//		does not re-parse the selector expression but instead uses the
@@ -1166,7 +1052,7 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 			// that need to be fast (e.g., "#someId").
 			var tef = getElementsFunc(qparts[0]);
 			return function(root){
-				var r = tef(root, new qlc());
+				var r = tef(root, []);
 				if(r){ r.nozip = true; }
 				return r;
 			}
@@ -1370,10 +1256,9 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 	var _zipIdxName = "_zipIdx";
 	var _zip = function(arr){
 		if(arr && arr.nozip){
-			return (qlc._wrap) ? qlc._wrap(arr) : arr;
+			return arr;
 		}
-		// var ret = new d._NodeListCtor();
-		var ret = new qlc();
+		var ret = [];
 		if(!arr || !arr.length){ return ret; }
 		if(arr[0]){
 			ret.push(arr[0]);
@@ -1414,7 +1299,7 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 	};
 
 	// the main executor
-	d.query = function(/*String*/ query, /*String|DOMNode?*/ root){
+	var query = function(/*String*/ query, /*String|DOMNode?*/ root){
 		//	summary:
 		//		Returns nodes which match the given CSS3 selector, searching the
 		//		entire document by default but optionally taking a node to scope
@@ -1429,7 +1314,7 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 		//		Supported Selectors:
 		//		--------------------
 		//
-		//		dojo.query() supports a rich set of CSS3 selectors, including:
+		//		acme supports a rich set of CSS3 selectors, including:
 		//
 		//			* class selectors (e.g., `.foo`)
 		//			* node type selectors like `span`
@@ -1505,10 +1390,7 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 		//		CSS3 selectors, see <http://www.w3.org/TR/css3-selectors/#selectors>
 		//	root:
 		//		A DOMNode (or node id) to scope the search from. Optional.
-		//	returns: dojo.NodeList
-		//		An instance of `dojo.NodeList`. Many methods are available on
-		//		NodeLists for searching, iterating, manipulating, and handling
-		//		events on the matched nodes in the returned list.
+		//	returns: Array
 		//	example:
 		//		search the entire document for elements with the class "foo":
 		//	|	dojo.query(".foo");
@@ -1561,25 +1443,6 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 		//	|		});
 		//	|	});
 
-		//Set list constructor to desired value. This can change
-		//between calls, so always re-assign here.
-		qlc = d._NodeListCtor;
-
-		if(!query){
-			return new qlc();
-		}
-
-		if(query.constructor == qlc){
-			return query;
-		}
-		if(typeof query != "string"){ // inline'd type check
-			return new qlc(query); // dojo.NodeList
-		}
-		if(typeof root == "string"){ // inline'd type check
-			root = d.byId(root);
-			if(!root){ return new qlc(); }
-		}
-
 		root = root||getDoc();
 		var od = root.ownerDocument||root.documentElement;
 
@@ -1601,18 +1464,15 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 
 		// FIXME:
 		//		need to investigate this branch WRT #8074 and #8075
-		if(r && r.nozip && !qlc._wrap){
+		if(r && r.nozip){
 			return r;
 		}
 		return _zip(r); // dojo.NodeList
 	}
-
-	// FIXME: need to add infrastructure for post-filtering pseudos, ala :last
-	d.query.pseudos = pseudos;
-
-	// function for filtering a NodeList based on a selector, optimized for simple selectors
-	d._filterQueryResult = function(/*NodeList*/ nodeList, /*String*/ filter, /*String|DOMNode?*/ root){
-		var tmpNodeList = new d._NodeListCtor(),
+	query.filter = function(/*Node[]*/ nodeList, /*String*/ filter, /*String|DOMNode?*/ root){
+		// summary:
+		// 		function for filtering a NodeList based on a selector, optimized for simple selectors
+		var tmpNodeList = [],
 			parts = getQueryParts(filter),
 			filterFunc =
 				(parts.length == 1 && !/[^\w#\.]/.test(filter)) ?
@@ -1624,5 +1484,6 @@ define(["./kernel", "../has", "./sniff", "./NodeList", "./lang", "./window"], fu
 			if(filterFunc(te)){ tmpNodeList.push(te); }
 		}
 		return tmpNodeList;
-	}
+	};
+	return query;
 });//end defineQuery
