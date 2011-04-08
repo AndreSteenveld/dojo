@@ -389,6 +389,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			var events = eventName.split(",");
 			var i = 0;
 			var queryResults = this;
+			var handles = [];
 			while(eventName = events[i++]){
 				var selector = eventName.match(/(.*):(.*)/);
 				// if we have pseudo, the last one is interpreted as an event
@@ -397,8 +398,8 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 					selector = selector[1];
 				}
 				// add listener for each node
-				this.forEach(function(node){
-					listen(node, eventName, selector ? function(event){
+				handles = handles.concat(this.map(function(node){
+					return listen(node, eventName, selector ? function(event){
 						var target = event.target;
 						// there is a selector, so make sure it matches
 						while(!dojo.query.matches(target, selector, node)){
@@ -409,8 +410,14 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 						}
 						listener.call(target, event);
 					} : listener);
-				});
+				}));
 			}
+			handles.cancel = function(){
+				for(var i = 0; i < handles.length; i++){
+					handles[i].cancel();
+				}
+			};
+			return handles;
 		},
 
 		end: function(){
