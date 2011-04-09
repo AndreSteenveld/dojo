@@ -2,7 +2,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 /*
  * An events module built using very minimal code needed. The export of this module 
  * is a function that can be used to listen for events on a target:
- * listen = require("events");
+ * listen = require("dojo/listen");
  * listen(node, "click", clickHandler);
  * 
  * The export of this module can be used as a mixin, to add on() and emit() methods
@@ -153,7 +153,14 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return listen(node, "page", listener);
 		}
     }
-	var objectDispatch = listen.dispatch = function(target, event){
+    
+    function syntheticPreventDefault(){
+    	this.cancelable = false;
+    }
+    function syntheticStopPropagation(){
+    	this.bubbles = false;
+    }
+	var syntheticDispatch = listen.dispatch = function(target, event){
 		// summary:
 		//		Fires an event on the target object.
 		//	target:
@@ -176,8 +183,15 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		//	|		bubbles: true,
 		//	|		direction: "left-to-right"
 		//	|	});
-		var type = "on" + event.type;
-		return this[type] && this[type](event);
+		var method = "on" + event.type;
+		event.preventDefault = syntheticPreventDefault;
+		event.stopPropagation = syntheticStopPropagation;
+		do{
+			// call any node which has a handler (note that ideally we would try/catch to simulate normal event propagation but that causes too much pain for debugging)
+			target[method] && target[method](event);
+			// and then continue up the parent node chain if it is still bubbling (if started as bubbles and stopPropagation hasn't been called)
+		}while(event.bubbles && (target = target.parentNode));
+		return event.cancelable; // if it is still true (was cancelable and was cancelled, return true to indicate default action should happen)
 	};
 
 	if(!has("dom-addeventlistener")){
@@ -271,14 +285,14 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				// use the native event dispatching mechanism if it is available on the target object
 				// create a generic event
 				var nativeEvent = document.createEvent("HTMLEvents");
-				nativeEvent.initEvent(event.type, event.bubbles, event.cancelable);
+				nativeEvent.initEvent(event.type, !!event.bubbles, !!event.cancelable);
 				// and copy all our properties over
 				for(var i in event){
 					nativeEvent[i] = event[i];
 				}
 				return target.dispatchEvent(nativeEvent);
 			}
-			return objectDispatch(target, event);
+			return syntheticDispatch(target, event);
 		};
 		
 	}
