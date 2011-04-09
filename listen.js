@@ -65,6 +65,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		signal.resume = function(){
 			paused = false;
 		};
+		return signal;
 	};
 	var prototype = (listen.Evented = function(){}).prototype;
 	prototype.on = /*prototype.addListener = prototype.addEventListener = prototype.subscribe = prototype.connect = */
