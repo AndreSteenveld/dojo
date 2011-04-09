@@ -1,6 +1,6 @@
 define(["./_base/kernel"], function(dojo){
-(function(){
-  var result;
+	"use strict";
+	var result;
 	var hasJSON = typeof JSON != "undefined";
 	var features = {
 		"json-parse": hasJSON, // all the parsers work fine
@@ -136,5 +136,4 @@ define(["./_base/kernel"], function(dojo){
 	}
   dojo.json= result;
   return result; // AMD-result
-})();
 });
