@@ -5,7 +5,7 @@ define([".."], function(dojo) {
   //    The module defines 
 
 
-dojo.store.Observable = function(store){
+return function(store){
 	// summary:
 	//		The Observable store wrapper takes a store and sets an observe method on query()
 	//		results that can be used to monitor results for changes.
@@ -163,6 +163,4 @@ dojo.store.Observable = function(store){
 
 	return store;
 };
-
-return dojo.store.Observable;
 });
