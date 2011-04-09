@@ -10,7 +10,7 @@ define([
   "./_base/Deferred",
   "./_base/json",
   "./_base/Color",
-  "./has!host-browser!./_base/browser"], function(dojo, has){
+  "./has!host-browser?./_base/browser"], function(dojo, has){
   //  module:
   //    dojo/main
   //  summary:
