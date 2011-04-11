@@ -19,22 +19,19 @@ doh.register("tests.listen",
 			var signal2 = listen(obj, "custom", function(event){
 				order.push(event.a);
 			});
-			listen.dispatch(obj, {
-				type:"custom",
+			listen.dispatch(obj, "custom", {
 				a: 3
 			});
 			signal.pause();
 			var signal3 = listen(obj, "custom", function(a){
 				order.push(3);
 			}, true);
-			listen.dispatch(obj, {
-				type:"custom",
+			listen.dispatch(obj, "custom", {
 				a: 3
 			});
 			signal2.cancel();
 			signal.resume();
-			listen.dispatch(obj, {
-				type:"custom",
+			listen.dispatch(obj, "custom", {
 				a: 6
 			});
 			signal3.cancel();
@@ -42,8 +39,7 @@ doh.register("tests.listen",
 				order.push(4);
 			}, true);
 			signal.cancel();
-			listen.dispatch(obj, {
-				type:"custom",
+			listen.dispatch(obj, "custom", {
 				a: 7
 			});
 			t.is(order, [0,0,3,0,3,3,3,3,6,0,3,7,4]);
@@ -55,22 +51,18 @@ doh.register("tests.listen",
 			var signal = listen(div,"custom", function(event){
 				order.push(event.a);
 			});
-			listen.dispatch(div, {
-				type:"custom",
+			listen.dispatch(div, "custom", {
 				a: 0
 			});
-			listen.dispatch(div, {
-				type:"otherevent",
+			listen.dispatch(div, "otherevent", {
 				a: 0
 			});
-			t.t(listen.dispatch(span, {
-				type:"custom",
+			t.t(listen.dispatch(span, "custom", { 
 				a: 1,
 				bubbles: true,
 				cancelable: true
 			}));
-			t.t(listen.dispatch(span, {
-				type:"custom",
+			t.t(listen.dispatch(span, "custom", {
 				a: 1,
 				bubbles: false,
 				cancelable: true
@@ -79,23 +71,20 @@ doh.register("tests.listen",
 				order.push(event.a + 1);
 				event.preventDefault();
 			});
-			t.f(listen.dispatch(span, {
-				type:"custom",
+			t.f(listen.dispatch(span, "custom", {
 				a: 2,
 				bubbles: true,
 				cancelable: true
 			}));
 			signal2.pause();
-			t.t(listen.dispatch(span, {
-				type:"custom",
+			t.t(listen.dispatch(span, "custom", {
 				a: 4,
 				bubbles: true,
 				cancelable: true
 			}));
 			signal2.resume();
 			signal.cancel();
-			t.f(listen.dispatch(span, {
-				type:"custom",
+			t.f(listen.dispatch(span, "custom", {
 				a: 4,
 				bubbles: true,
 				cancelable: true
@@ -104,8 +93,7 @@ doh.register("tests.listen",
 				order.push(6);
 				event.stopPropagation();
 			});
-			t.t(listen.dispatch(span, {
-				type:"custom",
+			t.t(listen.dispatch(span, "custom", {
 				a: 1,
 				bubbles: true,
 				cancelable: true

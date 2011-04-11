@@ -158,8 +158,6 @@ dojo.disconnect = function(/*Handle*/ handle){
 
 // topic publish/subscribe
 
-var topics = {};
-
 dojo.subscribe = function(/*String*/ topic, /*Object|null*/ context, /*String|Function*/ method){
 	//	summary:
 	//		Attach a listener to a named topic. The listener function is invoked whenever the
@@ -175,7 +173,7 @@ dojo.subscribe = function(/*String*/ topic, /*Object|null*/ context, /*String|Fu
 	//	|	dojo.publish("alerts", [ "read this", "hello world" ]);
 
 	// support for 2 argument invocation (omitting context) depends on hitch
-	return listen(topics, topic, dojo.hitch(context, method));
+	return listen(listen, topic, dojo.hitch(context, method));
 };
 
 dojo.unsubscribe = function(/*Handle*/ handle){
@@ -208,7 +206,7 @@ dojo.publish = function(/*String*/ topic, /*Array*/ args){
 	// argument list.  Ideally, var args would be implemented via Array
 	// throughout the APIs.
 	topic = "on" + topic;
-	topics[topic] && topics[topic].apply(this, args || []);
+	listen[topic] && listen[topic].apply(this, args || []);
 };
 
 dojo.connectPublisher = function(	/*String*/ topic,

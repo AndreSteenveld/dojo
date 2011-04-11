@@ -1,27 +1,48 @@
 define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
-/*
- * An events module built using very minimal code needed. The export of this module 
- * is a function that can be used to listen for events on a target:
- * listen = require("dojo/listen");
- * listen(node, "click", clickHandler);
- * 
- * The export of this module can be used as a mixin, to add on() and emit() methods
- * for listening for events and dispatching events:
- * var Evented = listen.Evented;
- * var EventedWidget = dojo.declare([Evented, Widget], {...});
- * widget = new EventedWidget();
- * widget.on("open", function(event){
- * 	... do something with event
- * });
- *
- * widget.emit("open", {name:"some event", ...});
- * 
- * You can also use listen function itself as a pub/sub hub:
- * listen("some/topic", function(event){
- * 	... do something with event
- * });
- * listen.publish("some/topic", {name:"some event", ...});
- */
+// summary:
+//		The export of this module is a function that provides core event listening functionality. With this function
+//		you can provide a target, event type, and listener to be notified of 
+//		future matching events that are fired.
+//	target:
+//		This is the target object or DOM node that to receive events from
+// type:
+// 		This is the name of the event to listen for.
+// listener:
+// 		This is the function that should be called when the event fires.
+// returns:
+// 		An object with a cancel() method that can be used to stop listening for this
+// 		event.
+// description:
+// 		To listen for "click" events on a button node, we can do:
+// 		|	define("dojo/listen", function(listen){
+// 		|		listen(button, "click", clickHandler);
+//		|		...
+//  	Plain JavaScript objects can also have their own events.
+// 		|	var obj = {};
+//		|	listen(obj, "foo", fooHandler);
+//		And then we could publish a "foo" event:
+//		|	listen.dispatch(obj, "foo", {key: "value"});
+//		which would trigger fooHandler. Note that for a simple object this is equivalent to calling:
+//		|	obj.onfoo({key:"value"});
+//		If you use listen.dispatch on a DOM node, it will use native event dispatching when possible.
+//		You can also use listen function itself as a pub/sub hub:
+//		| 	listen("some/topic", function(event){
+//		|	... do something with event
+//		|	});
+//		|	listen.publish("some/topic", {name:"some event", ...});
+// Evented: 
+// 		The "Evented" property of the export of this module can be used as a mixin or base class, to add on() and emit() methods to a class
+// 		for listening for events and dispatching events:
+// 		|	var Evented = listen.Evented;
+// 		|	var EventedWidget = dojo.declare([Evented, dijit._Widget], {...});
+//		|	widget = new EventedWidget();
+//		|	widget.on("open", function(event){
+//		|	... do something with event
+//		|	 });
+//		|
+//		|	widget.emit("open", {name:"some event", ...});
+//
+//
  	"use strict";
 	var attachEvent, after = aspect.after;
 	if(typeof window != "undefined"){ // check to make sure we are in a browser, this module should work anywhere
@@ -161,32 +182,35 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
     function syntheticStopPropagation(){
     	this.bubbles = false;
     }
-	var syntheticDispatch = listen.dispatch = function(target, event){
+	var syntheticDispatch = listen.dispatch = function(target, type, event){
 		// summary:
 		//		Fires an event on the target object.
 		//	target:
 		//		The target object to fire the event on
+		//	type:
+		//		The event type name
 		//	event:
 		//		An object to use as the event. See https://developer.mozilla.org/en/DOM/event.initEvent for some of the properties.
 		//	example:
 		//		To fire our own click event
-		//	|	listen.dispatch(dojo.byId("button"), {
-		//	|		type: "click",
+		//	|	listen.dispatch(dojo.byId("button"), "click", {
 		//	|		cancelable: true,
 		//	|		bubbles: true,
 		//	|		screenX: 33,
 		//	|		screenY: 44
 		//	|	});
 		//		We can also fire our own custom events:
-		//	|	listen.dispatch(dojo.byId("slider"), {
-		//	|		type: "swipe",
+		//	|	listen.dispatch(dojo.byId("slider"), "swipe", {
 		//	|		cancelable: true,
 		//	|		bubbles: true,
 		//	|		direction: "left-to-right"
 		//	|	});
-		var method = "on" + event.type;
-		event.preventDefault = syntheticPreventDefault;
-		event.stopPropagation = syntheticStopPropagation;
+		var method = "on" + type;
+		if("parentNode" in target){
+			// node (or node-like), create event controller methods
+			event.preventDefault = syntheticPreventDefault;
+			event.stopPropagation = syntheticStopPropagation;
+		}
 		do{
 			// call any node which has a handler (note that ideally we would try/catch to simulate normal event propagation but that causes too much pain for debugging)
 			target[method] && target[method](event);
@@ -281,19 +305,20 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			this.returnValue = false;
 		};
 	}else{
-		listen.dispatch = function(target, event){
+		// dispatcher that works with native event handling
+		listen.dispatch = function(target, type, event){
 			if(target.dispatchEvent && document.createEvent){
 				// use the native event dispatching mechanism if it is available on the target object
 				// create a generic event
 				var nativeEvent = document.createEvent("HTMLEvents");
-				nativeEvent.initEvent(event.type, !!event.bubbles, !!event.cancelable);
+				nativeEvent.initEvent(type, !!event.bubbles, !!event.cancelable);
 				// and copy all our properties over
 				for(var i in event){
 					nativeEvent[i] = event[i];
 				}
 				return target.dispatchEvent(nativeEvent);
 			}
-			return syntheticDispatch(target, event);
+			return syntheticDispatch(target, type, event);
 		};
 		
 	}
