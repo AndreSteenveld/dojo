@@ -1,4 +1,22 @@
 define(["./_base/kernel", "./listen"], function(dojo, listen){
+	// summary:
+	// 		This module provide mouse event handling utility functions and exports
+	// 		mouseenter and mouseleave event emulation.
+	// enter:
+	//		This is an extension event for the mouseenter that IE provides, emulating the
+	//		behavior on other browsers.
+	// leave:
+	//		This is an extension event for the mouseleave that IE provides, emulating the
+	//		behavior on other browsers.
+	// example:
+	//		To use these events, you register a mouseenter like this:
+	//		|	define(["dojo/listen", dojo/mouse"], function(listen, mouse){
+	//		|		listen(targetNode, mouse.enter, function(event){
+	// 		|			dojo.addClass(targetNode, "highlighted");
+	//		|		});
+	//		|		listen(targetNode, mouse.leave, function(event){
+	// 		|			dojo.removeClass(targetNode, "highlighted");
+	//		|		});
 	function has(feature){
 		return {
 			"dom-quirks": document.compatMode == "BackCompat",
@@ -89,6 +107,7 @@ define(["./_base/kernel", "./listen"], function(dojo, listen){
 	}
 	if(has("events-mouseenter")){
 		var eventHandler = function(type){
+			// essentially a pass through, the browser already has mouseenter/leave
 			return function(node, listener){
 				return listen(node, type, listener);
 			};
@@ -100,6 +119,7 @@ define(["./_base/kernel", "./listen"], function(dojo, listen){
 	}
 	else{
 		var eventHandler = function(type){
+			// emulation of mouseenter/leave with mouseover/out using descendant checking
 			return function(node, listener){
 				return listen(node, type, function(evt){
 					if(!dojo.isDescendant(evt.relatedTarget, node)){
