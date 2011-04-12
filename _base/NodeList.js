@@ -386,32 +386,9 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		This will listen for click events within <li> elements that are inside the #my-list element.
 			//		Because on supports CSS selector syntax, we can use comma-delimited events as well:
 			//		| dojo.query("#my-list").on("li button:mouseover, li:click", listener);
-			var events = eventName.split(",");
-			var i = 0;
-			var queryResults = this;
-			var handles = [];
-			while(eventName = events[i++]){
-				var selector = eventName.match(/(.*):(.*)/);
-				// if we have pseudo, the last one is interpreted as an event
-				if(selector){
-					eventName = selector[2];
-					selector = selector[1];
-				}
-				// add listener for each node
-				handles = handles.concat(this.map(function(node){
-					return listen(node, eventName, selector ? function(event){
-						var target = event.target;
-						// there is a selector, so make sure it matches
-						while(!dojo.query.matches(target, selector, node)){
-							if(target == node || !target){
-								return;
-							}
-							target = target.parentNode;
-						}
-						listener.call(target, event);
-					} : listener);
-				}));
-			}
+			var handles = this.map(function(node){
+				return listen(node, eventName, listener); // TODO: apply to the NodeList so the same selector engine is used for matches
+			});
 			handles.cancel = function(){
 				for(var i = 0; i < handles.length; i++){
 					handles[i].cancel();

@@ -58,20 +58,16 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	})();
 	
 	var listen = function(target, type, listener, dontFix){
-		if(this == undefinedThis || !this.on){
-			if(!listener){
-				// two args, do pub/sub
-				return listen(listen, target, type);
-			}
-			// this is being called directly, not being used for compose
-			if(target.on){ // delegate to the target's on() method
-				return target.on(type, listener);
-			}
-			// call with two args, where the target is |this|
-			return prototype.on.call(target, type, listener);
-		}/*else{
-			 being used as a mixin, don't do anything
-		}*/
+		if(!listener){
+			// two args, do pub/sub
+			return listen(listen, target, type);
+		}
+		if(target.on){ 
+			// delegate to the target's on() method, so it can handle it's own listening if it wants
+			return target.on(type, listener);
+		}
+		// delegate to main listener code
+		return addListener(target, type, listener, dontFix, this);
 	};
 	listen.pausable =  function(target, type, listener, dontFix){
 		var paused;
@@ -89,33 +85,72 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		return signal;
 	};
 	var prototype = (listen.Evented = function(){}).prototype;
-	prototype.on = /*prototype.addListener = prototype.addEventListener = prototype.subscribe = prototype.connect = */
-			function(type, listener, dontFix){
+	prototype.on = function(type, listener, dontFix){
+		return addListener(this, type, listener, dontFix, this);
+	}
+	function addListener(target, type, listener, dontFix, matchesTarget){
 		if(typeof type == "function"){
             // event handler function
             // listen(node, dojo.touch.press, touchListener);
-            return type(this, listener);
+            return type(target, listener);
         }
-		var node = this;
+
+		if(type.indexOf(",") > -1){
+			// we allow comma delimited event names, so you can register for multiple events at once
+			var events = type.split(/\s*,\s*/);
+			var handles = [];
+			var i = 0;
+			while(eventName = events[i++]){
+				handles.push(addListener(target, eventName, listener, dontFix, matchesTarget));
+			}
+			handles.cancel = function(){
+				for(var i = 0; i < handles.length; i++){
+					handles[i].cancel();
+				}
+			};
+			return handles;
+		}
+		
+		var selector = type.match(/(.*):(.*)/);
+		// if we have a selector:event, the last one is interpreted as an event
+		if(selector){
+			type = selector[2];
+			selector = selector[1];
+			var rawListener = listener;
+			listener = function(event){
+				var eventTarget = event.target;
+				// see if we have a valid matchesTarget or default to dojo.query 
+				matchesTarget = matchesTarget && matchesTarget.matches ? matchesTarget : dojo.query;
+				// there is a selector, so make sure it matches
+				while(!matchesTarget.matches(eventTarget, selector, target)){
+					if(eventTarget == target || !eventTarget){
+						return;
+					}
+					eventTarget = eventTarget.parentNode;
+				}
+				return rawListener.call(eventTarget, event);
+			};
+		}
+		
         // normal path, the target is |this|
-        if(this.addEventListener){
+        if(target.addEventListener){
             // the target has addEventListener, which should be used if available (might or might not be a node, non-nodes can implement this method as well)
             var signal = {
                 cancel: function(){
-                    node.removeEventListener(type, listener, false);
+                    target.removeEventListener(type, listener, false);
                 }
             };
-            node.addEventListener(type, listener, false);
+            target.addEventListener(type, listener, false);
             return signal;
         }
 
-        if(this.attachEvent && cleanupHandler && !this.onpage){
+        if(target.attachEvent && cleanupHandler && !target.onpage){
         	// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
-        	this.onpage = cleanupHandler;
+        	target.onpage = cleanupHandler;
         	usedEvents[type] = true; // register it as one of the used events
         }
        // use aop
-        return after(this, "on" + type, listener, true);
+        return after(target, "on" + type, listener, true);
     }
 	listen.destroy = function(node, listener){
 		// summary:
