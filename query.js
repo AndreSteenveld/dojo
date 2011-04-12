@@ -32,12 +32,12 @@ define(["./_base/kernel", "./_base/NodeList", "./has","./selector/_loader", "./s
 //		The id after the ! can be a module id of the selector engine or one of the following values:
 //		* acme: This is the default engine used by Dojo base, and will ensure that the full
 // 		Acme engine is always loaded. 
-//		* css2: If the browser has a native selector engine, this will be used, otherwise the
-// 		very minimal liteweight selector engine will be loaded that can do simple CSS2 selectors
+//		* css2: If the browser has a native selector engine, this will be used, otherwise a
+// 		very minimal lightweight selector engine will be loaded that can do simple CSS2 selectors
 // 		(by #id, .class, tag, and [name=value] attributes, with standard child or descendant (>)
 // 		operators) and nothing more.
 //		* css2.1: If the browser has a native selector engine, this will be used, otherwise the
-// 		full Acme will be loaded. 
+// 		full Acme engine will be loaded. 
 //		* css3: If the browser has a native selector engine with support for CSS3 pseudo
 // 		selectors (most modern browsers except IE8), this will be used, otherwise the
 // 		full Acme engine will be loaded.
