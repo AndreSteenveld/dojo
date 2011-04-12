@@ -1,4 +1,13 @@
-define("tests/data/ItemFileWriteStore", ["dojo", "tests/data/readOnlyItemFileTestTemplates", "dojo/data/ItemFileWriteStore", "dojo/data/api/Read", "dojo/data/api/Identity", "dojo/data/api/Write", "dojo/data/api/Notification"], function(dojo) {
+// FIXME: this test assumes the existence of the global object "tests"
+define([
+  "dojo", 
+  "doh", 
+  "tests/data/readOnlyItemFileTestTemplates", 
+  "dojo/data/ItemFileWriteStore", 
+  "dojo/data/api/Read", 
+  "dojo/data/api/Identity", 
+  "dojo/data/api/Write", 
+  "dojo/data/api/Notification"], function(dojo, doh) {
 
 dojo.getObject("data.ItemFileWriteStore", true, tests);
 

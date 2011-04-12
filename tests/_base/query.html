@@ -9,7 +9,7 @@
     </script>
 		<script type="text/javascript" src="../../dojo.js"></script>
 		<script type="text/javascript">
-      require(["dojo", "doh", "dojo/io/iframe"], function(dojo, doh){
+      require(["dojo", "doh", "dojo/io/iframe", "*ready"], function(dojo, doh){
 
   			function createDocument(xml){
   				var fauxXhr = { responseText: xml };

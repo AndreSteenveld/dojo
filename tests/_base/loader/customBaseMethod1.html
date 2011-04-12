@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>custom base - method1</title>
+    <script type="text/javaScript">
+      dojoConfig= {
+        loaderOnly:1,
+        async:1,
+        packages:[{
+          name:"dojo",
+          lib:".",
+          location:".",
+          main:"tests/_base/loader/customBase"
+        }]
+      }
+    </script>
+    <script type="text/javascript" src="../../../dojo.js"></script>
+    <script type="text/javaScript">
+      function check(cond) {
+        if (!cond) {
+          console.error("FAIL");
+        } else {
+          console.log("OK");
+        }
+      }
+      require(["dojo/tests/_base/loader/a", "dojo"], function(a) {
+        check(a.name=="a");
+
+        // full dojo isn't loaded....only kernel, load, lang, array
+        check(dojo.exists("dojo.isString"));
+        check(dojo.exists("dojo.forEach"));
+        check(!dojo.exists("dojo.declare"));
+      });
+
+      require(["dojo/tests/_base/loader/b"], function(b) {
+        check(b.name=="b");
+        check(b.a.name=="a");
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Description: Dojo with a Custom Base via a config</h1>
+    <ul>
+      <li>
+        This test is executed in asynchronous mode; it loads a custom dojo base by modifying the package config.
+      </li><li>
+        AMD modules "dojo/tests/_base/loader/a" and "dojo/tests/_base/loader/b" are defined.
+      </li><li>
+        b depends on a
+      </li><li>
+        require a defines a, not b
+      </li><li>
+        require b defines b; a is unchanged
+      </li>
+    </ul>
+    <p>Check console for results.<p>
+  </body>
+</html>

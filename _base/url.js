@@ -109,14 +109,15 @@ define(["./kernel"], function(dojo) {
   dojo._Url.prototype.toString = function(){ return this.uri; };
 
   dojo.moduleUrl = function(module, url){
+    // TODO what does v1.6- seems to return a trailing slash if url is missing; see dojo/tests/store/JsonRest.js fix from 1.6 - 1.7
     if(!module){
-     //TODO: don't understand why this would ever be so, but that's the logic in loader
+     //TODO: don't understand why this would ever be so, but that's the logic in 1.6- loader
      return null;
     }
     module = module.replace(/\./g, "/") + (url ? ("/" + url) : "");
     var
       type= "",
-      match= module.match(/(.+)(\.[^\/]*)$/);
+      match= module.match(/(.+)(\.[^\/]*?)$/);
     if (match) {
       module= match[1];
       type= match[2];

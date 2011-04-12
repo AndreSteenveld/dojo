@@ -33,7 +33,7 @@ define(["../has", "./config", "require"], function(has, config, require){
   // hard-setting a has feature test to force an execution path that may be different than
   // actually indicated in the environment.
   for (p in config.has) {
-    has.add(p, config.has[p]);
+    has.add(p, config.has[p], 0, 1);
   }
 
   var
@@ -58,7 +58,7 @@ define(["../has", "./config", "require"], function(has, config, require){
   var 
     dojo={
       config: {},
-      global:has("host-node") ? global : this,
+      global:this,
       dijit:{},
       dojox:{}
     },
@@ -114,12 +114,13 @@ define(["../has", "./config", "require"], function(has, config, require){
   }
   
   if(has("dojo-load-firebug-console")){
+//TODO: look at this
     loadFirebugConsole();
   }
   
   if(has("dojo-guarantee-console")){
     // intentional global console
-    console || (console= {});
+    typeof console!="undefined" || (console= {});
     //  Be careful to leave 'log' always at the end
     var cn = [
       "assert", "count", "debug", "dir", "dirxml", "error", "group",

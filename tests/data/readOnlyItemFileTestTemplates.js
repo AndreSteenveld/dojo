@@ -1,4 +1,5 @@
-define("tests/data/readOnlyItemFileTestTemplates", ["dojo/data/api/Read", "dojo/data/api/Identity", "dojo/date", "dojo/date/stamp"], function() {
+// FIXME: this test assumes the existence of the global object "tests"
+define(["dojo", "doh", "dojo/data/api/Read", "dojo/data/api/Identity", "dojo/date", "dojo/date/stamp"], function(dojo, doh) {
 
 dojo.getObject("data.readOnlyItemFileTestTemplates", true, tests);
 

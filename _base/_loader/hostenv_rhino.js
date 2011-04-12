@@ -25,7 +25,7 @@ if(!("byId" in dojo)){
 		return id; // assume it's a node
 	}
 }
- 
+
 dojo._isLocalUrl = function(/*String*/ uri) {
 	// summary:
 	// 		determines if URI is local or not.

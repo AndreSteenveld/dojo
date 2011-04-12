@@ -85,4 +85,7 @@ define(["./kernel", "require"], function(dojo, require) {
       dojo.requireLocalization(moduleName, bundleName, locale);
     };
   }
+
+  // FIXME: this dependency needs to be removed from the demos
+  dojo._getText= require.getText;
 });

@@ -149,8 +149,10 @@ if(dojo.isIE){
 	dojo.isDescendant = function(/*DomNode|String*/node, /*DomNode|String*/ancestor){
 		//	summary:
 		//		Returns true if node is a descendant of ancestor
-		//	node: string id or node reference to test
-		//	ancestor: string id or node reference of potential parent to test against
+		// node:
+		//		string id or node reference to test
+		// ancestor:
+		//		string id or node reference of potential parent to test against
 		//
 		// example:
 		//	Test is node id="bar" is a descendant of node id="foo"
@@ -458,7 +460,8 @@ if(dojo.isIE){
 			//	node: DomNode
 			//		a reference to a DOM node. Does NOT support taking an
 			//		ID string for speed reasons.
-			//	returns: Number between 0 and 1
+			// returns:
+			//		Number between 0 and 1
 			return; // Number
 	}
 	=====*/
@@ -476,7 +479,7 @@ if(dojo.isIE){
 	//>>excludeEnd("webkitMobile");
 	dojo._getOpacity =
 	//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		d.isIE ? function(node){
+		d.isIE < 9 ? function(node){
 			try{
 				return af(node).Opacity / 100; // Number
 			}catch(e){
@@ -498,14 +501,15 @@ if(dojo.isIE){
 			//		ID string for performance reasons.
 			//	opacity: Number
 			//		A Number between 0 and 1. 0 specifies transparent.
-			//	returns: Number between 0 and 1
+			// returns:
+			//		Number between 0 and 1
 			return; // Number
 	}
 	=====*/
 
 	dojo._setOpacity =
 		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		d.isIE ? function(/*DomNode*/node, /*Number*/opacity){
+		d.isIE < 9 ? function(/*DomNode*/node, /*Number*/opacity){
 			var ov = opacity * 100, opaque = opacity == 1;
 			node.style.zoom = opaque ? "" : 1;
 

@@ -14,9 +14,10 @@ define(["./kernel", "../has"], function(dojo, has){
     isKhtml,
     isWebKit,
     isChrome,
-    isMac ,
+    isMac,
     isSafari,
     isMozilla ,
+    isMoz,
     isIE ,
     isFF,
     isQuirks;
@@ -47,7 +48,9 @@ define(["./kernel", "../has"], function(dojo, has){
   }
 
   if (!has("dojo-webkit")) {
-   if(dua.indexOf("Gecko") >= 0 && !isKhtml && !isWebKit){ isMozilla = isMoz = tv; }
+    if(dua.indexOf("Gecko") >= 0 && !isKhtml && !isWebKit){ 
+      isMozilla = isMoz = tv; 
+    }
     if(isMoz){
       //We really need to get away from this. Consider a sane isGecko approach for the future.
       isFF = parseFloat(dua.split("Firefox/")[1] || dua.split("Minefield/")[1]) || undefined;
@@ -69,13 +72,11 @@ define(["./kernel", "../has"], function(dojo, has){
     //Workaround to get local file loads of dojo to work on IE 7
     //by forcing to not use native xhr.
     if(isIE && window.location.protocol === "file:"){
-//TODO: look at this with respect to v1.7 loader changes
+      //TODO: look at this with respect to v1.7 loader changes
       dojo.config.ieForceActiveXXhr=true;
     }
-    dojo.locale= n.language.toLowerCase();
-  } else {
-    dojo.locale = (isIE ? n.userLanguage : n.language).toLowerCase();
   }
+  dojo.locale = (isIE ? n.userLanguage : n.language).toLowerCase();
 
   isQuirks = document.compatMode == "BackCompat";
 
@@ -87,7 +88,7 @@ define(["./kernel", "../has"], function(dojo, has){
   has.add("chrome", dojo.isChrome= isChrome);
   has.add("mac ", dojo.isMac = isMac );
   has.add("safari", dojo.isSafari= isSafari);
-  has.add("Mozilla ", dojo.isMozilla = isMozilla );
+  has.add("mozilla ", dojo.isMozilla = dojo.isMoz = isMozilla );
   has.add("ie ", dojo.isIE = isIE );
   has.add("ff", dojo.isFF= isFF);
   has.add("quirks", dojo.isQuirks= isQuirks);
@@ -102,7 +103,6 @@ define(["./kernel", "../has"], function(dojo, has){
   };
 
   has.add("vml", isIE);
-
   if (has("vml")) {
     // TODO: can this be moved to a more-appropriate module?
     // TODO: can the try-catch be removed if we know that vml is supported?
