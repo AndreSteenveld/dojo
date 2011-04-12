@@ -548,7 +548,7 @@ function _buildDateTimeRE(tokens, bundle, options, pattern){
 			case 'a':
 				var am = options.am || bundle['dayPeriods-format-wide-am'],
 					pm = options.pm || bundle['dayPeriods-format-wide-pm'];
-				s = am + '|' + pm;
+					s = am + '|' + pm;
 				if(!options.strict){
 					if(am != am.toLowerCase()){ s += '|' + am.toLowerCase(); }
 					if(pm != pm.toLowerCase()){ s += '|' + pm.toLowerCase(); }

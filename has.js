@@ -12,15 +12,19 @@ define(["require"], function(require) {
   // 
   //    This module adopted from https://github.com/phiggins42/has.js; thanks has.js team! 
 
-  var
-    global= this,
-    doc= require.isBrowser && document,
-    element= doc && doc.createElement("DiV"),
-    cache= [],
+  // try to pull the has implementation from the loader; both the dojo loader and bdLoad provide one
+  var has= require.has,
+  	doc = document;
+
+  if(typeof has=="function" && !has("loader-hasApi")){
+    // notice the condition is written so that if has("loader-hasApi") is transformed to 1 during a build
+    // the conditional will be (typeof has=="function" && !1) which is statically false and the closure
+    // compiler will discard the block.
+    var
       isBrowser= 
         // the most fundamental decision: are we in the browser?
         typeof window!="undefined";
-
+  }
   function has(name){
     //  summary: 
     //    Return the current value of the named feature.
@@ -38,7 +42,7 @@ define(["require"], function(require) {
     return cache[name]; // Boolean
   }
 
-  has.cache= [];
+  var cache = has.cache= has.cache || {};
 
 	has.add = function(/* String|Object */name, /* Function */test){
 		// summary: Register a new feature detection test for some named feature
@@ -112,8 +116,8 @@ define(["require"], function(require) {
     // load: Function
     //   Callback to loader that consumes result of plugin demand.
   
-		var tokens = id.match(/[\?:]|[^:\?]*/g), i = 0;
-		function get(skip){
+		var tokens = id.match(/[\?:]|[^:\?]*/g), i = 0,
+			get = function(skip){
 			var operator, term = tokens[i++];
 			if(term == ":"){
 				// empty string module name, resolves to undefined

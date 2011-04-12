@@ -7,7 +7,13 @@
 		</style>
 		<script type="text/javascript" src="../dojo.js"></script>
 		<script type="text/javascript">
-		  require(["dojo", "doh", "dojo/parser"], function(dojo, doh){require.ready(function(){
+		  require(["dojo", "doh", "dojo/parser", "*ready"], function(){
+
+			dojo.declare("tests.parser.Widget", null, {
+				constructor: function(args, node){
+					this.params = args;
+				}
+			});
 
 			dojo.declare("tests.parser.Class1", null, {
 				constructor: function(args, node){
@@ -64,11 +70,25 @@
 				}
 			});
 			
-			dojo.declare("tests.parser.inputClass", null, {
-				constructor: function(args, node){ dojo.mixin(this, args); },
+			dojo.declare("tests.parser.InputClass", null, {
+				constructor: function(args, node){
+					this.params = args;
+					dojo.mixin(this, args);
+				},
+
 				// these attributes are special in HTML, they don't have a value specified
 				disabled: false,
-				checked: false
+				readonly: false,
+				checked: false,
+
+				// other attributes native to HTML
+				value: "",
+				title: "default title",
+				tabIndex: "0",		// special because mixed case
+
+				// custom widget attributes that don't match a native HTML attributes
+				custom1: 123,
+				custom2: 456
 			});
 
 			// Test that dir attribute can be inherited from ancestor node
@@ -114,7 +134,8 @@
 				diffMethod: function(a){
 					this._ran = true;
 				}
-			})
+			});
+			
 
 			deepTestProp = {
 				blah: {
@@ -122,18 +143,24 @@
 				}
 			};
 
-			doh.register("t",
+			tests.parser.FormClass = dojo.declare(tests.parser.Widget, {
+				encType: ""
+			});
+
+			dojo.addOnLoad(function(){
+				doh.register("basic tests",
 				[
 					function parse(){
 						// Running the parser here so that failures appear in test log
-						dojo.parser.parse();
+							dojo.parser.parse(dojo.byId("main"));
 					},
 
-					function testJsId(t){
-						// console.debug(obj);
+						function testDataDojoId(t){
 						t.t(typeof obj == "object");
 					},
-
+						function testJsId(t){
+							t.t(typeof obj3 == "object");
+						},
 					// Attribute parsing tests
 					function testStrProp(t){
 						// normal string parameter
@@ -200,19 +227,19 @@
 								"dateProp1", "dateProp2", "dateProp3",
 								"funcProp2", "funcProp3",
 								"preamble",
-								"callInc1", "callInc2", "dir", "lang"],
+									"callInc1", "callInc2", "dir", "lang", "textDir"],
 								param) >= 0, param);
 						}
 					},
 					function testDisabledFlag(t){
-						t.is("boolean", (typeof disabledObj.disabled));
-						t.t(disabledObj.disabled);
-						t.f(disabledObj.checked);
+							t.is("boolean", typeof disabledObj.disabled, "typeof disabled");
+							t.t(disabledObj.disabled, "disabled");
+							t.f(disabledObj.checked, "checked");
 					},
 					function testCheckedFlag(t){
-						t.is("boolean", (typeof checkedObj.checked));
-						t.f(checkedObj.disabled);
-						t.t(checkedObj.checked);
+							t.is("boolean", typeof checkedObj.checked, "typeof checked");
+							t.f(checkedObj.disabled, "disabled");
+							t.t(checkedObj.checked, "checked");
 					},
 					function testFunctionProp(t){
 						// make sure that unspecified functions (even with common names)
@@ -379,12 +406,108 @@
 					}
 				]
 			);
+
+				doh.register("IE attribute detection", [
+					function input1(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieInput1")]);
+						var params = widgets[0].params;
+
+						doh.is("checkbox", params.type, "type");
+						doh.t(params.disabled, "disabled");
+						doh.t(params.checked, "checked");
+						doh.t(params.readonly, "readonly");
+						doh.is("bar", params.foo, "foo");
+						doh.is("zaz", params.bar, "bar");
+						doh.is("escaped\"dq", params.bob, "bob");
+						doh.is("escaped\'sq", params.frank, "frank");
+					},
+					function input2(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieInput2")]);
+						var params = widgets[0].params;
+
+						doh.f("type" in params, "type");
+						doh.f("name" in params, "name");
+						doh.f("value" in params, "value");
+						doh.f("data-dojo-type" in params, "data-dojo-type");
+						doh.f("data-dojo-props" in params, "data-dojo-props");
+						doh.is("hi", params.foo, "foo");
+					},
+					function input3(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieInput3")]);
+						var params = widgets[0].params;
+
+						doh.is("password", params.type, "type");
+						doh.is("test", params.name, "name");
+						doh.is("123", params.value, "value");
+						doh.is("myClass", params["class"], "class");
+						doh.is("display:block", params["style"].replace(/[ ;]/g, "").toLowerCase(), "style");
+						doh.is("3", params.tabIndex, "tabIndex");
+					},
+					function textarea(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieTextarea")]);
+						var params = widgets[0].params;
+
+						doh.is("attrVal", params.value, "value");
+					},
+					function button1(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieButton1")]);
+						var params = widgets[0].params;
+						doh.t(params.checked, "checked");
+						doh.is("button1val", params.value, "value");
+					},
+					function button2(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieButton2")]);
+						var params = widgets[0].params;
+						doh.f("checked" in params, "checked");
+						doh.f("value" in params, "value");
+					},
+					function button3(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieButton3")]);
+						var params = widgets[0].params;
+						doh.t(params.checked, "checked");
+					},
+					function button4(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieButton4")]);
+						var params = widgets[0].params;
+						doh.f("checked" in params);
+					},
+					function form1(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieForm1")]);
+						var params = widgets[0].params;
+
+						doh.is("foo", params.encType, "encType is specified");
+					},
+					function form2(){
+						var widgets = dojo.parser.instantiate([dojo.byId("ieForm2")]);
+						var params = widgets[0].params;
+
+						doh.f("encType" in params, "encType not specified")
+					},
+					function li(){
+						var widgets = dojo.parser.instantiate([dojo.byId("li")]);
+						var params = widgets[0].params;
+						doh.is("home", params.value);
+
+					}
+				]);
+
+				doh.register("mixed attribute specification", function mixed(){
+					dojo.parser.parse(dojo.byId("mixedContainer"));
+					doh.is("object", typeof mixedObj, "widget created");
+					doh.is("mixedValue", mixedObj.value, "native attribute")
+					doh.is(999, mixedObj.custom1, "data-dojo-props attribute");
+					doh.is("custom title", mixedObj.title, "data-dojo-props overrides native");
+				});
+
 			doh.run();
-		});});
+			})
+		});
 		</script>
 	</head>
 	<body>
 		<h1>Parser Unit Test</h1>
+
+		<div id=main>
 		<script>
 			function foo(){ this.fooCalled=true; }
 		</script>
@@ -419,8 +542,8 @@
 		</div>
 		<div dojoType="tests.parser.Class3" jsId="obj4">
 		</div>
-		<input dojoType="tests.parser.inputClass" jsId="checkedObj" checked type="checkbox">
-		<button dojoType="tests.parser.inputClass" jsId="disabledObj" disabled>hi</button>
+			<input dojoType="tests.parser.InputClass" jsId="checkedObj" checked type="checkbox">
+			<button dojoType="tests.parser.InputClass" jsId="disabledObj" disabled>hi</button>
 		
 		<div id="parsertest"></div>
 		<div id="parsertest2"></div>
@@ -471,6 +594,7 @@
 			</div>
 		</div>
 
+			<!-- tests for new data-dojo-type / data-dojo-props syntax -->
 		<div>
 			<div data-dojo-id="html5simple" data-dojo-type="tests.parser.HTML5Props" data-dojo-props="simple:true"></div>
 			<div data-dojo-id="html5simple2" data-dojo-type="tests.parser.HTML5Props"
@@ -504,6 +628,44 @@
 					this._methodRan = true;
 				</script>
 			</div>
+		</div>
+		</div> <!-- end of <div id=main> -->
+
+		<!-- tests that we can parse parameters correctly on IE6/7, not getting tripped up by escaped quotes etc. -->
+		<div id=ie>
+			<input id="ieInput1" data-dojo-type="tests.parser.InputClass"
+					type=checkbox disabled foo = 'bar' readonly bar=zaz bob='escaped"dq' frank="escaped'sq" checked />
+			<input id="ieInput2" data-dojo-type="tests.parser.InputClass"
+					fakeout1="type=submit" fakeout2="name='test'" fakeout3="value='123'" data-dojo-props="foo: 'hi'"/>
+			<input id="ieInput3" data-dojo-type="tests.parser.InputClass"
+					type=password name="test" value="123" class="myClass" style="display:block" tabindex="3"/>
+			<textarea id="ieTextarea" data-dojo-type="tests.parser.InputClass" value="attrVal">contentVal</textarea>
+			<button id="ieButton1" data-dojo-type="tests.parser.InputClass" checked value="button1val">
+					checked ToggleButton as button
+			</button>
+			<button id="ieButton2" data-dojo-type="tests.parser.InputClass">
+					unchecked ToggleButton as button
+			</button>
+			<div id="ieButton3" data-dojo-type="tests.parser.InputClass" checked>
+					checked ToggleButton as div
+			</div>
+			<div id="ieButton4" data-dojo-type="tests.parser.InputClass">
+					unchecked ToggleButton as div
+			</div>
+			<form id="ieForm1" data-dojo-type="tests.parser.FormClass" encType="foo"></form>
+			<form id="ieForm2" data-dojo-type="tests.parser.FormClass"></form>
+			<ul dojoType="tests.parser.Widget" class="nav">
+				<li id="li" dojoType="tests.parser.Widget" value="home">Home</li>
+				<li dojoType="tests.parser.Widget" value="contact">Contact</li>
+				<li dojoType="tests.parser.Widget" value="group">Group</li>
+				<li dojoType="tests.parser.Widget" value="campaign">Campaign</li>
+			</ul>
+		</div>
+
+		<!-- tests for when parameters are specified both natively and in data-dojo-props. -->
+		<div id="mixedContainer">
+			<input data-dojo-type="tests.parser.InputClass" data-dojo-id="mixedObj"
+				  value="mixedValue" title="native title" data-dojo-props="custom1: 999, title: 'custom title'">
 		</div>
 
 	</body>

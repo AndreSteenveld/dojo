@@ -97,16 +97,13 @@
   // the loader can be defined exactly once; look for global define which is the symbol AMD loaders are
   // *required* to define (as opposed to require, which is optional)
   if (this.define) {
-    console.log("global define already defined; did you try to load multiple AMD loaders?");
+    typeof console!="undefined" && console.log && console.log("global define already defined; did you try to load multiple AMD loaders?");
     return;
   }
 
   var
-    global= this,
-
     // define a minimal library to help build the loader
-    noop= function() {
-    },
+    noop= function(){},
 
     isEmpty= function(it) {
       for (var p in it) return 0;
@@ -114,10 +111,9 @@
     },
 
     toString = {}.toString,
-    testPrefix= "[object ",
-    functionMarker= testPrefix + "Function]",
-    arrayMarker= testPrefix + "Array]",
-    stringMarker= testPrefix + "String]",
+    functionMarker= "[object Function]",
+    arrayMarker=    "[object Array]",
+    stringMarker=   "[object String]",
     
     isFunction= function(it) {
       return toString.call(it)==functionMarker;
@@ -174,6 +170,8 @@
     },
 
     // the loader uses the has.js API to control feature inclusion/exclusion; define then use throughout
+    global= this,
+
     doc= global.document,
 
     element= doc && doc.createElement("DiV"),
@@ -214,8 +212,38 @@
   }
 
   // userConfig has tests override defaultConfig has tests...
-  for (var p in userConfig.hasTests) {
-    has.add(p, userConfig.hasTests[p]);
+  for (var p in userConfig.has) {
+    has.add(p, userConfig.has[p], 0, 1);
+  }
+
+  //
+  // defining the loader data
+  //
+
+  // the loader will use these like symbols
+  var
+    requested = {},
+    arrived = {},
+    nonmodule = {},
+    executing = {},
+    executed  = {};
+
+  if (has("loader-traceApi")) {
+    // these make debugging nice
+    var
+      symbols= 
+        {},
+
+      symbol= function(name) {
+        return symbols[name] || (symbols[name]= {value:name});    
+      };
+
+    requested =symbol("requested");
+    arrived   =symbol("arrived");
+    nonmodule =symbol("not-a-module");
+
+    executing =symbol("executing");
+    executed  =symbol("executed");
   }
 
   var
@@ -230,20 +258,13 @@
         return eval(text + "\r\n//@ sourceURL=" + hint);
       },
 
-    // the loader will use these like symbols
-    requested= {},
-    arrived= {},
-    nonmodule= {},
-
     nonModuleProps= {
       injected: arrived,
       deps: [],
       def: nonmodule,
       result: nonmodule,
-      executed: 1
+      executed: executed
     },
-
-    // begin defining the loader
 
     pathTransforms=
       // list of functions from URL(string) to URL(string)
@@ -311,10 +332,11 @@
       ///
       // Gives the contents of a cached resource; function should cause the same actions as if the given pqn was downloaded
       // and evaluated by the host environment
-      {};
+      {},
 
-  var
+    //  
     // configuration machinery
+    //
 
     computeMapProg= function(map) {
       // This routine takes a map target-prefix(string)-->replacement(string) into a vector 
@@ -402,6 +424,10 @@
       }
     };
 
+  //
+  // configure the loader
+  //
+
   if (has("loader-sniff")) {
     for (var src, match, dataMain, scripts= doc.getElementsByTagName("script"), i= 0; i<scripts.length; i++) {
       src= scripts[i].getAttribute("src") || "";
@@ -448,18 +474,20 @@
   config(userConfig, 1);
   config(dojoSniffConfig, 1);
 
-  // build the loader
+  //
+  // build the loader machinery iaw configuration, including has feature tests
+  //
 
   var 
     injectDependencies= function(module) {
       forEach(module.deps, injectModule);
     },
-  
+
     contextRequire= function(a1, a2, a3, referenceModule, contextRequire) {
       var module, syntheticMid;
       if (isString(a1)) {
         // signature is (moduleId)
-        module= getModule(a1, referenceModule);
+        module= getModule(a1, referenceModule, 1);
         if (module.plugin) {
           injectPlugin(module, true);
         }
@@ -481,13 +509,13 @@
           mid= a1[i++];
           if (mid=="*ready") {
             callback= function() {
-              for (var args= arguments, aargs= [], i= 0; i<args.length; aargs[i]= args[i++]){}
+              for (var args= arguments, aargs= [], i= 0; i<args.length; aargs.push(args[i++])){}
               req.ready(function() {
                 a2.apply(null, aargs);
               });
             };
           } else {
-            deps.push(getModule(mid, referenceModule));
+            deps.push(getModule(mid, referenceModule, 1));
           }
         }
 
@@ -597,7 +625,7 @@
     },
 
     makeModuleInfo= function(pid, mid, pqn, pack, path, url) {
-      var result= {pid:pid, mid:mid, pqn:pqn, pack:pack, path:path, url:url, def:0};
+      var result= {pid:pid, mid:mid, pqn:pqn, pack:pack, path:path, url:url, executed:0, def:0};
       return result;
     },
 
@@ -605,8 +633,8 @@
       // arguments are passed instead of using lexical variables so that this function my be used independent of bdLoad (e.g., in bdBuild)
       // alwaysCreate is useful in this case so that getModuleInfo never returns references to real modules owned by the loader
       var pid, pack, pqn, mapProg, mapItem, path, url, result;
-      if (/(^\/)|(\:)|(\.[^\/\.]+$)/.test(mid)) {
-        // absolute path or prototcol or file type was given; resolve relative to page location.pathname
+      if (/(^\/)|(\:)/.test(mid)) {
+        // absolute path or protocol; resolve relative to page location.pathname
         // note: this feature is totally unnecessary; you can get the same effect
         // be giving a relative path off of baseUrl or an absolute path
         url= /^\./.test(mid) ? compactPath(pageUrl + "/" + mid) : mid;
@@ -640,7 +668,7 @@
       if (pid) {
         pack= packages[pid];
         path= pid + "/" + (mid || pack.main);
-        url= pack.location + "/" + (pack.lib ? pack.lib + "/" : "") + (mid || pack.main);
+        url= pack.location + "/" + (mid && pack.lib ? pack.lib + "/" : "") + (mid || pack.main);
         mapItem= runMapProg(url, pathsMapProg);
         if (mapItem) {
           url= mapItem[1] + url.substring(mapItem[3]-1);
@@ -663,7 +691,7 @@
       return makeModuleInfo(pid, mid, pqn, pack, path, compactPath(url));
     },
 
-    getModule= function(mid, referenceModule) {
+    getModule= function(mid, referenceModule, fromRequire) {
       // compute and optionally construct (if necessary) the module implied by the mid with respect to referenceModule
       var match, plugin, pluginResource, result, existing, pqn;
       match= mid.match(/^(.+?)\!(.+)$/);
@@ -675,6 +703,10 @@
         pqn= plugin.pqn + "!" + (referenceModule ? referenceModule.pqn + "!" : "") + pluginResource;
         return modules[pqn] || (modules[pqn]= {plugin:plugin, mid:pluginResource, req:(referenceModule ? createRequire(referenceModule) : req), pqn:pqn});
       } else {
+        if (fromRequire && /^.*[^\/\.]+\.[^\/\.]+$/.test(mid)) {
+          // anything* anything-other-than-a-dot+ dot anything-other-than-a-dot+ => a url that ends with a filetype
+          return makeModuleInfo(0, mid, "*" + mid, 0, mid, mid);
+        }
         result= getModuleInfo(mid, referenceModule, packages, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms);
         return modules[result.pqn] || (modules[result.pqn]= result);
       }
@@ -684,7 +716,7 @@
       // slightly different algorithm depending upon whether or not name contains
       // a filetype. This is a requirejs artifact which we don't like.
       var
-        match= name.match(/(.+)(\.[^\/]+)$/),
+        match= !ext && name.match(/(.+)(\.[^\/]+?)$/),
         url= getModuleInfo(match && match[1] || name, referenceModule, packages, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms).url;
       // recall, getModuleInfo always returns a url with a ".js" suffix; therefore, we've got to trim it
       return url.substring(0, url.length-3) + (ext ? ext : (match ? match[2] : ""));
@@ -693,7 +725,7 @@
     cjsModuleInfo= {
       injected: arrived,
       deps: [],
-      executed: 1,
+      executed: executed,
       result: 1
     },
     cjsRequireModule= mix(getModule("require"), cjsModuleInfo),
@@ -740,7 +772,7 @@
         // add properties to it. When the module finally runs its factory, the factory can 
         // read/write/replace this object. Notice that so long as the object isn't replaced, any
         // reference taken earlier while walking the deps list is still valid.
-        module.executed= 1;
+        module.executed= executing;
         while (i<deps.length) {
           arg= deps[i++];
           argResult= ((arg===cjsRequireModule) ? createRequire(module) :
@@ -753,6 +785,7 @@
           }
           args.push(argResult);
         }
+        module.executed= executed;
         if (has("loader-catchApi")) {
           try {
             module.result= runFactory(pqn, module.def, args, module.cjs);
@@ -783,24 +816,22 @@
 
     checkComplete= function() {
       // keep going through the execQ as long as at least one factory is executed
-      signalFactoryRan= 1;
-      while (signalFactoryRan) {
-        signalFactoryRan= 0;
-        for (var result, module, i= 0; i<execQ.length;) {
-          module= execQ[i];
-          result= execModule(module);
-          if (module!==execQ[i]) {
-            // execModule adjusted the execQ; therefore, restart the iteration
-            signalFactoryRan= 1;
-            break;
-          }
-          if (result!==abortExec) {
-            execQ.splice(i, 1);
-          } else {
-            i++;
+      // plugins, recursion, cached modules all make for many execution path possibilities
+      for (var result, module, i= 0; i<execQ.length; i++) {
+        module= execQ[i];
+        execModule(module);
+        if (module.executed===executed) {
+          // adjust the execQ and recheck
+          for (i= 0; i<execQ.length; i++) {
+            if (execQ[i]===module) {
+              execQ.splice(i, 1);
+              i= 0;
+              break;
+            }
           }
         }
       }
+
       if (has("loader-priority-readyApi")) {
         onLoad();
       }
@@ -840,7 +871,7 @@
 
   // the dojo loader needs/optionally provides a getText API
   if (has("dojo-loader") || has("loader-getTextApi")) {
-    var getText= req.getText || function(url, async, onLoad) {
+    var getText= req.getText= req.getText || function(url, async, onLoad) {
       var xhr= getXhr();
       if (async) {
         xhr.open('GET', url, true);
@@ -848,14 +879,18 @@
           xhr.readyState==4 && onLoad(xhr.responseText, async);
         };
         xhr.send(null);
+        return xhr;
       } else {
         xhr.open('GET', url, false);
         xhr.send(null);
         if (xhr.status==200) {
-          onLoad(xhr.responseText, async);
+          if (onLoad) {
+            onLoad(xhr.responseText, async);
+          }
         } else {
           throw new Error("synchronous XHR failed");
         }
+        return xhr.responseText;
       }
     };
   }
@@ -876,30 +911,6 @@
     };
   }
 
-  if (has("loader-traceApi")) {
-    // these make debugging nice
-    var
-      symbols= 
-        {},
-
-      symbol= function(name) {
-        return symbols[name] || (symbols[name]= {value:name});    
-      };
-
-    requested =symbol("requested");
-    arrived   =symbol("arrived");
-    nonmodule =symbol("not-a-module");
-
-    // redefine nonModuleProps so it shows debugging nonmodule value
-    nonModuleProps= {
-      injected: arrived,
-      deps: [],
-      def: nonmodule,
-      result: nonmodule,
-      executed: 1
-    };
-  }
-
   if (has("loader-injectApi")) {
     var
       injectPlugin= function(
@@ -908,20 +919,21 @@
       ) {
         // injects the plugin module given by module; may have to inject the plugin itself
         var plugin= module.plugin;
+        plugin.isPlugin= 1;
 
         if (has("dojo-loader")) {
           // in synchronous mode; instantiate the plugin before trying to  load a plugin resource
           syncDepth && !plugin.executed && injectModule(plugin);
         }
 
-        if (plugin.executed && !plugin.load) {
+        if (plugin.executed==executed && !plugin.load) {
           plugin.load= plugin.result.load;
         }
 
         var 
           pqn= module.pqn,
           onload= function(def) {
-            mix(module, {executed:1, result:def});           
+            mix(module, {executed:executed, result:def});           
             setDel(waiting, pqn);
             checkComplete();
           };
@@ -1014,6 +1026,9 @@
             }
           }
           injecting.push(module);
+          if (has("loader-traceApi")) {
+            req.trace("loader-inject", [module.pqn, url]);
+          }
           module.node= req.injectUrl(url, onLoadCallback);
           injecting.pop();
           startTimer();
@@ -1080,20 +1095,6 @@
           definedModules.push(defineModule(module, args[1], args[2]));
         }
         forEach(definedModules, injectDependencies);
-      };
-
-      req.boot= function(mids) {
-        var 
-          refMid= mids.shift(),
-          refModule= refMid && getModule(refMid),
-          definedModules= [],
-          args;
-        while (defQ.length) {
-          args= defQ.shift();
-          definedModules.push(defineModule(getModule(mids.shift(), refModule), args[1], args[2]));
-        }
-        forEach(definedModules, injectDependencies);
-        checkComplete();
       };
   }
  
@@ -1283,7 +1284,7 @@
         function() {context[callback]();} :
         function() {context();};
       cb.priority= priority;
-      for(var i= 0; i<loadQ.length && priority<=loadQ[i].priority; i++){}
+      for(var i= 0; i<loadQ.length && priority>=loadQ[i].priority; i++){}
       loadQ.splice(i, 0, cb);
       onLoad();
     };
@@ -1298,11 +1299,16 @@
       // Tracing interface by group.
       // 
       // Sends the contents of args to the console iff require.trace[group] is truthy.
-      var log= req.debug || console.log;
+
+      // we're just not going to mess around in defective environments
+      if (typeof console=="undefined" || typeof console.log!="function") {
+        return;
+      }
+
       if (req.traceSet[group]) {
-        log(group + ":" + args[0]);
+        console.log(group + ":" + args[0]);
         for (var i= 1; i<args.length;) {
-          log(args[i++]);
+          console.log(args[i++]);
         }
       }
     };
@@ -1347,7 +1353,11 @@
         for (var errorbacks= onError.listeners, result= false, i= 0; i<errorbacks.length; i++) {
           result= result || errorbacks[i](messageId, args);
         }
-        console.error(messageId, args);
+        if (has("loader-traceApi")) {
+          if (typeof console!="undefined" && typeof console.log=="function") {
+            console.log(messageId, args);
+          }
+        }
         onError.log.push(args);
         return result;
       };
@@ -1393,18 +1403,17 @@
       req.trace("loader-define", args.slice(0, 2));
     }
     if (args[0]) {
-      // if given a mid, always define the module immediately 
-      // (no reason to give auto-detect algorithms below a chance to find an edge case to that doesn't work!)
+      // if given a mid, always define the module immediately since it is possible to define a module through means
+      // other than a deps list being injected. For example, code may define modules on-the-fly due to some user stimulus.
+      // In such cases, there is nothing to trigger the defQ and the dependencies are never requested; therefore, do it here.
       injectDependencies(defineModule(getModule(args[0]), args[1], args[2]));
-      return;
-    } // else anonymous module; therefore module id is implied by the resource being loaded
-
-    if (has("dom-addEventListener") || !has("host-browser")) {
-      // not IE; therefore, onLoad will fire immediately after script finishes being evaluated
-      // and the defQ can be run from that callback to detect the module id
+    } else if (has("dom-addEventListener") || !has("host-browser")) {
+      // anonymous module and therefore must have been injected and not IE; therefore, onLoad will fire immediately 
+      // after script finishes being evaluated and the defQ can be run from that callback to detect the module id
       defQ.push(args);
     } else {
-      // IE; therefore, cannot depend on 1-to-1, in-order exec of onLoad with script eval and must manually detect here
+      // anonymous module and therefore must have been injected and IE; therefore, cannot depend on 1-to-1, 
+      // in-order exec of onLoad with script eval and must manually detect here
       var 
         length= injecting.length,
         targetModule= length && injecting[length-1],
@@ -1476,7 +1485,7 @@
         return mix(getModule(slashName(mid), referenceModule), {
           injected: arrived,
           deps: [],
-          executed: 1,
+          executed: executed,
           result: dojo.getObject(mid.replace(/\//g, "."), true)
         }).result;
       };
@@ -1528,6 +1537,7 @@
       defQ:defQ,
       waiting:waiting,
       loadQ:loadQ,
+      checkComplete:checkComplete,
   
       // these are used by bdBuild (at least)
       computeMapProg:computeMapProg,
@@ -1542,7 +1552,7 @@
   global.require= req;
 
   if (has("dojo-boot")) {
-    req(["dojo"]);   
+    !req.loaderOnly && req(["dojo"]);   
   }
   var getPriorityProp= function(prop) {
     return (req.dojoConfig && req.dojoConfig[prop]) || userConfig[prop] || defaultConfig[prop];
@@ -1599,9 +1609,14 @@
       name:'dojox',
       location:'../dojox',
       lib:'.'
+    },{
+      name:'demos',
+      location:'../demos',
+      lib:'.'
     }],
     traceSet:{
       // these are listed so it's simple to turn them on/off while debugging the loader
+      "loader-inject":0,
       "loader-define":0,
       "loader-runFactory":0,
       "loader-execModule":0,

@@ -1,39 +1,32 @@
-(function(){
-  var deps=[
-  	"dojo/tests/_base",
-    "dojo/tests/cache",
-  	"dojo/tests/i18n",
-  	"dojo/tests/cldr",
-  	//"dojo/tests/store",
-  	//"dojo/tests/data",
-  	"dojo/tests/date",
-  	"dojo/tests/number",
-  	"dojo/tests/currency",
-  	"dojo/tests/AdapterRegistry",
-  	"dojo/tests/regexp",
-  	"dojo/tests/string",
-  	"dojo/tests/colors",
-  	"dojo/tests/DeferredList",
-  	"dojo/tests/Stateful"
-  ];
-  if(require.isBrowser){
-    deps= deps.concat([
-    	"dojo/tests/behavior",
-    	"dojo/tests/parser",
-  	  "dojo/tests/html",
-    	"dojo/tests/fx",
-  	  "dojo/tests/io/script",
-    	"dojo/tests/io/iframe",
-    	"dojo/tests/back-hash",
-    	"dojo/tests/hash",
-    	"dojo/tests/rpc",
-    	"dojo/tests/cookie",
-    	"dojo/tests/NodeList-traverse",
-    	"dojo/tests/NodeList-manipulate",
-    	"dojo/tests/NodeList-data",
-    	"dojo/tests/uacss",
-    	"dojo/tests/window"
-    ]);
-  }
-  define(deps, 1);
-})();
+define([
+  "dojo/tests/_base",
+  "dojo/tests/cache",
+  "dojo/tests/i18n",
+  "dojo/tests/cldr",
+  "dojo/tests/store",
+  "dojo/tests/data",
+  "dojo/tests/date",
+  "dojo/tests/number",
+  "dojo/tests/currency",
+  "dojo/tests/AdapterRegistry",
+  "dojo/tests/regexp",
+  "dojo/tests/string",
+  "dojo/tests/colors",
+  "dojo/tests/DeferredList",
+  "dojo/tests/Stateful",
+ 	"dojo/has!host-browser?dojo/tests/behavior",
+ 	"dojo/has!host-browser?dojo/tests/parser",
+  "dojo/has!host-browser?dojo/tests/html",
+ 	"dojo/has!host-browser?dojo/tests/fx",
+  "dojo/has!host-browser?dojo/tests/io/script",
+ 	"dojo/has!host-browser?dojo/tests/io/iframe",
+ 	"dojo/has!host-browser?dojo/tests/back-hash",
+ 	"dojo/has!host-browser?dojo/tests/hash",
+ 	"dojo/has!host-browser?dojo/tests/rpc",
+ 	"dojo/has!host-browser?dojo/tests/cookie",
+ 	"dojo/has!host-browser?dojo/tests/NodeList-traverse",
+ 	"dojo/has!host-browser?dojo/tests/NodeList-manipulate",
+ 	"dojo/has!host-browser?dojo/tests/NodeList-data",
+ 	"dojo/has!host-browser?dojo/tests/uacss",
+ 	"dojo/has!host-browser?dojo/tests/window"
+], 1);

@@ -28,7 +28,7 @@ dojo._escapeString = function(){
 	//		literal.
 };
 =====*/
-dojo._escapeString = dojo.json.stringify; // just delegate to json.stringify
+dojo._escapeString = json.stringify; // just delegate to json.stringify
 
 dojo.toJsonIndentStr = "\t";
 dojo.toJson = function(/*Object*/ it, /*Boolean?*/ prettyPrint, /*String?*/ _indentStr){
@@ -70,7 +70,7 @@ dojo.toJson = function(/*Object*/ it, /*Boolean?*/ prettyPrint, /*String?*/ _ind
 	//		|	});
 
 	// use dojo/json
-	return dojo.json.stringify(it, function(key, value){
+	return json.stringify(it, function(key, value){
 		if(value){
 			var tf = value.__json__||value.json;
 			if(typeof tf == "function"){

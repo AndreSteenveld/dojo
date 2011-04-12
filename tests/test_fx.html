@@ -4,6 +4,9 @@
 	<head>
 		<style type="text/css">
 			@import "../resources/dojo.css";
+		</style>
+		<style type="text/css">
+			@import "../resources/dojo.css";
 
 			body {
 				text-shadow: 0px 0px;
@@ -40,7 +43,7 @@
 
 		<script type="text/javascript" src="../dojo.js"></script>
 		<script type="text/javascript">
-			require(["dojo", "doh", "dojo/fx"], function(dojo, doh){
+			require(["dojo", "doh", "dojo/fx", "*ready"], function(dojo, doh){
 				dojo.byId("foo").style.height = "0px";
 				var w1 = dojo.fx.wipeIn({
 					node: "foo",

@@ -107,10 +107,15 @@ doh.register("tests.listen",
 			button.click();
 			signal.cancel();
 			// test out event delegation
-			listen(div, "button:click", function(){
+			if(dojo.query){
+				// if dojo.query is loaded, test event delegation
+				listen(div, "button:click", function(){
+					order.push(8);
+				});
+				button.click();
+			}else{//just pass then
 				order.push(8);
-			});
-			button.click();
+			}
 			t.is(order, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
 		},
 		function Evented(t){

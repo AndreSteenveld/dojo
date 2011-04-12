@@ -1,13 +1,9 @@
-define(["./kernel", "../listen", "./keypress"], function(dojo, listen, keypress){
+define(["./kernel", "../listen", "./keypress", "../has"], function(dojo, listen, keypress, has){
   //  module:
   //    dojo/_base/event
   //  summary:
   //    This module defines dojo DOM event API.
-	function has(feature){
-		return {
-			"dom-addeventlistener": document.addEventListener 
-		}[feature];
-	}
+	has.add("dom-addeventlistener", !!document.addEventListener); 
 	if(listen._fixEvent){
 		var fixEvent = listen._fixEvent;
 		listen._fixEvent = function(evt){

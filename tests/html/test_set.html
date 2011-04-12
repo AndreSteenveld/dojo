@@ -5,7 +5,7 @@
   <title>dojo.html.set test</title>
   <script type="text/javascript" src="../../dojo.js"></script>
   <script>
-    require(["dojo", "doh", "dojo/html", "dojo/NodeList-html"], function(dojo, doh){
+    require(["dojo", "doh", "dojo/html", "dojo/NodeList-html", "*ready"], function(dojo, doh){
 
       /* test goals
        * injecting content as string, node, nodelist. 
@@ -405,7 +405,7 @@
             }
           }
         ]);
-      require.ready(doh, "run");
+      doh.run();
     });  
   </script>
   <style>
