@@ -1574,6 +1574,7 @@
       "dojo-sniff":1,
       "dojo-loader":1,
       "dojo-boot":1,
+      "dojo-query-selector":"acme",
       "dojo-test-xd":1,
       "dojo-test-sniff":1
     },
