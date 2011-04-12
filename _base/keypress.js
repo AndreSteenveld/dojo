@@ -1,4 +1,11 @@
 define(["./kernel", "../listen"], function(dojo, listen){
+// summary:
+//		This modules provides keyboard event handling helpers.
+//		This module exports an extension event for emulating Firefox's keypress handling.
+//		However, this extension event exists primarily for backwards compatibility and
+//		is not recommended. WebKit and IE uses an alternate keypress handling (only
+//		firing for printable characters, to distinguish from keydown events), and most
+//		consider the WebKit/IE behavior more desirable.
 function has(feature){
 	return {
 		"events-keypress-typed": function(){ // keypresses should only occur a printable character is hit
