@@ -50,7 +50,8 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		has.add({
 			"dom-addeventlistener": !!document.addEventListener,
 			"config-allow-leaks": dojo.config._allow_leaks, // TODO: I think we can have config settings be assigned in kernel or bootstrap
-			"jscript": major && (major() + ScriptEngineMinorVersion() / 10) 
+			"jscript": major && (major() + ScriptEngineMinorVersion() / 10),
+			"event-orientationchange": "onorientationchange" in window 
 		});
 	}
 	var undefinedThis = (function(){
@@ -88,12 +89,13 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	prototype.on = function(type, listener, dontFix){
 		return addListener(this, type, listener, dontFix, this);
 	}
+	var touchEvents = /^touch/;
 	function addListener(target, type, listener, dontFix, matchesTarget){
 		if(typeof type == "function"){
-            // event handler function
-            // listen(node, dojo.touch.press, touchListener);
-            return type(target, listener);
-        }
+			// event handler function
+			// listen(node, dojo.touch.press, touchListener);
+			return type(target, listener);
+		}
 
 		if(type.indexOf(",") > -1){
 			// we allow comma delimited event names, so you can register for multiple events at once
@@ -111,8 +113,9 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return handles;
 		}
 		
+		// event delegation:
 		var selector = type.match(/(.*):(.*)/);
-		// if we have a selector:event, the last one is interpreted as an event
+		// if we have a selector:event, the last one is interpreted as an event, and we use event delegation
 		if(selector){
 			type = selector[2];
 			selector = selector[1];
@@ -131,35 +134,48 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				return rawListener.call(eventTarget, event);
 			};
 		}
-		
-        // normal path, the target is |this|
-        if(target.addEventListener){
-            // the target has addEventListener, which should be used if available (might or might not be a node, non-nodes can implement this method as well)
-            var signal = {
-                cancel: function(){
-                    target.removeEventListener(type, listener, false);
-                }
-            };
-            target.addEventListener(type, listener, false);
-            return signal;
-        }
+		// test to see if it a touch event right now, so we don't have to do it every time it fires
+		if(has("touch")){
+			if(touchEvents.test(type)){
+				// touch event, fix it
+				listener = fixTouchListener(listener);
+			}
+			if(!has("event-orientationchange") && (type == "orientationchange")){
+				//"orientationchange" not supported <= Android 2.1, 
+				//but works through "resize" on window
+				type = "resize"; 
+				target = window;
+				listener = fixTouchListener(listener);
+			} 
+		} 		
+		// normal path, the target is |this|
+		if(target.addEventListener){
+			// the target has addEventListener, which should be used if available (might or might not be a node, non-nodes can implement this method as well)
+			var signal = {
+				cancel: function(){
+					target.removeEventListener(type, listener, false);
+				}
+			};
+			target.addEventListener(type, listener, false);
+			return signal;
+		}
 
-        if(target.attachEvent && cleanupHandler && !target.onpage){
-        	// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
-        	target.onpage = cleanupHandler;
-        	usedEvents[type] = true; // register it as one of the used events
-        }
-       // use aop
-        return after(target, "on" + type, listener, true);
-    }
+		if(target.attachEvent && cleanupHandler && !target.onpage){
+			// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
+			target.onpage = cleanupHandler;
+			usedEvents[type] = true; // register it as one of the used events
+		}
+	 // use aop
+		return after(target, "on" + type, listener, true);
+	}
 	listen.destroy = function(node, listener){
 		// summary:
 		//		Extension event that is fired when a node is destroyed (through dojo.destroy)
 		return after(node, "onpage", listener);
 	}
-    var undefinedThis = (function(){
-            return this; // this depends on strict mode
-        })();
+	var undefinedThis = (function(){
+			return this; // this depends on strict mode
+		})();
 
 	if(has("jscript") < 5.7 && !has("config-allow-leaks")){ 
 		// prior to JScript 5.7 all cyclic references caused leaks, by default we memory 
@@ -209,14 +225,14 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			// override this to add onpage listeners after this memory managing one is created
 			return listen(node, "page", listener);
 		}
-    }
-    
-    function syntheticPreventDefault(){
-    	this.cancelable = false;
-    }
-    function syntheticStopPropagation(){
-    	this.bubbles = false;
-    }
+	}
+	
+	function syntheticPreventDefault(){
+		this.cancelable = false;
+	}
+	function syntheticStopPropagation(){
+		this.bubbles = false;
+	}
 	var syntheticDispatch = listen.dispatch = function(target, type, event){
 		// summary:
 		//		Fires an event on the target object.
@@ -357,6 +373,38 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		};
 		
 	}
+	if(has("touch")){ 
+		var windowOrientation = window.orientation; 
+		 
+		var fixTouchListener = function(listener){ 
+			return function(event){ 
+				//Event normalization(for ontouchxxx and resize): 
+				//1.incorrect e.pageX|pageY in iOS 
+				//2.there are no "e.rotation", "e.scale" and "onorientationchange" in Andriod
+				//3.More TBD e.g. force | screenX | screenX | clientX | clientY | radiusX | radiusY 
+				if(event.type == 'resize'){
+					if(windowOrientation == window.orientation){ 
+						return;//double tap causes an unexpected 'resize' in Andriod 
+					} 
+					windowOrientation = window.orientation; 
+					event.type = "orientationchange"; 
+					return listener.call(this, event);
+				}
+				
+				// We use the original event and augment, rather than doing an expensive mixin operation
+				if(!("rotation" in event)){ // test to see if it has rotation
+					event.rotation = 0; 
+					event.scale = 1; 
+				}
+				//use event.changedTouches[0].pageX|pageY|screenX|screenY|clientX|clientY|target 
+				var firstChangeTouch = event.changedTouches[0];
+				for(var i in firstChangeTouch){ // use for-in, we don't need to have dependency on dojo/_base/lang here
+					event[i] = firstChangeTouch[i];
+				}
+				return listener.call(this, event); 
+			}; 
+		}; 
+	}; 
 	listen.publish = prototype.emit = /*prototype.publish = prototype.dispatchEvent = */function(type, event){
 		type = "on" + type;
 		this[type] && this[type](event);

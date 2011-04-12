@@ -1,6 +1,7 @@
 dojo.provide("tests.listen");
 
 var listen = dojo.require("dojo.listen");
+var has = dojo.require("dojo.has");
 doh.register("tests.listen",
 	[
 		function object(t){
@@ -123,6 +124,17 @@ doh.register("tests.listen",
 			});
 			myObject.emit("custom", {a:0});
 			t.is(order, [0]);
+		},
+		function touch(t){
+			console.log("has", has);
+			if(has("touch")){
+				var div = document.body.appendChild(document.createElement("div"));
+				listen(div, "touchstart", function(event){
+					t.t("rotation" in event);
+					t.t("pageX" in event);
+				});
+				listen.dispatch(div, "touchstart", {changedTouches: [{pageX:100}]});
+			}
 		}
 	]
 );
