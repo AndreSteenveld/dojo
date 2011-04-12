@@ -16,7 +16,7 @@ doh.register("tests.listen",
 				return event.a+1;
 			});
 			obj.oncustom({a:0});
-			var signal2 = listen(obj, "custom", function(event){
+			var signal2 = listen(obj, "custom, foo", function(event){
 				order.push(event.a);
 			});
 			listen.dispatch(obj, "custom", {
@@ -35,7 +35,7 @@ doh.register("tests.listen",
 				a: 6
 			});
 			signal3.cancel();
-			var signal4 = listen(obj, "custom", function(a){
+			var signal4 = listen(obj, "foo, custom", function(a){
 				order.push(4);
 			}, true);
 			signal.cancel();
@@ -100,11 +100,17 @@ doh.register("tests.listen",
 			}));
 			var button = div.appendChild(document.createElement("button"));
 			// make sure we are propagating natively created events too
-			listen(div, "click", function(){
+			signal = listen(div, "click", function(){
 				order.push(7);
 			});
 			button.click();
-			t.is(order, [0, 1, 2, 3, 4, 5, 6, 7]);
+			signal.cancel();
+			// test out event delegation
+			listen(div, "button:click", function(){
+				order.push(8);
+			});
+			button.click();
+			t.is(order, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
 		},
 		function Evented(t){
 			var MyClass = dojo.declare([listen.Evented],{
