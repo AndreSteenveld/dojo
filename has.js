@@ -16,25 +16,34 @@ define(["require"], function(require) {
   var has= require.has,
   	doc = document;
 
-  if(typeof has=="function" && !has("loader-hasApi")){
+  if(!has("loader-hasApi") && typeof has=="function"){
     // notice the condition is written so that if has("loader-hasApi") is transformed to 1 during a build
-    // the conditional will be (typeof has=="function" && !1) which is statically false and the closure
+    // the conditional will be (!1 && typeof has=="function") which is statically false and the closure
     // compiler will discard the block.
     var
       isBrowser= 
         // the most fundamental decision: are we in the browser?
-        typeof window!="undefined";
-  }
-  function has(name){
-    //  summary: 
-    //    Return the current value of the named feature.
-    //
-    //  name: String|Integer
-    //    The name (if a string) or identifier (if an integer) of the feature to test.
-    //
-    //  description:
-    //    Returns the value of the feature named by name. The feature must have been
-    //    previously added to the cache by has.add.
+
+        typeof window!="undefined" && 
+        typeof location!="undefined" && 
+        typeof document!="undefined" && 
+        window.location==location && window.document==document,
+
+      // has API variables
+      global= this,
+      doc= isBrowser && document,
+      element= doc && doc.createElement("DiV");
+  
+    function has(name){
+      //  summary: 
+      //    Return the current value of the named feature.
+      //
+      //  name: String|Integer
+      //    The name (if a string) or identifier (if an integer) of the feature to test.
+      //
+      //  description:
+      //    Returns the value of the feature named by name. The feature must have been
+      //    previously added to the cache by has.add.
 
     if(typeof cache[name] == "function"){
       return cache[name] = cache[name](/*global, doc, element*/); // do we need the params?

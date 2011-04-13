@@ -16,14 +16,23 @@ define([
   //  summary:
   //    This is the package main module for the dojo package; it loads dojo base appropriate for the execution environment.
 
-  if(dojo.isArray(dojo.config.require)){
-    if(dojo.isAsync()){
-      require(dojo.config.require);
-    }else{
-      dojo.forEach(dojo.config.require, function(i){
-  	    dojo["require"](i);
-      });
+  has.add("dojo-config-require", 1);
+  if(has("dojo-config-require")){
+    var deps= dojo.config.require;
+    if(deps){
+      deps= dojo.isArray(deps) ? deps : [deps];
+      // dojo.config.require may be dot notation
+      require(dojo.map(deps, function(item){ return item.replace(/\./g, "/"); }));
     }
   }
+
+  has.add("dojo-config-addOnLoad", 1);
+  if(has("dojo-config-addOnLoad")){
+    var addOnLoad= dojo.config.addOnLoad;
+    if(addOnLoad){
+      require.ready(dojo.isArray(addOnLoad) ? dojo.hitch.apply(dojo, addOnLoad) : addOnLoad);
+    }
+  }
+
   return dojo;
 });

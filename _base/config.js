@@ -32,7 +32,7 @@ define(["../has", "require"], function(has, require){
     }
   }else{
     var p, sniffedConfig= require.dojoConfig || {};
-    for(var p in sniffedConfig){
+    for(p in sniffedConfig){
       result[p]= sniffedConfig[p];
     }
   }

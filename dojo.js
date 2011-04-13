@@ -94,13 +94,6 @@
     //   * mainNonbrowser: for use with a generic AMD loader (e.g., bdLoad, RequireJS) in nonbrowser environments 
     //     (node.js and rhino are known to work)
 
-  // the loader can be defined exactly once; look for global define which is the symbol AMD loaders are
-  // *required* to define (as opposed to require, which is optional)
-  if (this.define) {
-    typeof console!="undefined" && console.log && console.log("global define already defined; did you try to load multiple AMD loaders?");
-    return;
-  }
-
   var
     // define a minimal library to help build the loader
     noop= function(){},
@@ -212,6 +205,10 @@
   }
 
   // userConfig has tests override defaultConfig has tests...
+  for (var p in userConfig.has) {
+    has.add(p, userConfig.has[p], 0, 1);
+  }
+
   for (var p in userConfig.has) {
     has.add(p, userConfig.has[p], 0, 1);
   }
@@ -1245,7 +1242,9 @@
       loadQ= 
         // The queue of functions waiting to execute as soon as all conditions given
         // in require.onLoad are satisfied; see require.onLoad
-        [],
+        // at this point req.ready is as given by the configuration, so it may be
+        // a function to call upon the ready condition
+        userConfig.ready ? [userConfig.ready] : [],
 
       onLoadRecursiveGuard= 0,
       onLoad= function() {
@@ -1290,8 +1289,22 @@
     };
   }
 
+  if (has("loader-logApi")) {
+    req.log= req.log || function() {
+      // we're not going to mess around in defective environments
+      if (typeof console=="undefined" || typeof console.log!="function") {
+        return;
+      }
+      for (var args= arguments, i= 0; i<args.length; i++) {
+        console.log(args[i]);
+      }
+    };
+  } else {
+    req.log= noop;
+  }
+
   if (has("loader-traceApi")) {
-    req.trace= function(
+    req.trace= req.trace || function(
       group, // the trace group to which this application belongs
       args   // the contents of the trace
     ) {
@@ -1300,20 +1313,14 @@
       // 
       // Sends the contents of args to the console iff require.trace[group] is truthy.
 
-      // we're just not going to mess around in defective environments
-      if (typeof console=="undefined" || typeof console.log!="function") {
-        return;
-      }
-
       if (req.traceSet[group]) {
-        console.log(group + ":" + args[0]);
-        for (var i= 1; i<args.length;) {
-          console.log(args[i++]);
-        }
+        args[0]= group + ":" + args[0];
+        req.log.apply(req, args);
       }
     };
+    req.traceSet= req.traceSet || {};
   } else {
-    req.trace= req.trace || noop;
+    req.trace= noop;
   }
 
   if (has("loader-errorApi")) {
@@ -1332,7 +1339,7 @@
     // If the error was an uncaught exception, then if some subscriber signals that it has taken actions to recover 
     // and it is OK to continue by returning truthy, the exception is quashed; otherwise, the exception is rethrown. 
     // Other error conditions are handled as applicable for the particular error.
-    var onError= req.onError= 
+    var onError= 
       function(
         messageId, //(string) The topic to publish
         args       //(array of anything, optional, undefined) The arguments to be applied to each subscriber.
@@ -1353,18 +1360,17 @@
         for (var errorbacks= onError.listeners, result= false, i= 0; i<errorbacks.length; i++) {
           result= result || errorbacks[i](messageId, args);
         }
-        if (has("loader-traceApi")) {
-          if (typeof console!="undefined" && typeof console.log=="function") {
-            console.log(messageId, args);
-          }
+        if (has("loader-logApi")) {
+          req.log.apply(req, [messageId].concat(args));
         }
         onError.log.push(args);
         return result;
       };
     onError.listeners= [];
     onError.log= [];
+    req.onError= req.onError || onError;
   } else {
-    req.onError= req.onError || noop;
+    req.onError= noop;
   }
 
   var def= function(
@@ -1502,6 +1508,7 @@
 
         if (syncDepth && !isXdPath(url)) {
           injectModule(module);
+          execModule(module);
         } else {
           require([mid]);
         }
@@ -1548,16 +1555,16 @@
     });
   }
 
-  global.define= def;
-  global.require= req;
-
-  if (has("dojo-boot")) {
-    !req.loaderOnly && req(["dojo"]);   
+  // the loader can be defined exactly once; look for global define which is the symbol AMD loaders are
+  // *required* to define (as opposed to require, which is optional)
+  if (global.define) {
+    if (has("loader-logApi")) {
+      req.log("global define already defined; did you try to load multiple AMD loaders?");
+    }
+  } else {
+    global.define= def;
+    global.require= req;
   }
-  var getPriorityProp= function(prop) {
-    return (req.dojoConfig && req.dojoConfig[prop]) || userConfig[prop] || defaultConfig[prop];
-  };
-  doWork(getPriorityProp("deps"), getPriorityProp("callback"), getPriorityProp("ready"));
 })
 //>>excludeStart("replaceLoaderConfig", kwArgs.replaceLoaderConfig);
 (
@@ -1615,7 +1622,7 @@
       lib:'.'
     }],
     traceSet:{
-      // these are listed so it's simple to turn them on/off while debugging the loader
+      // these are listed so it's simple to turn them on/off while debugging loading
       "loader-inject":0,
       "loader-define":0,
       "loader-runFactory":0,
@@ -1625,7 +1632,17 @@
     },
     async:0
   }
-
-// Copyright (c) 2008-2010, Rawld Gill and ALTOVISO LLC (www.altoviso.com).
 );
+
+(function() {
+  // must use this.require to make this work in node.jsg
+  var require= this.require;
+  if (require.has("dojo-boot")) {
+    require(["dojo"]);   
+  }
+  require({
+    deps:require.deps,
+    callback:require.callback
+  });
+})();
 //>>excludeEnd("replaceLoaderConfig")
