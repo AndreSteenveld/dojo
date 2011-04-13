@@ -270,7 +270,28 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		return event.cancelable; // if it is still true (was cancelable and was cancelled, return true to indicate default action should happen)
 	};
 
-	if(!has("dom-addeventlistener")){
+	if(has("dom-addeventlistener")){
+		// dispatcher that works with native event handling
+		listen.dispatch = function(target, type, event){
+			if(target.dispatchEvent && document.createEvent){
+				// use the native event dispatching mechanism if it is available on the target object
+				// create a generic event				
+				// we could create branch into the different types of event constructors, but 
+				// that would be a lot of extra code, with little benefit that I can see, seems 
+				// best to use the generic constructor and copy properties over, making it 
+				// easy to have events look like the ones created with specific initializers
+				var nativeEvent = document.createEvent("HTMLEvents");
+				nativeEvent.initEvent(type, !!event.bubbles, !!event.cancelable);
+				// and copy all our properties over
+				for(var i in event){
+					nativeEvent[i] = event[i];
+				}
+				return target.dispatchEvent(nativeEvent);
+			}
+			return syntheticDispatch(target, type, event); // dispatch for a non-node
+		};
+	}else{
+		// no addEventListener, basically old IE event normalization
 		listen._fixEvent = function(evt, sender){
 			// summary:
 			//		normalizes properties on the event object including event
@@ -355,24 +376,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			}
 			this.returnValue = false;
 		};
-	}else{
-		// dispatcher that works with native event handling
-		listen.dispatch = function(target, type, event){
-			if(target.dispatchEvent && document.createEvent){
-				// use the native event dispatching mechanism if it is available on the target object
-				// create a generic event
-				var nativeEvent = document.createEvent("HTMLEvents");
-				nativeEvent.initEvent(type, !!event.bubbles, !!event.cancelable);
-				// and copy all our properties over
-				for(var i in event){
-					delete nativeEvent[i];
-					nativeEvent[i] = event[i];
-				}
-				return target.dispatchEvent(nativeEvent);
-			}
-			return syntheticDispatch(target, type, event);
-		};
-		
 	}
 	if(has("touch")){ 
 		var windowOrientation = window.orientation; 
