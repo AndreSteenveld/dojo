@@ -51,7 +51,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			"dom-addeventlistener": !!document.addEventListener,
 			"config-allow-leaks": dojo.config._allow_leaks, // TODO: I think we can have config settings be assigned in kernel or bootstrap
 			"jscript": major && (major() + ScriptEngineMinorVersion() / 10),
-			"event-orientationchange": "onorientationchange" in window 
+			"event-orientationchange": has("touch") && !dojo.isAndroid // TODO: how do we detect this?
 		});
 	}
 	var undefinedThis = (function(){
@@ -365,6 +365,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				nativeEvent.initEvent(type, !!event.bubbles, !!event.cancelable);
 				// and copy all our properties over
 				for(var i in event){
+					delete nativeEvent[i];
 					nativeEvent[i] = event[i];
 				}
 				return target.dispatchEvent(nativeEvent);
@@ -375,30 +376,48 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	}
 	if(has("touch")){ 
 		var windowOrientation = window.orientation; 
-		 
+		var Event = function (){};
 		var fixTouchListener = function(listener){ 
-			return function(event){ 
+			return function(originalEvent){ 
 				//Event normalization(for ontouchxxx and resize): 
 				//1.incorrect e.pageX|pageY in iOS 
 				//2.there are no "e.rotation", "e.scale" and "onorientationchange" in Andriod
-				//3.More TBD e.g. force | screenX | screenX | clientX | clientY | radiusX | radiusY 
-				if(event.type == 'resize'){
+				//3.More TBD e.g. force | screenX | screenX | clientX | clientY | radiusX | radiusY
+				var type = originalEvent.type;
+				delete originalEvent.type; // on some JS engines (android), deleting properties make them mutable 
+				if(originalEvent.type){
+					// deleting properites doesn't work (older iOS), have to use delegation
+					Event.prototype = originalEvent;
+					var event = new Event;
+					// have to delegate methods to make them work
+					event.preventDefault = function(){
+						originalEvent.preventDefault();
+					}
+					event.stopPropagation = function(){
+						originalEvent.stopPropagation();
+					}
+				}else{
+					// deletion worked, use property as is
+					event = originalEvent;
+					event.type = type;
+				}
+				if(type == 'resize'){
 					if(windowOrientation == window.orientation){ 
 						return;//double tap causes an unexpected 'resize' in Andriod 
 					} 
-					windowOrientation = window.orientation; 
+					windowOrientation = window.orientation;
 					event.type = "orientationchange"; 
 					return listener.call(this, event);
 				}
-				
 				// We use the original event and augment, rather than doing an expensive mixin operation
 				if(!("rotation" in event)){ // test to see if it has rotation
 					event.rotation = 0; 
-					event.scale = 1; 
+					event.scale = 1;
 				}
-				//use event.changedTouches[0].pageX|pageY|screenX|screenY|clientX|clientY|target 
+				//use event.changedTouches[0].pageX|pageY|screenX|screenY|clientX|clientY|target
 				var firstChangeTouch = event.changedTouches[0];
 				for(var i in firstChangeTouch){ // use for-in, we don't need to have dependency on dojo/_base/lang here
+					delete event[i]; // delete it first to make it mutable
 					event[i] = firstChangeTouch[i];
 				}
 				return listener.call(this, event); 
