@@ -3,7 +3,7 @@ define(["."], function(dojo) {
   //    dojo/regexp
   //  summary:
   //    The module defines 
-
+console.log("evaluating dojo.regexp");
 dojo.getObject("regexp", true, dojo);
 
 /*=====

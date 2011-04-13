@@ -15,9 +15,9 @@ define(["require"], function(require) {
   // try to pull the has implementation from the loader; both the dojo loader and bdLoad provide one
   var has= require.has;
 
-  if(typeof has=="function" && !has("loader-hasApi")){
+  if(!has("loader-hasApi") && typeof has=="function"){
     // notice the condition is written so that if has("loader-hasApi") is transformed to 1 during a build
-    // the conditional will be (typeof has=="function" && !1) which is statically false and the closure
+    // the conditional will be (!1 && typeof has=="function") which is statically false and the closure
     // compiler will discard the block.
     var
       isBrowser= 
@@ -31,9 +31,7 @@ define(["require"], function(require) {
       global= this,
       doc= isBrowser && document,
       element= doc && doc.createElement("DiV"),
-
-      // the has cache: an *array* that can be optimized by the builder
-      cache= [];
+      cache= {};
   
     function has(name){
       //  summary: 

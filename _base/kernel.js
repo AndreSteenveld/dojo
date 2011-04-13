@@ -399,6 +399,8 @@ define(["../has", "./config", "require"], function(has, config, require){
       if(extra){ message += " " + extra; }
       console.warn(message);
     };
+  } else {
+    dojo.deprecated= dojo.experimental= function(){};
   }
   
   return dojo;

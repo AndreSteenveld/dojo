@@ -1,4 +1,4 @@
-define(["./kernel", "require"], function(dojo, require) {
+define(["./kernel", "../has", "require"], function(dojo, has, require) {
   //  module:
   //    dojo/_base/lader
   //  summary:
@@ -8,6 +8,8 @@ define(["./kernel", "require"], function(dojo, require) {
     console.error("cannot load the Dojo v1.x loader with a foreign loader");
     return;
   }
+
+  has.add("dojo-loader", 1, 0, 1);
 
   var dojoRequire= require.getDojoLoader(dojo, dojo.dijit, dojo.dojox);
     
@@ -81,8 +83,7 @@ define(["./kernel", "require"], function(dojo, require) {
 
   if (!dojo.requireLocalization) {
   	dojo.requireLocalization = function(/*String*/moduleName, /*String*/bundleName, /*String?*/locale, /*String?*/availableFlatLocales){
-      dojo.require("dojo.i18n");
-      dojo.requireLocalization(moduleName, bundleName, locale);
+      return dojo.require("dojo.i18n").getLocalization(moduleName, bundleName, locale);
     };
   }
 
