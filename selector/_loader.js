@@ -4,9 +4,8 @@ define(["../has"],
 //		This module handles loading the appropriate selector engine for the given browser
 "use strict";
 var testDiv = document.createElement("div");
-has.add({
-	"dom-qsa2.1": !!testDiv.querySelectorAll,
-	"dom-qsa3": function(){
+has.add("dom-qsa2.1", !!testDiv.querySelectorAll);
+has.add("dom-qsa3", function(){
 			// test to see if we have a reasonable native selector engine available
 			try{
 				testDiv.innerHTML = "<p class='TEST'></p>"; // test kind of from sizzle
@@ -14,8 +13,7 @@ has.add({
 				// in quirks mode, IE8 can't handle pseudos like :empty 
 				return testDiv.querySelectorAll(".TEST:empty").length == 1;
 			}catch(e){}
-		}
-});
+		});
 var fullEngine;
 var acme = "./selector/acme", lite = "./selector/lite";
 return {

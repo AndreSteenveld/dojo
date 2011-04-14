@@ -47,12 +47,10 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	var attachEvent, after = aspect.after;
 	if(typeof window != "undefined"){ // check to make sure we are in a browser, this module should work anywhere
 		var major = window.ScriptEngineMajorVersion;
-		has.add({
-			"dom-addeventlistener": !!document.addEventListener,
-			"config-allow-leaks": dojo.config._allow_leaks, // TODO: I think we can have config settings be assigned in kernel or bootstrap
-			"jscript": major && (major() + ScriptEngineMinorVersion() / 10),
-			"event-orientationchange": has("touch") && !dojo.isAndroid // TODO: how do we detect this?
-		});
+		has.add("dom-addeventlistener", !!document.addEventListener);
+		has.add("config-allow-leaks", dojo.config._allow_leaks); // TODO: I think we can have config settings be assigned in kernel or bootstrap
+		has.add("jscript", major && (major() + ScriptEngineMinorVersion() / 10));
+		has.add("event-orientationchange", has("touch") && !dojo.isAndroid); // TODO: how do we detect this?
 	}
 	var undefinedThis = (function(){
 		return this; // this depends on strict mode
@@ -262,10 +260,11 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			// node (or node-like), create event controller methods
 			event.preventDefault = syntheticPreventDefault;
 			event.stopPropagation = syntheticStopPropagation;
+			event.target = target;
 		}
 		do{
 			// call any node which has a handler (note that ideally we would try/catch to simulate normal event propagation but that causes too much pain for debugging)
-			target[method] && target[method](event);
+			target[method] && target[method].call(target, event);
 			// and then continue up the parent node chain if it is still bubbling (if started as bubbles and stopPropagation hasn't been called)
 		}while(event.bubbles && (target = target.parentNode));
 		return event.cancelable; // if it is still true (was cancelable and was cancelled, return true to indicate default action should happen)
