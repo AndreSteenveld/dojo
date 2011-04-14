@@ -92,8 +92,8 @@ define(["./_base/kernel", "./has"], function(dojo, has){
 				
 					// array
 					if(it instanceof Array){
-						var res = [];
-						for(key = 0, itl = it.length; key < itl; key++){
+						var itl = it.length, res = [];
+						for(key = 0; key < itl; key++){
 							var obj = it[key];
 							val = stringify(obj, nextIndent, key);
 							if(typeof val != "string"){

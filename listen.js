@@ -102,6 +102,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			var events = type.split(/\s*,\s*/);
 			var handles = [];
 			var i = 0;
+			var eventName;
 			while(eventName = events[i++]){
 				handles.push(addListener(target, eventName, listener, dontFix, matchesTarget));
 			}
