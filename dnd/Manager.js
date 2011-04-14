@@ -1,8 +1,8 @@
 define(["..", "./common", "./autoscroll", "./Avatar"], function(dojo) {
-  //  module:
-  //    dojo/dnd/Manager
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/dnd/Manager
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.dnd.Manager", null, {

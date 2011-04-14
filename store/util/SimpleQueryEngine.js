@@ -2,7 +2,7 @@ define(["../../_base/array"], function(dojo) {
   //  module:
   //    dojo/store/util/SimpleQueryEngine
   //  summary:
-  //    The module defines 
+  //    The module defines a simple filtering query engine for object stores. 
 
 return function(query, options){
 	// summary:

@@ -1,8 +1,8 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/jaxer
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/jaxer
+	//	summary:
+	//		TODOC:This module defines 
 
 
 if(typeof print == "function"){

@@ -1,8 +1,8 @@
 define(["..", "./common", "./Container"], function(dojo) {
-  //  module:
-  //    dojo/dnd/Selector
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/dnd/Selector
+	//	summary:
+	//		TODOC:This module defines 
 
 
 /*

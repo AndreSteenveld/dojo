@@ -1,8 +1,8 @@
 define(["..", "./RpcService", "../io/script"], function(dojo) {
-  //  module:
-  //    dojo/rpc/JsonpService
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/rpc/JsonpService
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.rpc.JsonpService", dojo.rpc.RpcService, {

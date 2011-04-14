@@ -1,8 +1,8 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/Stateful
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/Stateful
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.Stateful", null, {

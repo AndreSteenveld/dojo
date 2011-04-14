@@ -1,8 +1,8 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/gears
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/gears
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("gears", true, dojo);
 

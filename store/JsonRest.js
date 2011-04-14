@@ -2,7 +2,7 @@ define(["../_base/kernel", "../_base/xhr", "../json", "../_base/declare", "./uti
   //  module:
   //    dojo/store/JsonRest
   //  summary:
-  //    The module defines 
+  //    The module defines a JSON/REST based object store 
 
 return declare("dojo.store.JsonRest", null, {
 	// summary:

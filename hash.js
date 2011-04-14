@@ -1,8 +1,8 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/hash
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/hash
+	//	summary:
+	//		TODOC:This module defines 
 
 
 //TODOC: where does this go?

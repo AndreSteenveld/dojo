@@ -2,7 +2,7 @@ define(["../_base/declare", "./util/QueryResults", "./util/SimpleQueryEngine"], 
   //  module:
   //    dojo/store/Memory
   //  summary:
-  //    The module defines
+  //    The module defines an in-memory object store.
 
 
 return declare("dojo.store.Memory", null, {

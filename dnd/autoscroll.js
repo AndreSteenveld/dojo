@@ -1,8 +1,8 @@
 define(["..", "../window"], function(dojo) {
-  //  module:
-  //    dojo/dnd/autoscroll
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/dnd/autoscroll
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("dnd", true, dojo);
 

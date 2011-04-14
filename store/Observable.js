@@ -1,9 +1,10 @@
 define([".."], function(dojo) {
-  //  module:
-  //    dojo/store/Observable
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/store/Observable
+	//	summary:
+	//		TODOC:This module defines 
 
+dojo.getObject("store", true, dojo);
 
 return dojo.store.Observable = function(store){
 	// summary:

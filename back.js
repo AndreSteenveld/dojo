@@ -1,10 +1,10 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/back
-  //  summary:
-  //    The module defines the dojo.back API.
+	//  module:
+	//    dojo/back
+	//	summary:
+	//		TODOC:This module defines 
 
-dojo.back= dojo.back || {};
+dojo.getObject("back", true, dojo);
 
 /*=====
 dojo.back = {

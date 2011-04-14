@@ -1,8 +1,8 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/behavior
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/behavior
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.behavior = new function(){

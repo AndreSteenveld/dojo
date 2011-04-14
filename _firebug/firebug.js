@@ -2,7 +2,8 @@ define([".."], function(dojo) {
   //  module:
   //    dojo/_firebug/firebug
   //  summary:
-  //    The module defines 
+	//		TODOC:This module defines 
+
 
 	
 // FIREBUG LITE

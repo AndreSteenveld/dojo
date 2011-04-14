@@ -1,13 +1,14 @@
 define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
-  //  module:
-  //    dojo/_base/fx
-  //  summary:
-  //    This module defines the base dojo.fx implementation.
-  //  notes:
-	//    Animation loosely package based on Dan Pupius' work, contributed under CLA; see
-  //    http://pupius.co.uk/js/Toolkit.Drawing.js
+	//	module:
+	//		dojo/_base/fx
+	//	summary:
+	//		This module defines the base dojo.fx implementation.
+	//	notes:
+	//		Animation loosely package based on Dan Pupius' work, contributed under CLA; see
+	//		http://pupius.co.uk/js/Toolkit.Drawing.js
 
-	var _mixin = dojo._mixin;
+	var d = dojo,
+			_mixin = dojo._mixin;
 
 	dojo._Line = function(/*int*/ start, /*int*/ end){
 		//	summary:
@@ -43,16 +44,16 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		//		animation instance.
 
 		_mixin(this, args);
-		if(dojo.isArray(this.curve)){
-			this.curve = new dojo._Line(this.curve[0], this.curve[1]);
+		if(d.isArray(this.curve)){
+			this.curve = new d._Line(this.curve[0], this.curve[1]);
 		}
 
 	};
 
 	// Alias to drop come 2.0:
-	dojo._Animation = dojo.Animation;
+	d._Animation = d.Animation;
 
-	dojo.extend(dojo.Animation, {
+	d.extend(dojo.Animation, {
 		// duration: Integer
 		//		The time in milliseonds the animation will take to run
 		duration: 350,
@@ -125,10 +126,10 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		},
 		_fire: function(/*Event*/ evt, /*Array?*/ args){
 			//	summary:
-			//		Convenience function.  Fire event "evt" and pass it the
+			//		Convenience function.	 Fire event "evt" and pass it the
 			//		arguments specified in "args".
 			//	description:
-			//		Convenience function.  Fire event "evt" and pass it the
+			//		Convenience function.	 Fire event "evt" and pass it the
 			//		arguments specified in "args".
 			//		Fires the callback in the scope of the `dojo.Animation`
 			//		instance.
@@ -138,7 +139,7 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 			//		The arguments to pass to the event.
 			var a = args||[];
 			if(this[evt]){
-				if(dojo.config.debugAtAllCosts){
+				if(d.config.debugAtAllCosts){
 					this[evt].apply(this, a);
 				}else{
 					try{
@@ -323,21 +324,21 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 			run: function(){}
 		};
 
-	dojo.extend(dojo.Animation, {
+	d.extend(d.Animation, {
 
 		_startTimer: function(){
 			if(!this._timer){
-				this._timer = dojo.connect(runner, "run", this, "_cycle");
+				this._timer = d.connect(runner, "run", this, "_cycle");
 				ctr++;
 			}
 			if(!timer){
-				timer = setInterval(dojo.hitch(runner, "run"), this.rate);
+				timer = setInterval(d.hitch(runner, "run"), this.rate);
 			}
 		},
 
 		_stopTimer: function(){
 			if(this._timer){
-				dojo.disconnect(this._timer);
+				d.disconnect(this._timer);
 				this._timer = null;
 				ctr--;
 			}
@@ -352,13 +353,13 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 
 	var _makeFadeable =
 		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		dojo.isIE ? function(node){
+		d.isIE ? function(node){
 			// only set the zoom if the "tickle" value would be the same as the
 			// default
 			var ns = node.style;
 			// don't set the width to auto if it didn't already cascade that way.
 			// We don't want to f anyones designs
-			if(!ns.width.length && dojo.style(node, "width") == "auto"){
+			if(!ns.width.length && d.style(node, "width") == "auto"){
 				ns.width = "auto";
 			}
 		} :
@@ -371,18 +372,18 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		//		args.node from the start to end values passed (args.start
 		//		args.end) (end is mandatory, start is optional)
 
-		args.node = dojo.byId(args.node);
+		args.node = d.byId(args.node);
 		var fArgs = _mixin({ properties: {} }, args),
 			props = (fArgs.properties.opacity = {});
 
 		props.start = !("start" in fArgs) ?
 			function(){
-				return +dojo.style(fArgs.node, "opacity")||0;
+				return +d.style(fArgs.node, "opacity")||0;
 			} : fArgs.start;
 		props.end = fArgs.end;
 
-		var anim = dojo.animateProperty(fArgs);
-		dojo.connect(anim, "beforeBegin", dojo.partial(_makeFadeable, fArgs.node));
+		var anim = d.animateProperty(fArgs);
+		d.connect(anim, "beforeBegin", d.partial(_makeFadeable, fArgs.node));
 
 		return anim; // dojo.Animation
 	};
@@ -405,14 +406,14 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		// summary:
 		//		Returns an animation that will fade node defined in 'args' from
 		//		its current opacity to fully opaque.
-		return dojo._fade(_mixin({ end: 1 }, args)); // dojo.Animation
+		return d._fade(_mixin({ end: 1 }, args)); // dojo.Animation
 	};
 
-	dojo.fadeOut = function(/*dojo.__FadeArgs*/  args){
+	dojo.fadeOut = function(/*dojo.__FadeArgs*/	 args){
 		// summary:
 		//		Returns an animation that will fade node defined in 'args'
 		//		from its current opacity to fully transparent.
-		return dojo._fade(_mixin({ end: 0 }, args)); // dojo.Animation
+		return d._fade(_mixin({ end: 0 }, args)); // dojo.Animation
 	};
 
 	dojo._defaultEasing = function(/*Decimal?*/ n){
@@ -428,9 +429,9 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		this._properties = properties;
 		for(var p in properties){
 			var prop = properties[p];
-			if(prop.start instanceof dojo.Color){
+			if(prop.start instanceof d.Color){
 				// create a reusable temp color object to keep intermediate results
-				prop.tempColor = new dojo.Color();
+				prop.tempColor = new d.Color();
 			}
 		}
 	};
@@ -440,9 +441,9 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		for(var p in this._properties){
 			var prop = this._properties[p],
 				start = prop.start;
-			if(start instanceof dojo.Color){
-				ret[p] = dojo.blendColors(start, prop.end, r, prop.tempColor).toCss();
-			}else if(!dojo.isArray(start)){
+			if(start instanceof d.Color){
+				ret[p] = d.blendColors(start, prop.end, r, prop.tempColor).toCss();
+			}else if(!d.isArray(start)){
 				ret[p] = ((prop.end - start) * r) + start + (p != "opacity" ? prop.units || "px" : 0);
 			}
 		}
@@ -549,11 +550,11 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		//	|	}).play();
 		//
 
-		var n = args.node = dojo.byId(args.node);
-		if(!args.easing){ args.easing = dojo._defaultEasing; }
+		var n = args.node = d.byId(args.node);
+		if(!args.easing){ args.easing = d._defaultEasing; }
 
-		var anim = new dojo.Animation(args);
-		dojo.connect(anim, "beforeBegin", anim, function(){
+		var anim = new d.Animation(args);
+		d.connect(anim, "beforeBegin", anim, function(){
 			var pm = {};
 			for(var p in this.properties){
 				// Make shallow copy of properties into pm because we overwrite
@@ -564,15 +565,15 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 					this.node.display = "block";
 				}
 				var prop = this.properties[p];
-				if(dojo.isFunction(prop)){
+				if(d.isFunction(prop)){
 					prop = prop(n);
 				}
-				prop = pm[p] = _mixin({}, (dojo.isObject(prop) ? prop: { end: prop }));
+				prop = pm[p] = _mixin({}, (d.isObject(prop) ? prop: { end: prop }));
 
-				if(dojo.isFunction(prop.start)){
+				if(d.isFunction(prop.start)){
 					prop.start = prop.start(n);
 				}
-				if(dojo.isFunction(prop.end)){
+				if(d.isFunction(prop.end)){
 					prop.end = prop.end(n);
 				}
 				var isColor = (p.toLowerCase().indexOf("color") >= 0);
@@ -580,7 +581,7 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 					// dojo.style(node, "height") can return "auto" or "" on IE; this is more reliable:
 					var v = { height: node.offsetHeight, width: node.offsetWidth }[p];
 					if(v !== undefined){ return v; }
-					v = dojo.style(node, p);
+					v = d.style(node, p);
 					return (p == "opacity") ? +v : (isColor ? v : parseFloat(v));
 				}
 				if(!("end" in prop)){
@@ -590,15 +591,15 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 				}
 
 				if(isColor){
-					prop.start = new dojo.Color(prop.start);
-					prop.end = new dojo.Color(prop.end);
+					prop.start = new d.Color(prop.start);
+					prop.end = new d.Color(prop.end);
 				}else{
 					prop.start = (p == "opacity") ? +prop.start : parseFloat(prop.start);
 				}
 			}
 			this.curve = new PropLine(pm);
 		});
-		dojo.connect(anim, "onAnimate", dojo.hitch(dojo, "style", anim.node));
+		d.connect(anim, "onAnimate", d.hitch(d, "style", anim.node));
 		return anim; // dojo.Animation
 	};
 
@@ -614,7 +615,7 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		//		immediately, unlike nearly every other Dojo animation API.
 		//	description:
 		//		`dojo.anim` is a simpler (but somewhat less powerful) version
-		//		of `dojo.animateProperty`.  It uses defaults for many basic properties
+		//		of `dojo.animateProperty`.	It uses defaults for many basic properties
 		//		and allows for positional parameters to be used in place of the
 		//		packed "property bag" which is used for other Dojo animation
 		//		methods.
@@ -646,14 +647,14 @@ define(["./kernel", "./Color", "./connect", "./lang", "./html"], function(dojo){
 		//	example:
 		//		Fade out a node over a full second
 		//	|	dojo.anim("id", { opacity: 0 }, 1000);
-		return dojo.animateProperty({ // dojo.Animation
+		return d.animateProperty({ // dojo.Animation
 			node: node,
-			duration: duration || dojo.Animation.prototype.duration,
+			duration: duration || d.Animation.prototype.duration,
 			properties: properties,
 			easing: easing,
 			onEnd: onEnd
 		}).play(delay || 0);
 	};
 
-  return dojo.animateProperty;
+	return dojo.animateProperty;
 });

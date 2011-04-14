@@ -1,10 +1,11 @@
 define(["./kernel", "../has"], function(dojo, has){
-  //  module:
-  //    dojo/_base/lang
-  //  summary:
-  //    This module defines the dojo core Javascript language extensions.
+	//	module:
+	//		dojo/_base/lang
+	//	summary:
+	//		This module defines the dojo core Javascript language extensions.
 
-	var opts = Object.prototype.toString;
+	var d = dojo,
+			opts = Object.prototype.toString;
 
 	// Crockford (ish) functions
 
@@ -32,14 +33,14 @@ define(["./kernel", "../has"], function(dojo, has){
 		//		Returns true if it is a JavaScript object (or an Array, a Function
 		//		or null)
 		return it !== undefined &&
-			(it === null || typeof it == "object" || dojo.isArray(it) || dojo.isFunction(it)); // Boolean
+			(it === null || typeof it == "object" || d.isArray(it) || d.isFunction(it)); // Boolean
 	};
 
 	dojo.isArrayLike = function(/*anything*/ it){
 		//	summary:
 		//		similar to dojo.isArray() but more permissive
 		//	description:
-		//		Doesn't strongly test for "arrayness".  Instead, settles for "isn't
+		//		Doesn't strongly test for "arrayness".	Instead, settles for "isn't
 		//		a string or number and has a length property". Arguments objects
 		//		and DOM collections will return true when passed to
 		//		dojo.isArrayLike(), but will return false when passed to
@@ -49,16 +50,16 @@ define(["./kernel", "../has"], function(dojo, has){
 		return it && it !== undefined && // Boolean
 			// keep out built-in constructors (Number, String, ...) which have length
 			// properties
-			!dojo.isString(it) && !dojo.isFunction(it) &&
+			!d.isString(it) && !d.isFunction(it) &&
 			!(it.tagName && it.tagName.toLowerCase() == 'form') &&
-			(dojo.isArray(it) || isFinite(it.length));
+			(d.isArray(it) || isFinite(it.length));
 	};
 
 	dojo.isAlien = function(/*anything*/ it){
 		// summary:
 		//		Returns true if it is a built-in function or some other kind of
 		//		oddball that *should* report as a function but doesn't
-		return it && !dojo.isFunction(it) && /\{\s*\[native code\]\s*\}/.test(String(it)); // Boolean
+		return it && !d.isFunction(it) && /\{\s*\[native code\]\s*\}/.test(String(it)); // Boolean
 	};
 
 	dojo.extend = function(/*Object*/ constructor, /*Object...*/ props){
@@ -67,19 +68,19 @@ define(["./kernel", "../has"], function(dojo, has){
 		//		prototype, making them available to all instances created with
 		//		constructor.
 		for(var i=1, l=arguments.length; i<l; i++){
-			dojo._mixin(constructor.prototype, arguments[i]);
+			d._mixin(constructor.prototype, arguments[i]);
 		}
 		return constructor; // Object
 	};
 
 	dojo._hitchArgs = function(scope, method /*,...*/){
-		var pre = dojo._toArray(arguments, 2);
-		var named = dojo.isString(method);
+		var pre = d._toArray(arguments, 2);
+		var named = d.isString(method);
 		return function(){
 			// arrayify arguments
-			var args = dojo._toArray(arguments);
+			var args = d._toArray(arguments);
 			// locate our method
-			var f = named ? (scope||dojo.global)[method] : method;
+			var f = named ? (scope||d.global)[method] : method;
 			// invoke with collected args
 			return f && f.apply(scope || this, pre.concat(args)); // mixed
 		}; // Function
@@ -119,14 +120,14 @@ define(["./kernel", "../has"], function(dojo, has){
 		//		execute an anonymous function in scope of foo
 		
 		if(arguments.length > 2){
-			return dojo._hitchArgs.apply(dojo, arguments); // Function
+			return d._hitchArgs.apply(d, arguments); // Function
 		}
 		if(!method){
 			method = scope;
 			scope = null;
 		}
-		if(dojo.isString(method)){
-			scope = scope || dojo.global;
+		if(d.isString(method)){
+			scope = scope || d.global;
 			if(!scope[method]){ throw(['dojo.hitch: scope["', method, '"] is null (scope="', scope, '")'].join('')); }
 			return function(){ return scope[method].apply(scope, arguments || []); }; // Function
 		}
@@ -172,7 +173,7 @@ define(["./kernel", "../has"], function(dojo, has){
 			var tmp = new TMP();
 			TMP.prototype = null;
 			if(props){
-				dojo._mixin(tmp, props);
+				d._mixin(tmp, props);
 			}
 			return tmp; // Object
 		};
@@ -213,7 +214,7 @@ define(["./kernel", "../has"], function(dojo, has){
 
 	dojo._toArray =
 		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		dojo.isIE ?  function(obj){
+		d.isIE ?	function(obj){
 			return ((obj.item) ? slow : efficient).apply(this, arguments);
 		} :
 		//>>excludeEnd("webkitMobile");
@@ -227,15 +228,15 @@ define(["./kernel", "../has"], function(dojo, has){
 		//		Calling dojo.partial is the functional equivalent of calling:
 		//		|	dojo.hitch(null, funcName, ...);
 		var arr = [ null ];
-		return dojo.hitch.apply(dojo, arr.concat(dojo._toArray(arguments))); // Function
+		return d.hitch.apply(d, arr.concat(d._toArray(arguments))); // Function
 	};
 
-  var empty= {};
+	var empty= {};
 	dojo.clone = function(/*anything*/ o){
 		// summary:
 		//		Clones objects (including DOM nodes) and all children.
 		//		Warning: do not clone cyclic structures.
-		if(!o || typeof o != "object" || dojo.isFunction(o)){
+		if(!o || typeof o != "object" || d.isFunction(o)){
 			// null, undefined, any non-object, or function
 			return o;	// anything
 		}
@@ -249,19 +250,19 @@ define(["./kernel", "../has"], function(dojo, has){
 		}
 		if(o instanceof RegExp){
 			// RegExp
-			return new RegExp(o);   // RegExp
+			return new RegExp(o);		// RegExp
 		}
 		var r, i, l, s, name;
-		if(dojo.isArray(o)){
+		if(d.isArray(o)){
 			// array
 			r = [];
 			for(i = 0, l = o.length; i < l; ++i){
 				if(i in o){
-					r.push(dojo.clone(o[i]));
+					r.push(d.clone(o[i]));
 				}
 			}
 // we don't clone functions for performance reasons
-//		}else if(dojo.isFunction(o)){
+//		}else if(d.isFunction(o)){
 //			// function
 //			r = function(){ return o.apply(this, arguments); };
 		}else{
@@ -270,17 +271,17 @@ define(["./kernel", "../has"], function(dojo, has){
 		}
 		for(name in o){
 			// the "tobj" condition avoid copying properties in "source"
-			// inherited from Object.prototype.  For example, if target has a custom
+			// inherited from Object.prototype.	 For example, if target has a custom
 			// toString() method, don't overwrite it with the toString() method
 			// that source inherited from Object.prototype
 			s = o[name];
 			if(!(name in r) || (r[name] !== s && (!(name in empty) || empty[name] !== s))){
-				r[name] = dojo.clone(s);
+				r[name] = d.clone(s);
 			}
 		}
-    if (has("bug-for-in-skips-shadowed")){
-      var extraNames= dojo._extraNames;
-	  	for(i= extraNames.length; i;){
+		if (has("bug-for-in-skips-shadowed")){
+			var extraNames= dojo._extraNames;
+			for(i= extraNames.length; i;){
 				name = extraNames[--i];
 				s = o[name];
 				if(!(name in r) || (r[name] !== s && (!(name in empty) || empty[name] !== s))){
@@ -337,47 +338,47 @@ define(["./kernel", "../has"], function(dojo, has){
 		//	example:
 		//	|	// uses a dictionary for substitutions:
 		//	|	dojo.replace("Hello, {name.first} {name.last} AKA {nick}!",
-		//	|	  {
-		//	|	    nick: "Bob",
-		//	|	    name: {
-		//	|	      first:  "Robert",
-		//	|	      middle: "X",
-		//	|	      last:   "Cringely"
-		//	|	    }
-		//	|	  });
+		//	|		{
+		//	|			nick: "Bob",
+		//	|			name: {
+		//	|				first:	"Robert",
+		//	|				middle: "X",
+		//	|				last:		"Cringely"
+		//	|			}
+		//	|		});
 		//	|	// returns: Hello, Robert Cringely AKA Bob!
 		//	example:
 		//	|	// uses an array for substitutions:
 		//	|	dojo.replace("Hello, {0} {2}!",
-		//	|	  ["Robert", "X", "Cringely"]);
+		//	|		["Robert", "X", "Cringely"]);
 		//	|	// returns: Hello, Robert Cringely!
 		//	example:
 		//	|	// uses a function for substitutions:
 		//	|	function sum(a){
-		//	|	  var t = 0;
-		//	|	  dojo.forEach(a, function(x){ t += x; });
-		//	|	  return t;
+		//	|		var t = 0;
+		//	|		dojo.forEach(a, function(x){ t += x; });
+		//	|		return t;
 		//	|	}
 		//	|	dojo.replace(
-		//	|	  "{count} payments averaging {avg} USD per payment.",
-		//	|	  dojo.hitch(
-		//	|	    { payments: [11, 16, 12] },
-		//	|	    function(_, key){
-		//	|	      switch(key){
-		//	|	        case "count": return this.payments.length;
-		//	|	        case "min":   return Math.min.apply(Math, this.payments);
-		//	|	        case "max":   return Math.max.apply(Math, this.payments);
-		//	|	        case "sum":   return sum(this.payments);
-		//	|	        case "avg":   return sum(this.payments) / this.payments.length;
-		//	|	      }
-		//	|	    }
-		//	|	  )
+		//	|		"{count} payments averaging {avg} USD per payment.",
+		//	|		dojo.hitch(
+		//	|			{ payments: [11, 16, 12] },
+		//	|			function(_, key){
+		//	|				switch(key){
+		//	|					case "count": return this.payments.length;
+		//	|					case "min":		return Math.min.apply(Math, this.payments);
+		//	|					case "max":		return Math.max.apply(Math, this.payments);
+		//	|					case "sum":		return sum(this.payments);
+		//	|					case "avg":		return sum(this.payments) / this.payments.length;
+		//	|				}
+		//	|			}
+		//	|		)
 		//	|	);
 		//	|	// prints: 3 payments averaging 13 USD per payment.
 		//	example:
 		//	|	// uses an alternative PHP-like pattern for substitutions:
 		//	|	dojo.replace("Hello, ${0} ${2}!",
-		//	|	  ["Robert", "X", "Cringely"], /\$\{([^\}]+)\}/g);
+		//	|		["Robert", "X", "Cringely"], /\$\{([^\}]+)\}/g);
 		//	|	// returns: Hello, Robert Cringely!
 		return "";	// String
 	}
@@ -385,9 +386,9 @@ define(["./kernel", "../has"], function(dojo, has){
 
 	var _pattern = /\{([^\}]+)\}/g;
 	dojo.replace = function(tmpl, map, pattern){
-		return tmpl.replace(pattern || _pattern, dojo.isFunction(map) ?
-			map : function(_, k){ return dojo.getObject(k, false, map); });
+		return tmpl.replace(pattern || _pattern, d.isFunction(map) ?
+			map : function(_, k){ return d.getObject(k, false, map); });
 	};
 
-  return dojo;
+	return dojo;
 });

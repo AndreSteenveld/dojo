@@ -1,8 +1,8 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/DeferredList
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/DeferredList
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.DeferredList = function(/*Array*/ list, /*Boolean?*/ fireOnOneCallback, /*Boolean?*/ fireOnOneErrback, /*Boolean?*/ consumeErrors, /*Function?*/ canceller){

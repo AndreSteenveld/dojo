@@ -1,6 +1,6 @@
 define(["..", "doh", "../rpc/RpcService", "../rpc/JsonService", "../rpc/JsonpService"], function(dojo, doh){
 
-  doh.register("tests.rpc", [
+	doh.register("tests.rpc", [
 		{
 			name: "JsonRPC-EchoTest",
 			timeout: 2000,

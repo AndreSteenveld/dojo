@@ -2,7 +2,7 @@ define(["../../_base/kernel", "../../_base/lang", "../../_base/Deferred"], funct
   //  module:
   //    dojo/store/util/QueryResults
   //  summary:
-  //    The module defines 
+  //    The module defines a query results wrapper 
 
 dojo.getObject("store.util", true, dojo);
 

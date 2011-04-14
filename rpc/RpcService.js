@@ -1,8 +1,8 @@
 define([".."], function(dojo) {
-  //  module:
-  //    dojo/rpc/RpcService
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/rpc/RpcService
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.rpc.RpcService", null, {

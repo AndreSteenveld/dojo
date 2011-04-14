@@ -1,10 +1,10 @@
 define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_base/window"], function(dojo, has){
   //  module:
-  //    dojo/_base/query
+  //    dojo/selector/acme
   //  summary:
-  //    This module defines dojo.query.
+  //    This module defines the Acme selector engine
 
-  var d= dojo;
+	var d= dojo;
 
 	var ctr = 0;
 /*
@@ -23,19 +23,19 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 				- native (FF3.1+, Safari 3.1+, IE 8+)
 			3.) tokenize and convert to executable "query dispatcher"
 				- this is where the lion's share of the complexity in the
-				  system lies. In the DOM version, the query dispatcher is
-				  assembled as a chain of "yes/no" test functions pertaining to
-				  a section of a simple query statement (".blah:nth-child(odd)"
-				  but not "div div", which is 2 simple statements). Individual
-				  statement dispatchers are cached (to prevent re-definition)
-				  as are entire dispatch chains (to make re-execution of the
-				  same query fast)
+					system lies. In the DOM version, the query dispatcher is
+					assembled as a chain of "yes/no" test functions pertaining to
+					a section of a simple query statement (".blah:nth-child(odd)"
+					but not "div div", which is 2 simple statements). Individual
+					statement dispatchers are cached (to prevent re-definition)
+					as are entire dispatch chains (to make re-execution of the
+					same query fast)
 			4.) the resulting query dispatcher is called in the passed scope
-			    (by default the top-level document)
+					(by default the top-level document)
 				- for DOM queries, this results in a recursive, top-down
-				  evaluation of nodes based on each simple query section
+					evaluation of nodes based on each simple query section
 				- for native implementations, this may mean working around spec
-				  bugs. So be it.
+					bugs. So be it.
 			5.) matched nodes are pruned to ensure they are unique (if necessary)
 */
 
@@ -103,7 +103,7 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 
 		// NOTE:
 		//		this code is designed to run fast and compress well. Sacrifices
-		//		to readability and maintainability have been made.  Your best
+		//		to readability and maintainability have been made.	Your best
 		//		bet when hacking the tokenizer is to put The Donnas on *really*
 		//		loud (may we recommend their "Spend The Night" release?) and
 		//		just assume you're gonna make mistakes. Keep the unit tests
@@ -276,11 +276,11 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 				currentPart = {
 					query: null, // the full text of the part's rule
 					pseudos: [], // CSS supports multiple pseud-class matches in a single rule
-					attrs: [], 	// CSS supports multi-attribute match, so we need an array
+					attrs: [],	// CSS supports multi-attribute match, so we need an array
 					classes: [], // class matches may be additive, e.g.: .thinger.blah.howdy
-					tag: null, 	// only one tag...
+					tag: null,	// only one tag...
 					oper: null, // ...or operator per component. Note that these wind up being exclusive.
-					id: null, 	// the id component of a rule
+					id: null,		// the id component of a rule
 					getTag: function(){
 						return (caseSensitive) ? this.otag : this.tag;
 					}
@@ -311,7 +311,7 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 						// try to strip quotes from the matchFor value. We want
 						// [attrName=howdy] to match the same
 						//	as [attrName = 'howdy' ]
-						if(	(cmf.charAt(0) == '"') || (cmf.charAt(0)  == "'") ){
+						if(	(cmf.charAt(0) == '"') || (cmf.charAt(0)	== "'") ){
 							_cp.matchFor = cmf.slice(1, -1);
 						}
 					}
@@ -537,13 +537,13 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 				te["_i"] = ++i;
 				if(node === te){
 					// NOTE:
-					// 	shortcutting the return at this step in indexing works
-					// 	very well for benchmarking but we avoid it here since
-					// 	it leads to potential O(n^2) behavior in sequential
-					// 	getNodexIndex operations on a previously un-indexed
-					// 	parent. We may revisit this at a later time, but for
-					// 	now we just want to get the right answer more often
-					// 	than not.
+					//	shortcutting the return at this step in indexing works
+					//	very well for benchmarking but we avoid it here since
+					//	it leads to potential O(n^2) behavior in sequential
+					//	getNodexIndex operations on a previously un-indexed
+					//	parent. We may revisit this at a later time, but for
+					//	now we just want to get the right answer more often
+					//	than not.
 					ci = i;
 				}
 			}
@@ -840,7 +840,7 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 
 		// NOTE:
 		//		this function returns a function that searches for nodes and
-		//		filters them.  The search may be specialized by infix operators
+		//		filters them.	 The search may be specialized by infix operators
 		//		(">", "~", or "+") else it will default to searching all
 		//		descendants (the " " selector). Once a group of children is
 		//		found, a test function is applied to weed out the ones we
@@ -1066,19 +1066,19 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 
 	// NOTES:
 	//	* we can't trust QSA for anything but document-rooted queries, so
-	//	  caching is split into DOM query evaluators and QSA query evaluators
+	//		caching is split into DOM query evaluators and QSA query evaluators
 	//	* caching query results is dirty and leak-prone (or, at a minimum,
-	//	  prone to unbounded growth). Other toolkits may go this route, but
-	//	  they totally destroy their own ability to manage their memory
-	//	  footprint. If we implement it, it should only ever be with a fixed
-	//	  total element reference # limit and an LRU-style algorithm since JS
-	//	  has no weakref support. Caching compiled query evaluators is also
-	//	  potentially problematic, but even on large documents the size of the
-	//	  query evaluators is often < 100 function objects per evaluator (and
-	//	  LRU can be applied if it's ever shown to be an issue).
+	//		prone to unbounded growth). Other toolkits may go this route, but
+	//		they totally destroy their own ability to manage their memory
+	//		footprint. If we implement it, it should only ever be with a fixed
+	//		total element reference # limit and an LRU-style algorithm since JS
+	//		has no weakref support. Caching compiled query evaluators is also
+	//		potentially problematic, but even on large documents the size of the
+	//		query evaluators is often < 100 function objects per evaluator (and
+	//		LRU can be applied if it's ever shown to be an issue).
 	//	* since IE's QSA support is currently only for HTML documents and even
-	//	  then only in IE 8's "standards mode", we have to detect our dispatch
-	//	  route at query time and keep 2 separate caches. Ugg.
+	//		then only in IE 8's "standards mode", we have to detect our dispatch
+	//		route at query time and keep 2 separate caches. Ugg.
 
 	// we need to determine if we think we can run a given query via
 	// querySelectorAll or if we'll need to fall back on DOM queries to get
@@ -1181,7 +1181,7 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 				try{
 					// the QSA system contains an egregious spec bug which
 					// limits us, effectively, to only running QSA queries over
-					// entire documents.  See:
+					// entire documents.	See:
 					//		http://ejohn.org/blog/thoughts-on-queryselectorall/
 					//	despite this, we can also handle QSA runs on simple
 					//	selectors, but we don't want detection to be expensive
@@ -1358,7 +1358,7 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 		//			|	* `:root`, `:lang()`, `:target`, `:focus`
 		//			* all visual and state selectors:
 		//			|	* `:root`, `:active`, `:hover`, `:visisted`, `:link`,
-		//				  `:enabled`, `:disabled`
+		//					`:enabled`, `:disabled`
 		//			* `:*-of-type` pseudo selectors
 		//
 		//		dojo.query and XML Documents:
@@ -1449,8 +1449,8 @@ define(["../_base/kernel", "../has", "../_base/sniff", "../_base/lang", "../_bas
 		// throw the big case sensitivity switch
 
 		// NOTE:
-		// 		Opera in XHTML mode doesn't detect case-sensitivity correctly
-		// 		and it's not clear that there's any way to test for it
+		//		Opera in XHTML mode doesn't detect case-sensitivity correctly
+		//		and it's not clear that there's any way to test for it
 		caseSensitive = (root.contentType && root.contentType=="application/xml") ||
 						(d.isOpera && (root.doctype || od.toString() == "[object XMLDocument]")) ||
 						(!!od) &&

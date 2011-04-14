@@ -1,8 +1,8 @@
 define(["../.."], function(dojo) {
-  //  module:
-  //    dojo/data/util/filter
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/data/util/filter
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("data.util.filter", true, dojo);
 

@@ -1,8 +1,8 @@
 define(["..", "./Moveable"], function(dojo) {
-  //  module:
-  //    dojo/dnd/TimedMoveable
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/dnd/TimedMoveable
+	//	summary:
+	//		TODOC:This module defines 
 
 
 /*=====

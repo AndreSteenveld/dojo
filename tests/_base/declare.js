@@ -1,95 +1,98 @@
+// FIXME: this test assumes the existence of the global object "tests"
+tests= typeof tests=="undefined" ? {} : tests;
+
 define(["../..", "doh"], function(dojo, doh){
-  doh.register("doh._base.declare", [
+	doh.register("doh._base.declare", [
 		function smokeTest(t){
-			dojo.declare("doh._base.declare.tmp", null);
-			var tmp = new doh._base.declare.tmp();
-			dojo.declare("dohFoo", null);
-			tmp = new dohFoo();
+			dojo.declare("tests._base.declare.tmp", null);
+			var tmp = new tests._base.declare.tmp();
+			dojo.declare("testsFoo", null);
+			tmp = new testsFoo();
 		},
 		function smokeTest2(t){
-			dojo.declare("doh._base.declare.foo", null, {
+			dojo.declare("tests._base.declare.foo", null, {
 				foo: "thonk"
 			});
-			var tmp = new doh._base.declare.foo();
+			var tmp = new tests._base.declare.foo();
 			t.is("thonk", tmp.foo);
 
-			dojo.declare("dohFoo2", null, {
+			dojo.declare("testsFoo2", null, {
 				foo: "thonk"
 			});
-			var tmp2 = new dohFoo2();
+			var tmp2 = new testsFoo2();
 			t.is("thonk", tmp2.foo);
 		},
 		function smokeTestWithCtor(t){
-			dojo.declare("doh._base.declare.fooBar", null, {
+			dojo.declare("tests._base.declare.fooBar", null, {
 				constructor: function(){
 					this.foo = "blah";
 				},
 				foo: "thonk"
 			});
-			var tmp = new doh._base.declare.fooBar();
+			var tmp = new tests._base.declare.fooBar();
 			t.is("blah", tmp.foo);
 		},
 		function smokeTestCompactArgs(t){
-			dojo.declare("doh._base.declare.fooBar2", null, {
+			dojo.declare("tests._base.declare.fooBar2", null, {
 				foo: "thonk"
 			});
-			var tmp = new doh._base.declare.fooBar2();
+			var tmp = new tests._base.declare.fooBar2();
 			t.is("thonk", tmp.foo);
 		},
 		function subclass(t){
-			dojo.declare("doh._base.declare.tmp3", null, {
+			dojo.declare("tests._base.declare.tmp3", null, {
 				foo: "thonk"
 			});
-			dojo.declare("doh._base.declare.tmp4", doh._base.declare.tmp3);
-			var tmp = new doh._base.declare.tmp4();
+			dojo.declare("tests._base.declare.tmp4", tests._base.declare.tmp3);
+			var tmp = new tests._base.declare.tmp4();
 			t.is("thonk", tmp.foo);
 		},
 		function subclassWithCtor(t){
-			dojo.declare("doh._base.declare.tmp5", null, {
+			dojo.declare("tests._base.declare.tmp5", null, {
 				constructor: function(){
 					this.foo = "blah";
 				},
 				foo: "thonk"
 			});
-			dojo.declare("doh._base.declare.tmp6", doh._base.declare.tmp5);
-			var tmp = new doh._base.declare.tmp6();
+			dojo.declare("tests._base.declare.tmp6", tests._base.declare.tmp5);
+			var tmp = new tests._base.declare.tmp6();
 			t.is("blah", tmp.foo);
 		},
 		function mixinSubclass(t){
-			dojo.declare("doh._base.declare.tmp7", null, {
+			dojo.declare("tests._base.declare.tmp7", null, {
 				foo: "thonk"
 			});
-			dojo.declare("doh._base.declare.tmp8", null, {
+			dojo.declare("tests._base.declare.tmp8", null, {
 				constructor: function(){
 					this.foo = "blah";
 				}
 			});
-			var tmp = new doh._base.declare.tmp8();
+			var tmp = new tests._base.declare.tmp8();
 			t.is("blah", tmp.foo);
-			dojo.declare("doh._base.declare.tmp9",
+			dojo.declare("tests._base.declare.tmp9",
 				[
-					doh._base.declare.tmp7, // prototypal
-					doh._base.declare.tmp8  // mixin
+					tests._base.declare.tmp7, // prototypal
+					tests._base.declare.tmp8	// mixin
 				]);
-			var tmp2 = new doh._base.declare.tmp9();
+			var tmp2 = new tests._base.declare.tmp9();
 			t.is("blah", tmp2.foo);
 		},
 		function superclassRef(t){
-			dojo.declare("doh._base.declare.tmp10", null, {
+			dojo.declare("tests._base.declare.tmp10", null, {
 				foo: "thonk"
 			});
-			dojo.declare("doh._base.declare.tmp11", doh._base.declare.tmp10, {
+			dojo.declare("tests._base.declare.tmp11", tests._base.declare.tmp10, {
 				constructor: function(){
 					this.foo = "blah";
 				}
 			});
-			var tmp = new doh._base.declare.tmp11();
+			var tmp = new tests._base.declare.tmp11();
 			t.is("blah", tmp.foo);
-			t.is("thonk", doh._base.declare.tmp11.superclass.foo);
+			t.is("thonk", tests._base.declare.tmp11.superclass.foo);
 		},
 		function inheritedCall(t){
 			var foo = "xyzzy";
-			dojo.declare("doh._base.declare.tmp12", null, {
+			dojo.declare("tests._base.declare.tmp12", null, {
 				foo: "thonk",
 				bar: function(arg1, arg2){
 					if(arg1){
@@ -100,12 +103,12 @@ define(["../..", "doh"], function(dojo, doh){
 					}
 				}
 			});
-			dojo.declare("doh._base.declare.tmp13", doh._base.declare.tmp12, {
+			dojo.declare("tests._base.declare.tmp13", tests._base.declare.tmp12, {
 				constructor: function(){
 					this.foo = "blah";
 				}
 			});
-			var tmp = new doh._base.declare.tmp13();
+			var tmp = new tests._base.declare.tmp13();
 			t.is("blah", tmp.foo);
 			t.is("xyzzy", foo);
 			tmp.bar("zot");
@@ -117,7 +120,7 @@ define(["../..", "doh"], function(dojo, doh){
 		},
 		function inheritedExplicitCall(t){
 			var foo = "xyzzy";
-			dojo.declare("doh._base.declare.tmp14", null, {
+			dojo.declare("tests._base.declare.tmp14", null, {
 				foo: "thonk",
 				bar: function(arg1, arg2){
 					if(arg1){
@@ -128,7 +131,7 @@ define(["../..", "doh"], function(dojo, doh){
 					}
 				}
 			});
-			dojo.declare("doh._base.declare.tmp15", doh._base.declare.tmp14, {
+			dojo.declare("tests._base.declare.tmp15", tests._base.declare.tmp14, {
 				constructor: function(){
 					this.foo = "blah";
 				},
@@ -136,10 +139,10 @@ define(["../..", "doh"], function(dojo, doh){
 					this.inherited("bar", arguments, [arg2, arg1]);
 				},
 				baz: function(arg1, arg2){
-					doh._base.declare.tmp15.superclass.bar.apply(this, arguments);
+					tests._base.declare.tmp15.superclass.bar.apply(this, arguments);
 				}
 			});
-			var tmp = new doh._base.declare.tmp15();
+			var tmp = new tests._base.declare.tmp15();
 			t.is("blah", tmp.foo);
 			t.is("xyzzy", foo);
 			tmp.baz("zot");
@@ -150,38 +153,38 @@ define(["../..", "doh"], function(dojo, doh){
 			t.is("trousers", foo);
 		},
 		function inheritedMixinCalls(t){
-			dojo.declare("doh._base.declare.tmp16", null, {
+			dojo.declare("tests._base.declare.tmp16", null, {
 				foo: "",
 				bar: function(){
 					this.foo += "tmp16";
 				}
 			});
-			dojo.declare("doh._base.declare.mixin16", null, {
+			dojo.declare("tests._base.declare.mixin16", null, {
 				bar: function(){
 					this.inherited(arguments);
 					this.foo += ".mixin16";
 				}
 			});
-			dojo.declare("doh._base.declare.mixin17", doh._base.declare.mixin16, {
+			dojo.declare("tests._base.declare.mixin17", tests._base.declare.mixin16, {
 				bar: function(){
 					this.inherited(arguments);
 					this.foo += ".mixin17";
 				}
 			});
-			dojo.declare("doh._base.declare.tmp17", [doh._base.declare.tmp16, doh._base.declare.mixin17], {
+			dojo.declare("tests._base.declare.tmp17", [tests._base.declare.tmp16, tests._base.declare.mixin17], {
 				bar: function(){
 					this.inherited(arguments);
 					this.foo += ".tmp17";
 				}
 			});
-			var tmp = new doh._base.declare.tmp17();
+			var tmp = new tests._base.declare.tmp17();
 			tmp.bar();
 			t.is("tmp16.mixin16.mixin17.tmp17", tmp.foo);
 		},
 		function mixinPreamble(t){
 			var passed = false;
-			dojo.declare("doh._base.declare.tmp16", null);
-			new doh._base.declare.tmp16({ preamble: function(){ passed = true; } });
+			dojo.declare("tests._base.declare.tmp16", null);
+			new tests._base.declare.tmp16({ preamble: function(){ passed = true; } });
 			t.t(passed);
 		},
 
@@ -212,20 +215,20 @@ define(["../..", "doh"], function(dojo, doh){
 
 		function mutatedMethods(t){
 			// testing if methods can be mutated (within a reason)
-			dojo.declare("doh._base.declare.tmp18", null, {
+			dojo.declare("tests._base.declare.tmp18", null, {
 				constructor: function(){ this.clear(); },
 				clear: function(){ this.flag = 0; },
 				foo: function(){ ++this.flag; },
 				bar: function(){ ++this.flag; },
 				baz: function(){ ++this.flag; }
 			});
-			dojo.declare("doh._base.declare.tmp19", doh._base.declare.tmp18, {
+			dojo.declare("tests._base.declare.tmp19", tests._base.declare.tmp18, {
 				foo: function(){ ++this.flag; this.inherited(arguments); },
 				bar: function(){ ++this.flag; this.inherited(arguments); },
 				baz: function(){ ++this.flag; this.inherited(arguments); }
 			});
-			var x = new doh._base.declare.tmp19();
-			// smoke doh
+			var x = new tests._base.declare.tmp19();
+			// smoke tests
 			t.is(0, x.flag);
 			x.foo();
 			t.is(2, x.flag);
@@ -233,15 +236,15 @@ define(["../..", "doh"], function(dojo, doh){
 			t.is(0, x.flag);
 			var a = 0;
 			// dojo.connect() on a prototype method
-			dojo.connect(doh._base.declare.tmp19.prototype, "foo", function(){ a = 1; });
+			dojo.connect(tests._base.declare.tmp19.prototype, "foo", function(){ a = 1; });
 			x.foo();
 			t.is(2, x.flag);
 			t.is(1, a);
 			x.clear();
 			a = 0;
 			// extra chaining
-			var old = doh._base.declare.tmp19.prototype.bar;
-			doh._base.declare.tmp19.prototype.bar = function(){
+			var old = tests._base.declare.tmp19.prototype.bar;
+			tests._base.declare.tmp19.prototype.bar = function(){
 				a = 1;
 				++this.flag;
 				old.call(this);
@@ -252,7 +255,7 @@ define(["../..", "doh"], function(dojo, doh){
 			x.clear();
 			a = 0;
 			// replacement
-			doh._base.declare.tmp19.prototype.baz = function(){
+			tests._base.declare.tmp19.prototype.baz = function(){
 				a = 1;
 				++this.flag;
 				this.inherited("baz", arguments);
@@ -264,30 +267,30 @@ define(["../..", "doh"], function(dojo, doh){
 
 		function modifiedInstance(t){
 			var stack;
-			dojo.declare("doh._base.declare.tmp20", null, {
+			dojo.declare("tests._base.declare.tmp20", null, {
 				foo: function(){ stack.push(20); }
 			});
-			dojo.declare("doh._base.declare.tmp21", null, {
+			dojo.declare("tests._base.declare.tmp21", null, {
 				foo: function(){
 					this.inherited(arguments);
 					stack.push(21);
 				}
 			});
-			dojo.declare("doh._base.declare.tmp22", doh._base.declare.tmp20, {
+			dojo.declare("tests._base.declare.tmp22", tests._base.declare.tmp20, {
 				foo: function(){
 					this.inherited(arguments);
 					stack.push(22);
 				}
 			});
-			dojo.declare("doh._base.declare.tmp23",
-						[doh._base.declare.tmp20, doh._base.declare.tmp21], {
+			dojo.declare("tests._base.declare.tmp23",
+						[tests._base.declare.tmp20, tests._base.declare.tmp21], {
 				foo: function(){
 					this.inherited(arguments);
 					stack.push(22);
 				}
 			});
-			var a = new doh._base.declare.tmp22();
-			var b = new doh._base.declare.tmp23();
+			var a = new tests._base.declare.tmp22();
+			var b = new tests._base.declare.tmp23();
 			var c = {
 				foo: function(){
 					this.inherited("foo", arguments);
@@ -464,6 +467,5 @@ define(["../..", "doh"], function(dojo, doh){
 		// FIXME: there are still some permutations to test like:
 		//	- ctor arguments
 		//	- multi-level inheritance + L/R conflict checks
-	]
-  );
+	]);
 });

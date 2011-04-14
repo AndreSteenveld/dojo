@@ -10,17 +10,17 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 
 	var tnl = function(/*Array*/ a, /*dojo.NodeList?*/ parent, /*Function?*/ NodeListCtor){
 		// summary:
-		// 		decorate an array to make it look like a `dojo.NodeList`.
+		//		decorate an array to make it look like a `dojo.NodeList`.
 		// a:
-		// 		Array of nodes to decorate.
+		//		Array of nodes to decorate.
 		// parent:
-		// 		An optional parent NodeList that generated the current
-		// 		list of nodes. Used to call _stash() so the parent NodeList
-		// 		can be accessed via end() later.
+		//		An optional parent NodeList that generated the current
+		//		list of nodes. Used to call _stash() so the parent NodeList
+		//		can be accessed via end() later.
 		// NodeListCtor:
-		// 		An optional constructor function to use for any
-		// 		new NodeList calls. This allows a certain chain of
-		// 		NodeList calls to use a different object than dojo.NodeList.
+		//		An optional constructor function to use for any
+		//		new NodeList calls. This allows a certain chain of
+		//		NodeList calls to use a different object than dojo.NodeList.
 		if(!a.sort){
 			// make sure it's a real array before we pass it on to be wrapped
 			a = aps.call(a, 0);
@@ -211,7 +211,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 	nl._wrap = nlp._wrap = tnl;
 	nl._adaptAsMap = adaptAsMap;
 	nl._adaptAsForEach = adaptAsForEach;
-	nl._adaptAsFilter  = adaptAsFilter;
+	nl._adaptAsFilter	 = adaptAsFilter;
 	nl._adaptWithCondition = adaptWithCondition;
 
 	// mass assignment
@@ -250,19 +250,19 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 	dojo.extend(dojo.NodeList, {
 		_normalize: function(/*String||Element||Object||NodeList*/content, /*DOMNode?*/refNode){
 			// summary:
-			// 		normalizes data to an array of items to insert.
+			//		normalizes data to an array of items to insert.
 			// description:
-			// 		If content is an object, it can have special properties "template" and
-			// 		"parse". If "template" is defined, then the template value is run through
-			// 		dojo.string.substitute (if dojo.string.substitute has been dojo.required elsewhere),
-			// 		or if templateFunc is a function on the content, that function will be used to
-			// 		transform the template into a final string to be used for for passing to dojo._toDom.
-			// 		If content.parse is true, then it is remembered for later, for when the content
-			// 		nodes are inserted into the DOM. At that point, the nodes will be parsed for widgets
-			// 		(if dojo.parser has been dojo.required elsewhere).
+			//		If content is an object, it can have special properties "template" and
+			//		"parse". If "template" is defined, then the template value is run through
+			//		dojo.string.substitute (if dojo.string.substitute has been dojo.required elsewhere),
+			//		or if templateFunc is a function on the content, that function will be used to
+			//		transform the template into a final string to be used for for passing to dojo._toDom.
+			//		If content.parse is true, then it is remembered for later, for when the content
+			//		nodes are inserted into the DOM. At that point, the nodes will be parsed for widgets
+			//		(if dojo.parser has been dojo.required elsewhere).
 
 			//Wanted to just use a DocumentFragment, but for the array/NodeList
-			//case that meant  using cloneNode, but we may not want that.
+			//case that meant	 using cloneNode, but we may not want that.
 			//Cloning should only happen if the node operations span
 			//multiple refNodes. Also, need a real array, not a NodeList from the
 			//DOM since the node movements could change those NodeLists.
@@ -301,18 +301,18 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 
 		_cloneNode: function(/*DOMNode*/ node){
 			// summary:
-			// 		private utility to clone a node. Not very interesting in the vanilla
-			// 		dojo.NodeList case, but delegates could do interesting things like
-			// 		clone event handlers if that is derivable from the node.
+			//		private utility to clone a node. Not very interesting in the vanilla
+			//		dojo.NodeList case, but delegates could do interesting things like
+			//		clone event handlers if that is derivable from the node.
 			return node.cloneNode(true);
 		},
 
 		_place: function(/*Array*/ary, /*DOMNode*/refNode, /*String*/position, /*Boolean*/useClone){
 			// summary:
-			// 		private utility to handle placing an array of nodes relative to another node.
+			//		private utility to handle placing an array of nodes relative to another node.
 			// description:
-			// 		Allows for cloning the nodes in the array, and for
-			// 		optionally parsing widgets, if ary._runParse is true.
+			//		Allows for cloning the nodes in the array, and for
+			//		optionally parsing widgets, if ary._runParse is true.
 
 			//Avoid a disallowed operation if trying to do an innerHTML on a non-element node.
 			if(refNode.nodeType != 1 && position == "only"){
@@ -352,14 +352,14 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 
 		_stash: function(parent){
 			// summary:
-			// 		private function to hold to a parent NodeList. end() to return the parent NodeList.
+			//		private function to hold to a parent NodeList. end() to return the parent NodeList.
 			//
 			// example:
 			// How to make a `dojo.NodeList` method that only returns the third node in
 			// the dojo.NodeList but allows access to the original NodeList by using this._stash:
 			//	|	dojo.extend(dojo.NodeList, {
 			//	|		third: function(){
-			//  |			var newNodeList = dojo.NodeList(this[2]);
+			//	|			var newNodeList = dojo.NodeList(this[2]);
 			//	|			return newNodeList._stash(this);
 			//	|		}
 			//	|	});
@@ -399,11 +399,11 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 
 		end: function(){
 			// summary:
-			// 		Ends use of the current `dojo.NodeList` by returning the previous dojo.NodeList
-			// 		that generated the current dojo.NodeList.
+			//		Ends use of the current `dojo.NodeList` by returning the previous dojo.NodeList
+			//		that generated the current dojo.NodeList.
 			// description:
-			// 		Returns the `dojo.NodeList` that generated the current `dojo.NodeList`. If there
-			// 		is no parent dojo.NodeList, an empty dojo.NodeList is returned.
+			//		Returns the `dojo.NodeList` that generated the current `dojo.NodeList`. If there
+			//		is no parent dojo.NodeList, an empty dojo.NodeList is returned.
 			// example:
 			//	|	dojo.query("a")
 			//	|		.filter(".disabled")
@@ -463,8 +463,8 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		with the caveat that it returns a dojo.NodeList and not a
 			//		raw Array. For more details, see Mozilla's (splice
 			//		documentation)[http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:splice]
-			// 		For backwards compatibility, calling .end() on the spliced NodeList
-			// 		does not return the original NodeList -- splice alters the NodeList in place.
+			//		For backwards compatibility, calling .end() on the spliced NodeList
+			//		does not return the original NodeList -- splice alters the NodeList in place.
 			// index: Integer
 			//		begin can be a positive or negative integer, with positive
 			//		integers noting the offset to begin at, and negative
@@ -532,7 +532,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			// summary:
 			//		Takes the same structure of arguments and returns as
 			//		`dojo.some()` with the caveat that the passed array is
-			//		implicitly this NodeList.  See `dojo.some()` and Mozilla's
+			//		implicitly this NodeList.	 See `dojo.some()` and Mozilla's
 			//		(Array.some
 			//		documentation)[http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:some].
 			// callback: Function: the callback
@@ -731,8 +731,13 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 
 		/*
 		destroy: function(){
+<<<<<<< HEAD
 			// summary:
 			//		destroys every item in 	the list.
+=======
+			//	summary:
+			//		destroys every item in	the list.
+>>>>>>> 1.7-bootstrap
 			this.forEach(d.destroy);
 			// FIXME: should we be checking for and/or disposing of widgets below these nodes?
 		},
@@ -754,7 +759,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		|	"after"
 			//		|	"only"
 			//		|	"replace"
-			// 		or an offset in the childNodes property
+			//		or an offset in the childNodes property
 			var item = d.query(queryOrNode)[0];
 			return this.forEach(function(node){ d.place(node, item, position); }); // dojo.NodeList
 		},
@@ -787,7 +792,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		|	"after"
 			//		|	"only"
 			//		|	"replace"
-			// 		or an offset in the childNodes property
+			//		or an offset in the childNodes property
 			return d.query(queryOrListOrNode).place(this[0], position)._stash(this);	// dojo.NodeList
 		},
 
@@ -811,7 +816,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//	|	var l = new dojo.NodeList(dojo.byId("foo"), dojo.byId("bar"));
 			//		it's possible to find all span elements under paragraphs
 			//		contained by these elements with this sub-query:
-			//	| 	var spans = l.query("p span");
+			//	|		var spans = l.query("p span");
 
 			// FIXME: probably slow
 			if(!queryStr){ return this; }
@@ -823,12 +828,12 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 		},
 
 		filter: function(/*String|Function*/ filter){
-			// summary:
-			// 		"masks" the built-in javascript filter() method (supported
-			// 		in Dojo via `dojo.filter`) to support passing a simple
-			// 		string filter in addition to supporting filtering function
-			// 		objects.
-			// filter:
+			//	summary:
+			//		"masks" the built-in javascript filter() method (supported
+			//		in Dojo via `dojo.filter`) to support passing a simple
+			//		string filter in addition to supporting filtering function
+			//		objects.
+			//	filter:
 			//		If a string, a CSS rule like ".thinger" or "div > span".
 			// example:
 			//		"regular" JS filter syntax as exposed in dojo.filter:
@@ -865,24 +870,24 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 		addContent: function(/*String||DomNode||Object||dojo.NodeList*/ content, /*String||Integer?*/ position){
 			// summary:
 			//		add a node, NodeList or some HTML as a string to every item in the
-			//		list.  Returns the original list.
-			// description:
+			//		list.	 Returns the original list.
+			//	description:
 			//		a copy of the HTML content is added to each item in the
 			//		list, with an optional position argument. If no position
 			//		argument is provided, the content is appended to the end of
 			//		each item.
 			// content:
 			//		DOM node, HTML in string format, a NodeList or an Object. If a DOM node or
-			// 		NodeList, the content will be cloned if the current NodeList has more than one
-			// 		element. Only the DOM nodes are cloned, no event handlers. If it is an Object,
-			// 		it should be an object with at "template" String property that has the HTML string
-			// 		to insert. If dojo.string has already been dojo.required, then dojo.string.substitute
-			// 		will be used on the "template" to generate the final HTML string. Other allowed
-			// 		properties on the object are: "parse" if the HTML
-			// 		string should be parsed for widgets (dojo.require("dojo.parser") to get that
-			// 		option to work), and "templateFunc" if a template function besides dojo.string.substitute
-			// 		should be used to transform the "template".
-			// position:
+			//		NodeList, the content will be cloned if the current NodeList has more than one
+			//		element. Only the DOM nodes are cloned, no event handlers. If it is an Object,
+			//		it should be an object with at "template" String property that has the HTML string
+			//		to insert. If dojo.string has already been dojo.required, then dojo.string.substitute
+			//		will be used on the "template" to generate the final HTML string. Other allowed
+			//		properties on the object are: "parse" if the HTML
+			//		string should be parsed for widgets (dojo.require("dojo.parser") to get that
+			//		option to work), and "templateFunc" if a template function besides dojo.string.substitute
+			//		should be used to transform the "template".
+			//	position:
 			//		can be one of:
 			//		|	"last"||"end" (default)
 			//		|	"first||"start"
@@ -890,8 +895,8 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		|	"after"
 			//		|	"replace" (replaces nodes in this NodeList with new content)
 			//		|	"only" (removes other children of the nodes so new content is the only child)
-			// 		or an offset in the childNodes property
-			// example:
+			//		or an offset in the childNodes property
+			//	example:
 			//		appends content to the end if the position is omitted
 			//	|	dojo.query("h3 > p").addContent("hey there!");
 			// example:
@@ -905,23 +910,23 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		add a clone of a DOM node to the end of every element in
 			//		the list, removing it from its existing parent.
 			//	|	dojo.query(".note").addContent(dojo.byId("foo"));
-			//  example:
-			//  	Append nodes from a templatized string.
-			// 		dojo.require("dojo.string");
-			// 		dojo.query(".note").addContent({
-			//  		template: '<b>${id}: </b><span>${name}</span>',
-			// 			id: "user332",
-			//  		name: "Mr. Anderson"
-			//  	});
-			//  example:
-			//  	Append nodes from a templatized string that also has widgets parsed.
-			//  	dojo.require("dojo.string");
-			//  	dojo.require("dojo.parser");
-			//  	var notes = dojo.query(".note").addContent({
-			//  		template: '<button dojoType="dijit.form.Button">${text}</button>',
-			//  		parse: true,
-			//  		text: "Send"
-			//  	});
+			//	example:
+			//		Append nodes from a templatized string.
+			//		dojo.require("dojo.string");
+			//		dojo.query(".note").addContent({
+			//			template: '<b>${id}: </b><span>${name}</span>',
+			//			id: "user332",
+			//			name: "Mr. Anderson"
+			//		});
+			//	example:
+			//		Append nodes from a templatized string that also has widgets parsed.
+			//		dojo.require("dojo.string");
+			//		dojo.require("dojo.parser");
+			//		var notes = dojo.query(".note").addContent({
+			//			template: '<button dojoType="dijit.form.Button">${text}</button>',
+			//			parse: true,
+			//			text: "Send"
+			//		});
 			content = this._normalize(content, this[0]);
 			for(var i = 0, node; (node = this[i]); i++){
 				this._place(content, node, position, i > 0);
@@ -1021,5 +1026,5 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 		}
 	);
 
-  return dojo.NodeList;
+	return dojo.NodeList;
 });
