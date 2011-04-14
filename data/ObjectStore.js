@@ -1,8 +1,8 @@
 define(["..", "../regexp"], function(dojo) {
-  //  module:
-  //    dojo/data/ObjectStore
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/data/ObjectStore
+	//	summary:
+	//		TODOC:This module defines 
 
 
 

@@ -1,11 +1,11 @@
 define(["..", "doh", "../colors"], function(dojo, doh){
 
 	var verifyColor = function(t, source, expected){
-		source   = new dojo.Color(source);
+		source	 = new dojo.Color(source);
 		expected = new dojo.Color(expected);
 		t.is(expected.toRgba(), source.toRgba());
 		dojo.forEach(source.toRgba(), function(n){ t.is("number", typeof(n)); });
-  };
+	};
 
 	doh.register("tests.colors", [
 		// all tests below are taken from #4.2 of the CSS3 Color Module

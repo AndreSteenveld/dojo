@@ -6,12 +6,9 @@
 		<style type="text/css">
 			@import "../../resources/dojo.css";
 		</style>
-		<script type="text/javascript">
-      location.search=="?async" && (dojoConfig= {async:1});
-    </script>
 		<script type="text/javascript" src="../../dojo.js"></script>
 		<script type="text/javascript">
-      require(["dojo", "doh", "*ready"], function(dojo, doh){
+			require(["dojo", "doh", "*ready"], function(dojo, doh){
 			
 				doh.register("rtl", 
 					[
@@ -113,7 +110,7 @@
 				});
 
 				doh.runOnLoad();
-      });
+			});
 		</script>
 		<style type="text/css">
 			#rect100 {

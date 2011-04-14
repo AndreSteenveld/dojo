@@ -1,8 +1,8 @@
 define(["..", "./util/filter", "./util/simpleFetch", "../date/stamp"], function(dojo) {
-  //  module:
-  //    dojo/data/ItemFileReadStore
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/data/ItemFileReadStore
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.data.ItemFileReadStore", null,{

@@ -1,35 +1,35 @@
 define(["./kernel", "../has", "require"], function(dojo, has, require) {
-  //  module:
-  //    dojo/_base/lader
-  //  summary:
-  //    This module defines the v1.x synchronous loader API.
+	//	module:
+	//		dojo/_base/lader
+	//	summary:
+	//		This module defines the v1.x synchronous loader API.
 
-  if (require.vendor!="dojotoolkit.org") {
-    console.error("cannot load the Dojo v1.x loader with a foreign loader");
-    return;
-  }
+	if (require.vendor!="dojotoolkit.org") {
+		console.error("cannot load the Dojo v1.x loader with a foreign loader");
+		return;
+	}
 
-  has.add("dojo-loader", 1, 0, 1);
+	has.add("dojo-loader", 1, 0, 1);
 
-  var dojoRequire= require.getDojoLoader(dojo, dojo.dijit, dojo.dojox);
-    
-  dojo.require= function(moduleName, omitModuleCheck) {
-    var result= dojoRequire(moduleName);
-    if (!omitModuleCheck && !result) {
-      // TODO throw?
-    }
-    return result;
-  };
+	var dojoRequire= require.getDojoLoader(dojo, dojo.dijit, dojo.dojox);
+		
+	dojo.require= function(moduleName, omitModuleCheck) {
+		var result= dojoRequire(moduleName);
+		if (!omitModuleCheck && !result) {
+			// TODO throw?
+		}
+		return result;
+	};
 
-  dojo.loadInit= function(f) {
-    f();
-  };
+	dojo.loadInit= function(f) {
+		f();
+	};
 
-  dojo.requireLocalization= function(moduleName, bundleName, locale){
-    // This function doesn't really do anything for the user since he must
-    // call dojo.i18n.getLocalization to get access to a bundle. Therefore, just
-    // no-op this API and implement sync fallback in dojo.i18n.getLocalization;
-  };
+	dojo.requireLocalization= function(moduleName, bundleName, locale){
+		// This function doesn't really do anything for the user since he must
+		// call dojo.i18n.getLocalization to get access to a bundle. Therefore, just
+		// no-op this API and implement sync fallback in dojo.i18n.getLocalization;
+	};
 
 	dojo.platformRequire = function(/*Object*/modMap){
 		//	summary:
@@ -61,7 +61,7 @@ define(["./kernel", "../has", "require"], function(dojo, has, require) {
 		for(var x=0; x<result.length; x++){
 			var curr = result[x];
 			if(curr.constructor == Array){
-        dojo.require.apply(d, curr);
+				dojo.require.apply(d, curr);
 			}else{
 				dojo.require(curr);
 			}
@@ -77,16 +77,16 @@ define(["./kernel", "../has", "require"], function(dojo, has, require) {
 		//	|	dojo.requireIf(dojo.isBrowser, "my.special.Module");
 		
 		if(condition){
-      dojo.require(resourceName, omitModuleCheck);
+			dojo.require(resourceName, omitModuleCheck);
 		}
 	};
 
-  if (!dojo.requireLocalization) {
-  	dojo.requireLocalization = function(/*String*/moduleName, /*String*/bundleName, /*String?*/locale, /*String?*/availableFlatLocales){
-      return dojo.require("dojo.i18n").getLocalization(moduleName, bundleName, locale);
-    };
-  }
+	if (!dojo.requireLocalization) {
+		dojo.requireLocalization = function(/*String*/moduleName, /*String*/bundleName, /*String?*/locale, /*String?*/availableFlatLocales){
+			return dojo.require("dojo.i18n").getLocalization(moduleName, bundleName, locale);
+		};
+	}
 
-  // FIXME: this dependency needs to be removed from the demos
-  dojo._getText= require.getText;
+	// FIXME: this dependency needs to be removed from the demos
+	dojo._getText= require.getText;
 });

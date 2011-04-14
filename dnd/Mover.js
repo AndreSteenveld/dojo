@@ -1,8 +1,8 @@
 define(["..", "./common", "./autoscroll"], function(dojo) {
-  //  module:
-  //    dojo/dnd/Mover
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/dnd/Mover
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.dnd.Mover", null, {

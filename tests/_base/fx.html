@@ -4,12 +4,9 @@
 		<style type="text/css">
 			@import "../../resources/dojo.css";
 		</style>
-		<script type="text/javascript">
-      location.search=="?async" && (dojoConfig= {async:1});
-    </script>
 		<script type="text/javascript" src="../../dojo.js"></script>
 		<script type="text/javascript">
-    require(["dojo", "doh", "*ready"], function(dojo, doh){
+		require(["dojo", "doh", "*ready"], function(dojo, doh){
 			var duration = 500;
 			var timeout = 750;
 			doh.register("t", 
@@ -61,8 +58,8 @@
 								node: "foo", 
 								duration: duration,
 								properties: { 
-									color: 				{ start: "black", end: "white" },
-									backgroundColor: 	{ start: "white", end: "black" } 
+									color:				{ start: "black", end: "white" },
+									backgroundColor:	{ start: "white", end: "black" } 
 								} 
 							});
 							dojo.connect(anim, "onEnd", anim, function(){
@@ -81,9 +78,9 @@
 								node: "foo", 
 								duration: duration,
 								properties: { 
-									color: 				{ end: "black" },
-									backgroundColor: 	{ end: "#5d81b4" }, 
-									letterSpacing: 		{ start: 0, end: 10 } 
+									color:				{ end: "black" },
+									backgroundColor:	{ end: "#5d81b4" }, 
+									letterSpacing:		{ start: 0, end: 10 } 
 								} 
 							});
 							dojo.connect(anim, "onEnd", anim, function(){
@@ -461,7 +458,7 @@
 				]
 			);
 			doh.runOnLoad();
-      });
+			});
 		</script>
 		<style type="text/css">
 			body {
@@ -505,8 +502,8 @@
 			Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
 			semper sagittis velit. Cras in mi. Duis porta mauris ut ligula.
 			Proin porta rutrum lacus. Etiam consequat scelerisque quam. Nulla
-			facilisi.  Maecenas luctus venenatis nulla. In sit amet dui non mi
-			semper iaculis.  Sed molestie tortor at ipsum. Morbi dictum rutrum
+			facilisi.	 Maecenas luctus venenatis nulla. In sit amet dui non mi
+			semper iaculis.	 Sed molestie tortor at ipsum. Morbi dictum rutrum
 			magna. Sed vitae risus.
 			</p>
 			<p>
@@ -527,7 +524,7 @@
 		</div>
 		<p id="bar" style="display: none;">
 		Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean semper
-		sagittis velit. Cras in mi. Duis porta mauris ut ligula.  Proin porta
+		sagittis velit. Cras in mi. Duis porta mauris ut ligula.	Proin porta
 		rutrum lacus. Etiam consequat scelerisque quam. Nulla facilisi.
 		Maecenas luctus venenatis nulla. In sit amet dui non mi semper iaculis.
 		Sed molestie tortor at ipsum. Morbi dictum rutrum magna. Sed vitae
@@ -545,7 +542,7 @@
 		rutrum, erat vitae lacinia dictum, pede purus imperdiet lacus, ut
 		semper velit ante id metus. Praesent massa dolor, porttitor sed,
 		pulvinar in, consequat ut, leo. Nullam nec est. Aenean id risus blandit
-		tortor pharetra congue.  Suspendisse pulvinar.
+		tortor pharetra congue.	 Suspendisse pulvinar.
 		</p>
 		<p id="thud" style="display: none;">
 		Aliquam vitae enim. Duis scelerisque metus auctor est venenatis
@@ -559,7 +556,7 @@
 		rutrum, erat vitae lacinia dictum, pede purus imperdiet lacus, ut
 		semper velit ante id metus. Praesent massa dolor, porttitor sed,
 		pulvinar in, consequat ut, leo. Nullam nec est. Aenean id risus blandit
-		tortor pharetra congue.  Suspendisse pulvinar.
+		tortor pharetra congue.	 Suspendisse pulvinar.
 		</p>
 	</body>
 </html>

@@ -1,8 +1,8 @@
 define(["../..", "./Read"], function(dojo) {
-  //  module:
-  //    dojo/data/api/Identity
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/data/api/Identity
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.data.api.Identity", dojo.data.api.Read, {

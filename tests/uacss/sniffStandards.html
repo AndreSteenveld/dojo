@@ -24,7 +24,7 @@
 	</style>
 	<script type="text/javascript" src="../../dojo.js"></script>
 	<script type="text/javascript">
-    require(["dojo", "doh", "dojo/uacss", "*ready"], function(dojo, doh){
+		require(["dojo", "doh", "dojo/uacss", "*ready"], function(dojo, doh){
 			var node = dojo.byId("box1");
 			var reportNode = dojo.byId("log")
 			var inner = (reportNode.textContent) ? "textContent": "innerText";
@@ -39,7 +39,7 @@
 				function test_boxModel(t) {
 					// ensure the box-model correction in the stylesheet have been correctly applied
 					// we measure the node - it should be 100px
-				    t.is(100, node.offsetWidth);
+						t.is(100, node.offsetWidth);
 				}
 			]);
 			doh.run();

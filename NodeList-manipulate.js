@@ -1,8 +1,8 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/NodeList-manipulate
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/NodeList-manipulate
+	//	summary:
+	//		TODOC:This module defines 
 
 
 /*=====

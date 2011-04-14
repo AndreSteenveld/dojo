@@ -8,24 +8,24 @@
 		</style>
 		<script type="text/javascript" src="../dojo.js"></script>
 		<script type="text/javascript">
-      require(["dojo", "doh", "dojo/behavior", "*ready"], function(dojo, doh){
-  			var applyCount = 0;
-  
-  			var behaviorObj = {
-  				".bar": 		function(elem){ 
-  					dojo.style(elem, "opacity", 0.5);
-  					applyCount++;
-  				},
-  				".foo > span":	function(elem){ 
-  					elem.style.fontStyle = "italic";
-  					applyCount++;
-  				}
-  			}
-  
-  			topicCount = 0;
-  			dojo.subscribe("/foo", function(){ topicCount++; });
+			require(["dojo", "doh", "dojo/behavior", "*ready"], function(dojo, doh){
+				var applyCount = 0;
+	
+				var behaviorObj = {
+					".bar":			function(elem){ 
+						dojo.style(elem, "opacity", 0.5);
+						applyCount++;
+					},
+					".foo > span":	function(elem){ 
+						elem.style.fontStyle = "italic";
+						applyCount++;
+					}
+				}
+	
+				topicCount = 0;
+				dojo.subscribe("/foo", function(){ topicCount++; });
 
-  			// no behaviors should be executed when onload fires
+				// no behaviors should be executed when onload fires
 				doh.register("t", 
 					[
 						function add(t){
@@ -87,7 +87,7 @@
 					]
 				);
 				doh.runOnLoad();
-      });
+			});
 		</script>
 	</head>
 	<body>

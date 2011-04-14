@@ -1,9 +1,10 @@
 define([".."], function(dojo) {
-  //  module:
-  //    dojo/store/Cache
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/store/Cache
+	//	summary:
+	//		TODOC:This module defines 
 
+dojo.getObject("store", true, dojo);
 
 /*=====
 dojo.declare("dojo.store.__CacheArgs", null, {

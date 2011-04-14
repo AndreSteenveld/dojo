@@ -1,8 +1,8 @@
 define([".", "./i18n", "./i18n!./cldr/nls/number", "./string", "./regexp"], function(dojo) {
-  //  module:
-  //    dojo/number
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/number
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("number", true, dojo);
 

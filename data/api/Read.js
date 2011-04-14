@@ -1,8 +1,8 @@
 define(["../..", "./Request"], function(dojo) {
-  //  module:
-  //    dojo/data/api/Read
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/data/api/Read
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.data.api.Read", null, {

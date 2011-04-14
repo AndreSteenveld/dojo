@@ -1,0 +1,52 @@
+Index: _loader/loader.js
+===================================================================
+--- _loader/loader.js	(revision 22680)
++++ _loader/loader.js	(working copy)
+@@ -564,7 +564,46 @@
+ 		//	|		dojo.require("foo.thud.xyzzy");
+ 		//	|	</script>
+ 		d._modulePrefixes[module] = { name: module, value: prefix };
+-	}
++	};
++	
++	dojo.registerPackageMappings = function(mappings){
++		//	summary: 
++		//		Defines a set of package mappings, that map paths to target packages. 
++		//	description: 
++		//		This follows the CommonJS package mappings proposal for mappings 
++		// 		format, specifying a set of module id paths and what target package it is
++		//		mapped to. 
++		// 		http://wiki.commonjs.org/wiki/Packages/Mappings/C
++		// 		The target package is expected to follow the CommonJS package
++		//		format. The target package will be examined for a package.json file and 
++		//		all mappings that it defines and its dependencies will be recursively added 
++		// 		as mappings as well.
++		//	example:
++		//	|	dojo.registerPackageMappings({
++		//	|		foo: "http://my-site.com/foo/"
++		// 	|	}); 
++		for(var path in mappings){
++			var target = mapping[path];
++			// use the location property if available
++			// TODO: we could do some more error checking here
++			target = target.location || target;
++			try{
++				// see if we can load the target package.json. 
++				// TODO: load package.js in cross-domain situations 
++				var packageJson = dojo.cache(target + "package.json");
++			}catch(e){
++				// if there is no package.json, that is fine, just proceed
++			}
++			var packageData = dojo.fromJson(packageJson);
++			// register the module path, by default to the "lib" subdirectory  
++			dojo.registerModulePath(path, target + ((packageData && packageData.directories && packageData.directories.lib) || "lib") + '/');
++			// if the target package has mappings, recurse into their mappings as well
++			var mappings = packageData && packageData.mappings;
++			if(mappings){
++				  dojo.registerPackageMappings(mappings);
++			}
++		}
++	};
+ 
+ 	dojo.requireLocalization = function(/*String*/moduleName, /*String*/bundleName, /*String?*/locale, /*String?*/availableFlatLocales){
+ 		// summary:

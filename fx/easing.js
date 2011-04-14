@@ -1,8 +1,8 @@
 define([".."], function(dojo) {
-  //  module:
-  //    dojo/fx/easing
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/fx/easing
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("fx.easing", true, dojo);
 

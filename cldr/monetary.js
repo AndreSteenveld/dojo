@@ -1,8 +1,8 @@
 define([".."], function(dojo) {
-  //  module:
-  //    dojo/cldr/monetary
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/cldr/monetary
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("cldr.monetary", true, dojo);
 

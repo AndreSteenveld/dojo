@@ -1,8 +1,8 @@
 define(["..", "./ItemFileReadStore"], function(dojo) {
-  //  module:
-  //    dojo/data/ItemFileWriteStore
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/data/ItemFileWriteStore
+	//	summary:
+	//		TODOC:This module defines 
 
 
 dojo.declare("dojo.data.ItemFileWriteStore", dojo.data.ItemFileReadStore, {

@@ -1,6 +1,6 @@
 define(["..", "doh", "../cache"], function(dojo, doh) {
-  doh.register("tests.cache",	[{
-      name: "dojo.cache",
+	doh.register("tests.cache",	[{
+			name: "dojo.cache",
 			runTest: function(t){
 				var expected = "<h1>Hello World</h1>";
 

@@ -1,8 +1,8 @@
 define(["./kernel", "./lang"], function(dojo){
-  //  module:
-  //    dojo/_base/html
-  //  summary:
-  //    This module defines the core dojo DOM API.
+	//	module:
+	//		dojo/_base/html
+	//	summary:
+	//		This module defines the core dojo DOM API.
 
 // FIXME: need to add unit tests for all the semi-public methods
 
@@ -25,11 +25,11 @@ dojo.byId = function(id, doc){
 	//		if not found. If `id` is a DomNode, this function is a no-op.
 	//
 	//	id: String|DOMNode
-	//	 	A string to match an HTML id attribute or a reference to a DOM Node
+	//		A string to match an HTML id attribute or a reference to a DOM Node
 	//
 	//	doc: Document?
 	//		Document to work in. Defaults to the current value of
-	//		dojo.doc.  Can be used to retrieve
+	//		dojo.doc.	 Can be used to retrieve
 	//		node references from other documents.
 	//
 	//	example:
@@ -106,8 +106,8 @@ if(dojo.isIE){
 /*=====
 	dojo._destroyElement = function(node){
 		// summary:
-		// 		Existing alias for `dojo.destroy`. Deprecated, will be removed
-		// 		in 2.0
+		//		Existing alias for `dojo.destroy`. Deprecated, will be removed
+		//		in 2.0
 	}
 =====*/
 	dojo._destroyElement = dojo.destroy = function(/*String|DomNode*/node){
@@ -197,7 +197,7 @@ if(dojo.isIE){
 			d.query("*", node).forEach("item.unselectable = '"+v+"'");
 		}
 		//>>excludeEnd("webkitMobile");
-		//FIXME: else?  Opera?
+		//FIXME: else?	Opera?
 	};
 
 	var _insertBefore = function(/*DomNode*/node, /*DomNode*/ref){
@@ -242,7 +242,7 @@ if(dojo.isIE){
 		//	|	* first
 		//	|	* last
 		//		"first" and "last" indicate positions as children of refNode, "replace" replaces refNode,
-		//		"only" replaces all children.  position defaults to "last" if not specified
+		//		"only" replaces all children.	 position defaults to "last" if not specified
 		//
 		//	returns: DomNode
 		//		Returned values is the first argument resolved to a DOM node.
@@ -355,7 +355,7 @@ if(dojo.isIE){
 		//		Values may have different formats and value encodings across
 		//		browsers.
 		//
-		//		Note also that this method is expensive.  Wherever possible,
+		//		Note also that this method is expensive.	Wherever possible,
 		//		reuse the returned object.
 		//
 		//		Use the dojo.style() method for more consistent (pixelized)
@@ -541,7 +541,7 @@ if(dojo.isIE){
 	var _pixelNamesCache = {
 		left: true, top: true
 	};
-	var _pixelRegExp = /margin|padding|width|height|max|min|offset/;  // |border
+	var _pixelRegExp = /margin|padding|width|height|max|min|offset/;	// |border
 	var _toStyleValue = function(node, type, value){
 		type = type.toLowerCase(); // FIXME: should we really be doing string case conversion here? Should we cache it? Need to profile!
 		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
@@ -594,7 +594,7 @@ if(dojo.isIE){
 		//		pairs suitable for setting each property.
 		//	value:
 		//		If passed, sets value on the node for style, handling
-		//		cross-browser concerns.  When setting a pixel value,
+		//		cross-browser concerns.	 When setting a pixel value,
 		//		be sure to include "px" in the value. For instance, top: "200px".
 		//		Otherwise, in some cases, some browsers will not apply the style.
 		//	example:
@@ -619,7 +619,7 @@ if(dojo.isIE){
 		//	|		"height": "300px"
 		//	|	});
 		//
-		// 	example:
+		//	example:
 		//		When the CSS style property is hyphenated, the JavaScript property is camelCased.
 		//		font-size becomes fontSize, and so on.
 		//	|	dojo.style("thinger",{
@@ -661,8 +661,8 @@ if(dojo.isIE){
 
 	dojo._getPadExtents = function(/*DomNode*/n, /*Object*/computedStyle){
 		//	summary:
-		// 		Returns object with special values specifically useful for node
-		// 		fitting.
+		//		Returns object with special values specifically useful for node
+		//		fitting.
 		//	description:
 		//		Returns an object with `w`, `h`, `l`, `t` properties:
 		//	|		l/t = left/top padding (respectively)
@@ -689,7 +689,7 @@ if(dojo.isIE){
 		//		returns an object with properties useful for noting the border
 		//		dimensions.
 		//	description:
-		// 		* l/t = the sum of left/top border (respectively)
+		//		* l/t = the sum of left/top border (respectively)
 		//		* w = the sum of the left and right border
 		//		* h = the sum of the top and bottom border
 		//
@@ -961,7 +961,7 @@ if(dojo.isIE){
 		d._setBox(node, NaN, NaN, widthPx, heightPx);
 	};
 
-	dojo._setMarginBox = function(/*DomNode*/node, 	/*Number?*/leftPx, /*Number?*/topPx,
+	dojo._setMarginBox = function(/*DomNode*/node,	/*Number?*/leftPx, /*Number?*/topPx,
 													/*Number?*/widthPx, /*Number?*/heightPx,
 													/*Object*/computedStyle){
 		//	summary:
@@ -1099,12 +1099,12 @@ if(dojo.isIE){
 		//	|		event.clientY
 		//	|		node.getBoundingClientRect().left
 		//	|		node.getBoundingClientRect().top
-		//	 	But other position related values do not contain this offset,
-		//	 	such as node.offsetLeft, node.offsetTop, node.style.left and
-		//	 	node.style.top. The offset is always (2, 2) in LTR direction.
-		//	 	When the body is in RTL direction, the offset counts the width
-		//	 	of left scroll bar's width.  This function computes the actual
-		//	 	offset.
+		//		But other position related values do not contain this offset,
+		//		such as node.offsetLeft, node.offsetTop, node.style.left and
+		//		node.style.top. The offset is always (2, 2) in LTR direction.
+		//		When the body is in RTL direction, the offset counts the width
+		//		of left scroll bar's width.	 This function computes the actual
+		//		offset.
 
 		//NOTE: assumes we're being called in an IE browser
 
@@ -1114,7 +1114,7 @@ if(dojo.isIE){
 			var r = de.getBoundingClientRect(); // works well for IE6+
 			//console.debug('rect left,top = ' + r.left+','+r.top + ', html client left/top = ' + de.clientLeft+','+de.clientTop + ', rtl = ' + (!d._isBodyLtr()) + ', quirks = ' + d.isQuirks);
 			var l = r.left,
-			    t = r.top;
+					t = r.top;
 			if(d.isIE < 7){
 				l += de.clientLeft;	// scrollbar size in strict/RTL, or,
 				t += de.clientTop;	// HTML border size in strict
@@ -1167,7 +1167,7 @@ if(dojo.isIE){
 		//		document offsets that may affect the position relative to the
 		//		viewport.
 		//		Uses the border-box model (inclusive of border and padding but
-		//		not margin).  Does not act as a setter.
+		//		not margin).	Does not act as a setter.
 
 		node = byId(node);
 		var	db = d.body(),
@@ -1230,29 +1230,29 @@ if(dojo.isIE){
 
 	var _propNames = {
 			// properties renamed to avoid clashes with reserved words
-			"class":   "className",
-			"for":     "htmlFor",
+			"class":	 "className",
+			"for":		 "htmlFor",
 			// properties written as camelCase
-			tabindex:  "tabIndex",
-			readonly:  "readOnly",
-			colspan:   "colSpan",
+			tabindex:	 "tabIndex",
+			readonly:	 "readOnly",
+			colspan:	 "colSpan",
 			frameborder: "frameBorder",
-			rowspan:   "rowSpan",
+			rowspan:	 "rowSpan",
 			valuetype: "valueType"
 		},
 		_attrNames = {
 			// original attribute names
 			classname: "class",
-			htmlfor:   "for",
+			htmlfor:	 "for",
 			// for IE
-			tabindex:  "tabIndex",
-			readonly:  "readOnly"
+			tabindex:	 "tabIndex",
+			readonly:	 "readOnly"
 		},
 		_forcePropNames = {
 			innerHTML: 1,
 			className: 1,
-			htmlFor:   d.isIE,
-			value:     1
+			htmlFor:	 d.isIE,
+			value:		 1
 		};
 
 	var _fixAttrName = function(/*String*/ name){
@@ -1588,7 +1588,7 @@ if(dojo.isIE){
 
 	d.empty =
 		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		d.isIE ?  function(node){
+		d.isIE ?	function(node){
 			node = byId(node);
 			for(var c; c = node.lastChild;){ // intentional assignment
 				d.destroy(c);
@@ -1640,7 +1640,7 @@ if(dojo.isIE){
 	for(var param in tagWrap){
 		if(tagWrap.hasOwnProperty(param)){
 			var tw = tagWrap[param];
-			tw.pre  = param == "option" ? '<select multiple="multiple">' : "<" + tw.join("><") + ">";
+			tw.pre	= param == "option" ? '<select multiple="multiple">' : "<" + tw.join("><") + ">";
 			tw.post = "</" + tw.reverse().join("></") + ">";
 			// the last line is destructive: it reverses the array,
 			// but we don't care at this point
@@ -1649,7 +1649,7 @@ if(dojo.isIE){
 
 	d._toDom = function(frag, doc){
 		//	summary:
-		// 		converts HTML string into DOM nodes.
+		//		converts HTML string into DOM nodes.
 
 		doc = doc || d.doc;
 		var masterId = doc[masterName];
@@ -1709,7 +1709,7 @@ if(dojo.isIE){
 		//	Do something if a node with id="someNode" has class="aSillyClassName" present
 		//	|	if(dojo.hasClass("someNode","aSillyClassName")){ ... }
 
-		return ((" "+ byId(node)[_className] +" ").indexOf(" " + classStr + " ") >= 0);  // Boolean
+		return ((" "+ byId(node)[_className] +" ").indexOf(" " + classStr + " ") >= 0);	 // Boolean
 	};
 
 	var spaces = /\s+/, a1 = [""],
@@ -1777,7 +1777,7 @@ if(dojo.isIE){
 		//		check is required.
 		//
 		// node:
-		// 		String ID or DomNode reference to remove the class from.
+		//		String ID or DomNode reference to remove the class from.
 		//
 		// classStr:
 		//		An optional String class name to remove, or several space-separated
@@ -1824,7 +1824,7 @@ if(dojo.isIE){
 		//		Replaces one or more classes on a node if not present.
 		//		Operates more quickly than calling dojo.removeClass and dojo.addClass
 		// node:
-		// 		String ID or DomNode reference to remove the class from.
+		//		String ID or DomNode reference to remove the class from.
 		// addClassStr:
 		//		A String class name to add, or several space-separated class names,
 		//		or an array of class names.
@@ -1843,7 +1843,7 @@ if(dojo.isIE){
 		//	Available in `dojo.NodeList()` for multiple toggles
 		//	|	dojo.query(".findMe").replaceClass("addMe", "removeMe");
 
-        node = byId(node);
+				node = byId(node);
 		fakeNode.className = node.className;
 		dojo.removeClass(fakeNode, removeClassStr);
 		dojo.addClass(fakeNode, addClassStr);

@@ -1,0 +1,96 @@
+dojo.provide("tests.aspect");
+
+var aspect = dojo.require("dojo.aspect");
+
+doh.register("tests.aspect",
+	[
+		function before(t){
+			var order = [];
+			var obj = {
+				method: function(a){
+					order.push(a);
+				}
+			};
+			var signal = aspect.before(obj, "method", function(a){
+				order.push(a);
+				return [a+1];
+			});
+			obj.method(0);
+			signal.pause();
+			obj.method(2);
+			signal.resume();
+			obj.method(3);
+			var signal2 = aspect.before(obj, "method", function(a){
+				order.push(a);
+				return [a+1];
+			});
+			obj.method(5);
+			signal.cancel();
+			obj.method(8);
+			signal2.cancel();
+			obj.method(10);
+			t.is(order, [0,1,2,3,4,5,6,7,8,9,10]);
+		},
+
+		function after(t){
+			var order = [];
+			var obj = {
+				method: function(a){
+					order.push(a);
+					return a+1;
+				}
+			};
+			var signal = aspect.after(obj, "method", function(a){
+				order.push(0);
+				return a+1;
+			});
+			obj.method(0);
+			signal.pause();
+			obj.method(1);
+			var signal2 = aspect.after(obj, "method", function(a){
+				order.push(a);
+			});
+			signal.resume();
+			obj.method(3);
+			var signal3 = aspect.after(obj, "method", function(a){
+				order.push(3);
+			}, true);
+			obj.method(3);
+			signal2.cancel();
+			obj.method(6);
+			signal3.cancel();
+			var signal4 = aspect.after(obj, "method", function(a){
+				order.push(4);
+			}, true);
+			signal.cancel();
+			obj.method(7);
+			t.is(order, [0, 0, 1, 3, 0, 5, 3, 0, 5, 3, 6, 0, 3, 7, 4]);
+		},
+		function around(t){
+			var order = [];
+			var obj = {
+				method: function(a){
+					order.push(a);
+					return a+1;
+				}
+			};
+			var beforeSignal = aspect.before(obj, "method", function(a){
+				order.push(a);
+			});
+			var signal = aspect.around(obj, "method", function(original){
+				return function(a){
+					a= a + 1;
+					a = original(a);
+					order.push(a);
+					return a+1;
+				}
+			});
+			order.push(obj.method(0));
+			signal.pause();
+			obj.method(4);
+			signal.resume();
+			obj.method(5);
+			t.is(order, [0,1,2,3,4,4,5,6,7]);
+		}
+	]
+);

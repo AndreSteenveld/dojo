@@ -1,8 +1,8 @@
 define(["..", "./Selector", "./Manager"], function(dojo) {
-  //  module:
-  //    dojo/dnd/Source
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/dnd/Source
+	//	summary:
+	//		TODOC:This module defines 
 
 
 /*

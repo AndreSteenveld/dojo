@@ -1,8 +1,8 @@
 define(["../.."], function(dojo) {
-  //  module:
-  //    dojo/data/util/sorter
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/data/util/sorter
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("data.util.sorter", true, dojo);
 

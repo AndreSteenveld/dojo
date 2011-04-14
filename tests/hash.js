@@ -1,6 +1,6 @@
 define(["..", "doh", "../hash"], function(dojo, doh){
 
-  // utilities for the tests:
+	// utilities for the tests:
 	function setHash(h){
 		h = h || "";
 		location.replace('#'+h);

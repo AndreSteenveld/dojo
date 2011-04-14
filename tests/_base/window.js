@@ -1,5 +1,5 @@
 define(["../..", "doh"], function(dojo, doh){
-  doh.register("tests._base.window", [
+	doh.register("tests._base.window", [
 		function withGlobal(t){
 			var arg1, arg2, innerThis, innerGlobal, innerDoc, finished,
 				globalObj = {test: "myGlobal", document: {test: "myDoc"}},

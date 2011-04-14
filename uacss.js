@@ -1,18 +1,19 @@
 define(["."], function(dojo) {
-  //  module:
-  //    dojo/uacss
-  //  summary:
-  //    The module defines 
+	//	module:
+	//		dojo/uacss
+	//	summary:
+	//		TODOC:This module defines 
+
 
 	// summary:
 	//		Applies pre-set CSS classes to the top-level HTML node, based on:
-	// 			- browser (ex: dj_ie)
+	//			- browser (ex: dj_ie)
 	//			- browser version (ex: dj_ie6)
 	//			- box model (ex: dj_contentBox)
 	//			- text direction (ex: dijitRtl)
 	//
 	//		In addition, browser, browser version, and box model are
-	//		combined with an RTL flag when browser text is RTL.  ex: dj_ie-rtl.
+	//		combined with an RTL flag when browser text is RTL.	 ex: dj_ie-rtl.
 
 	var
 		html = dojo.doc.documentElement,
@@ -58,10 +59,10 @@ define(["."], function(dojo) {
 	// If RTL mode, then add dj_rtl flag plus repeat existing classes with -rtl extension.
 	// We can't run the code below until the <body> tag has loaded (so we can check for dir=rtl).
 	// priority is 90 to run ahead of parser priority of 100
-  dojo.ready(90, function(){
+	dojo.ready(90, function(){
 		if(!dojo._isBodyLtr()){
 			html.className = dojo.trim(html.className + " " + rtlClassStr + "dj_rtl dijitRtl " + classStr.replace(/ /g, "-rtl "));
 		}
-  });
-  return dojo;
+	});
+	return dojo;
 });

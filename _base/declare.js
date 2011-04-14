@@ -7,9 +7,7 @@ define(["./kernel", "../has", "./lang", "./array"], function(dojo, has){
 	var d = dojo, mix = d._mixin, op = Object.prototype, opts = op.toString,
 		xtor = new Function, counter = 0, cname = "constructor";
 
-	function err(msg, cls){ 
-    throw new Error("declare" + (cls ? " " + cls : "") + ": " + msg); 
-  }
+	function err(msg, cls){ throw new Error("declare" + (cls ? " " + cls : "") + ": " + msg); }
 
 	// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
 	function c3mro(bases, className){

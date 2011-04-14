@@ -1,8 +1,8 @@
 define([".", "./parser"], function(dojo) {
-  //  module:
-  //    dojo/html
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/html
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("html", true, dojo);
 
@@ -269,14 +269,16 @@ dojo.getObject("html", true, dojo);
 				var rootNode = this.node;
 				try{
 					// store the results (widgets, whatever) for potential retrieval
+					var inherited = {};
+					dojo.forEach(["dir", "lang", "textDir"], function(name){
+						if(this[name]){
+							inherited[name] = this[name];
+						}
+					}, this);
 					this.parseResults = dojo.parser.parse({
 						rootNode: rootNode,
 						noStart: !this.startup,
-						inherited: {
-							dir: this.dir,
-							lang: this.lang,
-							textDir: this.textDir
-						},
+						inherited: inherited,
 						scope: this.parserScope
 					});
 				}catch(e){

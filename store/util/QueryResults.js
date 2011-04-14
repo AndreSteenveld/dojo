@@ -1,8 +1,8 @@
 define(["../.."], function(dojo) {
-  //  module:
-  //    dojo/store/util/QueryResults
-  //  summary:
-  //    The module defines 
+	//  module:
+	//    dojo/store/util/QueryResults
+	//	summary:
+	//		TODOC:This module defines 
 
 dojo.getObject("store.util", true, dojo);
 
