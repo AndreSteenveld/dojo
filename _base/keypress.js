@@ -1,4 +1,4 @@
-define(["./kernel", "../listen"], function(dojo, listen){
+define(["./kernel", "../listen", "../has"], function(dojo, listen, has){
 // summary:
 //		This modules provides keyboard event handling helpers.
 //		This module exports an extension event for emulating Firefox's keypress handling.
@@ -6,19 +6,14 @@ define(["./kernel", "../listen"], function(dojo, listen){
 //		is not recommended. WebKit and IE uses an alternate keypress handling (only
 //		firing for printable characters, to distinguish from keydown events), and most
 //		consider the WebKit/IE behavior more desirable.
-function has(feature){
-	return {
-		"events-keypress-typed": function(){ // keypresses should only occur a printable character is hit
-			var testKeyEvent = {charCode: 0};
-			try{
-				testKeyEvent = document.createEvent("KeyboardEvent");
-				(testKeyEvent.initKeyboardEvent || testKeyEvent.initKeyEvent).call(testKeyEvent, "keypress", true, true, null, false, false, false, false, 9, 3);
-			}catch(e){}
-			return testKeyEvent.charCode == 0;
-		}
-	}[feature]();
-}
-
+has.add("events-keypress-typed", function(){ // keypresses should only occur a printable character is hit
+	var testKeyEvent = {charCode: 0};
+	try{
+		testKeyEvent = document.createEvent("KeyboardEvent");
+		(testKeyEvent.initKeyboardEvent || testKeyEvent.initKeyEvent).call(testKeyEvent, "keypress", true, true, null, false, false, false, false, 9, 3);
+	}catch(e){}
+	return testKeyEvent.charCode == 0;
+});
 // Constants
 
 // Public: client code should test
@@ -116,8 +111,7 @@ dojo.isCopyKey = function(e){
 
 var _synthesizeEvent = function(evt, props){
 	var faux = dojo.mixin({}, evt, props);
-	faux.keyChar = evt.charCode ? String.fromCharCode(evt.charCode) : '';
-	faux.charOrCode = evt.keyChar || evt.keyCode;	
+	setKeyChar(faux);
 	// FIXME: would prefer to use dojo.hitch: dojo.hitch(evt, evt.preventDefault);
 	// but it throws an error when preventDefault is invoked on Safari
 	// does Event.preventDefault not support "apply" on Safari?
@@ -125,7 +119,10 @@ var _synthesizeEvent = function(evt, props){
 	faux.stopPropagation = function(){ evt.stopPropagation(); };
 	return faux;
 };
-
+function setKeyChar(evt){
+	evt.keyChar = evt.charCode ? String.fromCharCode(evt.charCode) : '';
+	evt.charOrCode = evt.keyChar || evt.keyCode;
+}
 if(has("events-keypress-typed")){
 	// this emulates Firefox's keypress behavior where every keydown can correspond to a keypress
 	var _trySetKeyCode = function(e, code){
@@ -138,12 +135,12 @@ if(has("events-keypress-typed")){
 		}
 	};
 	return function(object, listener){
-		return listen(object, "keydown", function(evt){
+		var keydownSignal = listen(object, "keydown", function(evt){
 			// munge key/charCode
 			var k=evt.keyCode;
 			// These are Windows Virtual Key Codes
 			// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/WinUI/WindowsUserInterface/UserInput/VirtualKeyCodes.asp
-			var unprintable = k!=13 && k!=32 && k!=27 && (k<48||k>90) && (k<96||k>111) && (k<186||k>192) && (k<219||k>222);
+			var unprintable = k!=13 && k!=32 && (k!=27||!dojo.isIE) && (k<48||k>90) && (k<96||k>111) && (k<186||k>192) && (k<219||k>222);
 			// synthesize keypress for most unprintables and CTRL-keys
 			if(unprintable||evt.ctrlKey){
 				var c = unprintable ? 0 : k;
@@ -161,13 +158,25 @@ if(has("events-keypress-typed")){
 				// simulate a keypress event
 				var faux = _synthesizeEvent(evt, {type: 'keypress', faux: true, charCode: c});
 				listener.call(evt.currentTarget, faux);
-				evt.cancelBubble = faux.cancelBubble;
-				evt.returnValue = faux.returnValue;
-				_trySetKeyCode(evt, faux.keyCode);
-			}else{
-				listener.call(evt.currentTarget, evt);
+				if(dojo.isIE){
+					evt.cancelBubble = faux.cancelBubble;
+					evt.returnValue = faux.returnValue;
+					_trySetKeyCode(evt, faux.keyCode);
+				}
 			}
 		});
+		var keypressSignal = listen(object, "keypress", function(evt){
+			var c = evt.charCode;
+			c = c>=32 ? c : 0;
+			evt = _synthesizeEvent(evt, {charCode: c, faux: true});
+			return listener.call(this, evt);
+		});
+		return {
+			cancel: function(){
+				keydownSignal.cancel();
+				keypressSignal.cancel();
+			}
+		};
 	};
 }
 else{
@@ -190,7 +199,10 @@ else{
 		};
 	}else{
 		return function(object, listener){ 		
-			return listen(object, "keypress", listener);
+			return listen(object, "keypress", function(evt){
+				setKeyChar(evt);
+				return listener.call(this, evt);
+			});
 		};
 	}
 }
