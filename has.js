@@ -13,8 +13,7 @@ define(["require"], function(require) {
   //    This module adopted from https://github.com/phiggins42/has.js; thanks has.js team! 
 
   // try to pull the has implementation from the loader; both the dojo loader and bdLoad provide one
-  var has= require.has,
-  	doc = document;
+  var has= require.has;
 
   if(!has("loader-hasApi") && typeof has=="function"){
     // notice the condition is written so that if has("loader-hasApi") is transformed to 1 during a build
@@ -23,7 +22,6 @@ define(["require"], function(require) {
     var
       isBrowser= 
         // the most fundamental decision: are we in the browser?
-
         typeof window!="undefined" && 
         typeof location!="undefined" && 
         typeof document!="undefined" && 
@@ -32,9 +30,10 @@ define(["require"], function(require) {
       // has API variables
       global= this,
       doc= isBrowser && document,
-      element= doc && doc.createElement("DiV");
+      element= doc && doc.createElement("DiV"),
+      cache= {};
   
-    function has(name){
+    has = function(name){
       //  summary: 
       //    Return the current value of the named feature.
       //
@@ -45,14 +44,11 @@ define(["require"], function(require) {
       //    Returns the value of the feature named by name. The feature must have been
       //    previously added to the cache by has.add.
 
-    if(typeof cache[name] == "function"){
-      return cache[name] = cache[name](/*global, doc, element*/); // do we need the params?
+      return cache[name] = typeof cache[name]=="function" ? cache[name](global, doc, element) : cache[name]; // Boolean
     }
-    return cache[name]; // Boolean
-  }
 
-  var cache = has.cache= has.cache || {};
-
+    has.cache= cache;
+  
 	has.add = function(/* String|Object */name, /* Function */test){
 		// summary: Register a new feature detection test for some named feature
 		//
@@ -93,6 +89,7 @@ define(["require"], function(require) {
 			cache[name] = test;
 		}
 	};
+  }
 	var agent = navigator.userAgent;
 	// Common application level tests
 	has.add({

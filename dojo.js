@@ -176,8 +176,14 @@
     hasCache= has.cache= defaultConfig.hasCache;
 
   has.add= function(name, test, now, force){
+		if(typeof name == "object"){
+			for(var i in name){
+				has.add(i, name[i]);
+			}
+		}else{
     (typeof hasCache[name]=="undefined" || force) && (hasCache[name]= test);
     return now && has(name);
+		}
   };
 
   has.add("host-node", typeof process=="object" && /\/node/.test(process.execPath));
@@ -1582,7 +1588,7 @@
       "loader-injectApi":1,
       "loader-timeoutApi":1,
       "loader-traceApi":1,
-      "loader-catchApi":1,
+      "loader-catchApi":0,
       "loader-pageLoadApi":1,
       "loader-priority-readyApi":1,
       "loader-errorApi":1,
