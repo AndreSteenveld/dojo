@@ -1588,7 +1588,7 @@
       "loader-injectApi":1,
       "loader-timeoutApi":1,
       "loader-traceApi":1,
-      "loader-catchApi":0,
+      "loader-catchApi":1,
       "loader-pageLoadApi":1,
       "loader-priority-readyApi":1,
       "loader-errorApi":1,
