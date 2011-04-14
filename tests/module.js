@@ -4,6 +4,8 @@ define([
   "dojo/tests/i18n",
   "dojo/tests/cldr",
   "dojo/tests/store",
+  "dojo/tests/listen",
+  "dojo/tests/aspect",
   "dojo/tests/data",
   "dojo/tests/date",
   "dojo/tests/number",
