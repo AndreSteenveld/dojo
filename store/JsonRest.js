@@ -4,7 +4,7 @@ define(["../_base/kernel", "../_base/xhr", "../json", "../_base/declare", "./uti
   //  summary:
   //    The module defines 
 
-return declare(null, {
+return declare("dojo.store.JsonRest", null, {
 	// summary:
 	//		This is a basic store for RESTful communicating with a server through JSON
 	//		formatted data. It implements dojo.store.api.Store.
