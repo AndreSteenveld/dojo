@@ -285,7 +285,10 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				nativeEvent.initEvent(type, !!event.bubbles, !!event.cancelable);
 				// and copy all our properties over
 				for(var i in event){
-					nativeEvent[i] = event[i];
+					var value = event[i];
+					if(value !== nativeEvent[i]){
+						nativeEvent[i] = event[i];
+					}
 				}
 				return target.dispatchEvent(nativeEvent);
 			}
