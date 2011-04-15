@@ -6,9 +6,9 @@ define(["./kernel", "../listen", "./keypress", "../has"], function(dojo, listen,
 	has.add("dom-addeventlistener", !!document.addEventListener); 
 	if(listen._fixEvent){
 		var fixEvent = listen._fixEvent;
-		listen._fixEvent = function(evt){
+		listen._fixEvent = function(evt, se){
 			// add some additional normalization for back-compat, this isn't in listen.js because it is somewhat more expensive
-			evt = fixEvent(evt);
+			evt = fixEvent(evt, se);
 			// FIXME: scroll position query is duped from dojo.html to
 			// avoid dependency on that entire module. Now that HTML is in
 			// Base, we should convert back to something similar there.
