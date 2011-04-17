@@ -164,7 +164,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			target.onpage = cleanupHandler;
 			usedEvents[type] = true; // register it as one of the used events
 		}
-		if(fixListener){
+		if(fixListener && target.attachEvent){
 			return fixListener(target, "on" + type, listener);
 		}
 	 // use aop
