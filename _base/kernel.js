@@ -1,3 +1,5 @@
+
+
 (function(eval) {
 define(["../has", "./config", "require"], function(has, config, require){
 	//	module:
@@ -39,7 +41,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 	var
 		guidRoot= (new Date()).getTime() + "",
 		guidId= 1,
-		getGuid= function(prefix) {
+		getGuid= function(prefix){
 			return prefix + guidRoot + guidId++;
 		};
 
@@ -97,6 +99,21 @@ define(["../has", "./config", "require"], function(has, config, require){
 		}
 	};
 
+	// the preferred way to load the dojo firebug console is by setting has("dojo-firebug") true before boot
+	// the isDebug config switch is for backcompat and will work fine in sync loading mode; it works in
+	// async mode too, but there's no guarantee when the module is loaded; therefore, if you need a firebug
+	// console guarnanteed at a particular spot in an app, either set config.has["dojo-firebug"] true before
+	// loading dojo.js or explicitly include dojo/_firebug/firebug in a dependency list.
+	if(config.isDebug){
+		require(["dojo/_firebug/firebug"]);
+	}
+
+  // notice that modulePaths won't be applied to any require's before the dojo/_base/kernel factory is run;
+  // this is the v1.6- behavior. Going forward from 1.7+, consider modulePaths deprecated and
+  // configure the loader directly.
+  if(config.modulePaths){
+    require({paths:config.modulePaths});
+  }
 
 	dojo.isAsync= function() {
 		return require.vendor!="dojotoolkit.org" || require.async;
