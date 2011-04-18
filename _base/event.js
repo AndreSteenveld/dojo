@@ -1,9 +1,9 @@
 define(["./kernel", "./connect", "./sniff"], function(dojo){
-	//	module:
+	// module:
 	//		dojo/_base/event
-	//	summary:
+	// summary:
 	//		This module defines dojo DOM event API.
-	//	notes:
+	// notes:
 	//		This file courtesy of the TurboAjax Group, licensed under a Dojo CLA
 
 	// DOM event listener machinery
@@ -98,7 +98,7 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 	});
 
 	// DOM events
-	
+
 	dojo.fixEvent = function(/*Event*/ evt, /*DOMNode*/ sender){
 		// summary:
 		//		normalizes properties on the event object including event
@@ -123,7 +123,7 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 
 	// the default listener to use on dontFix nodes, overriden for IE
 	var node_listener = dojo._listener;
-	
+
 	// Unify connect and event listeners
 	dojo._connect = function(obj, event, context, method, dontFix){
 		// FIXME: need a more strict test
@@ -215,9 +215,9 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 		// virtual key mapping
 		copyKey: dojo.isMac && !dojo.isAIR ? (dojo.isSafari ? 91 : 224 ) : 17
 	};
-	
+
 	var evtCopyKey = dojo.isMac ? "metaKey" : "ctrlKey";
-	
+
 	dojo.isCopyKey = function(e){
 		// summary:
 		//		Checks an event for the copy key (meta on Mac, and ctrl anywhere else)
@@ -232,14 +232,14 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 	dojo.mouseButtons = {
 		// LEFT: Number
 		//		Numeric value of the left mouse button for the platform.
-		LEFT:		0,
+		LEFT: 0,
 		// MIDDLE: Number
 		//		Numeric value of the middle mouse button for the platform.
 		MIDDLE: 1,
 		// RIGHT: Number
 		//		Numeric value of the right mouse button for the platform.
-		RIGHT:	2,
-	
+		RIGHT: 2,
+
 		isButton: function(e, button){
 			// summary:
 			//		Checks an event object for a pressed button
@@ -276,26 +276,26 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 	//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 	if(dojo.isIE < 9 || (dojo.isIE && dojo.isQuirks)){
 		dojo.mouseButtons = {
-			LEFT:		1,
+			LEFT: 1,
 			MIDDLE: 4,
-			RIGHT:	2,
+			RIGHT: 2,
 			// helper functions
 			isButton: function(e, button){ return e.button & button; },
-			isLeft:		function(e){ return e.button & 1; },
+			isLeft: function(e){ return e.button & 1; },
 			isMiddle: function(e){ return e.button & 4; },
-			isRight:	function(e){ return e.button & 2; }
+			isRight: function(e){ return e.button & 2; }
 		};
 	}else{
 	//>>excludeEnd("webkitMobile");
 		dojo.mouseButtons = {
-			LEFT:		0,
+			LEFT:   0,
 			MIDDLE: 1,
-			RIGHT:	2,
+			RIGHT:  2,
 			// helper functions
 			isButton: function(e, button){ return e.button == button; },
-			isLeft:		function(e){ return e.button == 0; },
+			isLeft:   function(e){ return e.button == 0; },
 			isMiddle: function(e){ return e.button == 1; },
-			isRight:	function(e){ return e.button == 2; }
+			isRight:  function(e){ return e.button == 2; }
 		};
 	//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 	}
@@ -480,7 +480,7 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 					var faux = del._synthesizeEvent(evt, {type: 'keypress', faux: true, charCode: c});
 					kp.call(evt.currentTarget, faux);
 					if(dojo.isIE < 9 || (dojo.isIE && dojo.isQuirks)){
-					evt.cancelBubble = faux.cancelBubble;
+						evt.cancelBubble = faux.cancelBubble;
 					}
 					evt.returnValue = faux.returnValue;
 					_trySetKeyCode(evt, faux.keyCode);
@@ -502,7 +502,7 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 				this.returnValue = false;
 			}
 		});
-				
+
 		// override stopEvent for IE
 		dojo.stopEvent = (dojo.isIE < 9 || dojo.isQuirks) ? function(evt){
 			evt = evt || window.event;
@@ -522,7 +522,7 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 			faux.stopPropagation = function(){ evt.stopPropagation(); };
 			return faux;
 	};
-	
+
 	//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 	// Opera event normalization
 	if(dojo.isOpera){
@@ -617,41 +617,41 @@ define(["./kernel", "./connect", "./sniff"], function(dojo){
 	}
 	//>>excludeEnd("webkitMobile");
 
-//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-if(dojo.isIE){
-	// keep this out of the closure
-	// closing over 'iel' or 'ieh' b0rks leak prevention
-	// ls[i] is an index into the master handler array
-	dojo._ieDispatcher = function(args, sender){
-		var ap = Array.prototype,
-			h = dojo._ie_listener.handlers,
-			c = args.callee,
-			ls = c[dojo._ieListenersName],
-			t = h[c.target];
-		// return value comes from original target function
-		var r = t && t.apply(sender, args);
-		// make local copy of listener array so it's immutable during processing
-		var lls = [].concat(ls);
-		// invoke listeners after target function
-		for(var i in lls){
-			var f = h[lls[i]];
-			if(!(i in ap) && f){
-				f.apply(sender, args);
+	//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
+	if(dojo.isIE){
+		// keep this out of the closure
+		// closing over 'iel' or 'ieh' b0rks leak prevention
+		// ls[i] is an index into the master handler array
+		dojo._ieDispatcher = function(args, sender){
+			var ap = Array.prototype,
+				h = dojo._ie_listener.handlers,
+				c = args.callee,
+				ls = c[dojo._ieListenersName],
+				t = h[c.target];
+			// return value comes from original target function
+			var r = t && t.apply(sender, args);
+			// make local copy of listener array so it's immutable during processing
+			var lls = [].concat(ls);
+			// invoke listeners after target function
+			for(var i in lls){
+				var f = h[lls[i]];
+				if(!(i in ap) && f){
+					f.apply(sender, args);
+				}
 			}
-		}
-		return r;
-	};
-	dojo._getIeDispatcher = function(){
-		// ensure the returned function closes over nothing ("new Function" apparently doesn't close)
-		return new Function(dojo._scopeName + "._ieDispatcher(arguments, this)"); // function
-	};
-	// keep this out of the closure to reduce RAM allocation
-	dojo._event_listener._fixCallback = function(fp){
-		var f = dojo._event_listener._fixEvent;
-		return function(e){ return fp.call(this, f(e, this)); };
-	};
-}
-//>>excludeEnd("webkitMobile");
+			return r;
+		};
+		dojo._getIeDispatcher = function(){
+			// ensure the returned function closes over nothing ("new Function" apparently doesn't close)
+			return new Function(dojo._scopeName + "._ieDispatcher(arguments, this)"); // function
+		};
+		// keep this out of the closure to reduce RAM allocation
+		dojo._event_listener._fixCallback = function(fp){
+			var f = dojo._event_listener._fixEvent;
+			return function(e){ return fp.call(this, f(e, this)); };
+		};
+	}
+	//>>excludeEnd("webkitMobile");
 
-return dojo.connect;
+	return dojo.connect;
 });

@@ -1,7 +1,7 @@
 define(["./kernel", "./lang"], function(dojo){
-	//	module:
+	// module:
 	//		dojo/_base/connect
-	//	summary:
+	// summary:
 	//		This module defines the dojo.connect API.
 
 // this file courtesy of the TurboAjax Group, licensed under a Dojo CLA
@@ -13,9 +13,9 @@ dojo._listener = {
 		// following comments pulled out-of-line to prevent cloning them
 		// in the returned function.
 		// - indices (i) that are really in the array of listeners (ls) will
-		//	 not be in Array.prototype. This is the 'sparse array' trick
-		//	 that keeps us safe from libs that take liberties with built-in
-		//	 objects
+		// not be in Array.prototype. This is the 'sparse array' trick
+		// that keeps us safe from libs that take liberties with built-in
+		// objects
 		// - listener is invoked with current scope (this)
 		return function(){
 			var ap = Array.prototype, c = arguments.callee, ls = c._listeners, t = c.target,
@@ -271,7 +271,7 @@ dojo.publish = function(/*String*/ topic, /*Array*/ args){
 	//	|	dojo.publish("alerts", [ "read this", "hello world" ]);
 
 	// Note that args is an array, which is more efficient vs variable length
-	// argument list.	 Ideally, var args would be implemented via Array
+	// argument list.  Ideally, var args would be implemented via Array
 	// throughout the APIs.
 	var f = dojo._topics[topic];
 	if(f){

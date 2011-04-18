@@ -1,10 +1,13 @@
 define(["./kernel", "../has"], function(dojo, has){
-	//	module:
+	// module:
 	//		dojo/sniff
-	//	summary:
+	// summary:
 	//		This module populates the dojo browser version sniffing properties.
 
-	var 
+	if(!has("host-browser")){
+		return dojo;
+	}
+	var
 		n = navigator,
 		dua = n.userAgent,
 		dav = n.appVersion,
@@ -48,8 +51,8 @@ define(["./kernel", "../has"], function(dojo, has){
 	}
 
 	if (!has("dojo-webkit")) {
-		if(dua.indexOf("Gecko") >= 0 && !isKhtml && !isWebKit){ 
-			isMozilla = isMoz = tv; 
+		if(dua.indexOf("Gecko") >= 0 && !isKhtml && !isWebKit){
+			isMozilla = isMoz = tv;
 		}
 		if(isMoz){
 			//We really need to get away from this. Consider a sane isGecko approach for the future.
@@ -68,7 +71,7 @@ define(["./kernel", "../has"], function(dojo, has){
 				isIE = mode;
 			}
 		}
-	
+
 		//Workaround to get local file loads of dojo to work on IE 7
 		//by forcing to not use native xhr.
 		if(isIE && window.location.protocol === "file:"){

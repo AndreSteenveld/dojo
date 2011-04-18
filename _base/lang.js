@@ -1,11 +1,10 @@
 define(["./kernel", "../has", "./sniff"], function(dojo, has){
-	//	module:
+	// module:
 	//		dojo/_base/lang
-	//	summary:
+	// summary:
 	//		This module defines the dojo core Javascript language extensions.
 
-	var d = dojo,
-			opts = Object.prototype.toString;
+	var d = dojo, opts = Object.prototype.toString;
 
 	// Crockford (ish) functions
 
@@ -40,7 +39,7 @@ define(["./kernel", "../has", "./sniff"], function(dojo, has){
 		//	summary:
 		//		similar to dojo.isArray() but more permissive
 		//	description:
-		//		Doesn't strongly test for "arrayness".	Instead, settles for "isn't
+		//		Doesn't strongly test for "arrayness".  Instead, settles for "isn't
 		//		a string or number and has a length property". Arguments objects
 		//		and DOM collections will return true when passed to
 		//		dojo.isArrayLike(), but will return false when passed to
@@ -118,7 +117,7 @@ define(["./kernel", "../has", "./sniff"], function(dojo, has){
 		//	|	var foo = { bar: 2 };
 		//	|	dojo.hitch(foo, function(){ this.bar = 10; })();
 		//		execute an anonymous function in scope of foo
-		
+
 		if(arguments.length > 2){
 			return d._hitchArgs.apply(d, arguments); // Function
 		}
@@ -214,7 +213,7 @@ define(["./kernel", "../has", "./sniff"], function(dojo, has){
 
 	dojo._toArray =
 		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		d.isIE ?	function(obj){
+		d.isIE ? function(obj){
 			return ((obj.item) ? slow : efficient).apply(this, arguments);
 		} :
 		//>>excludeEnd("webkitMobile");
@@ -250,7 +249,7 @@ define(["./kernel", "../has", "./sniff"], function(dojo, has){
 		}
 		if(o instanceof RegExp){
 			// RegExp
-			return new RegExp(o);		// RegExp
+			return new RegExp(o);   // RegExp
 		}
 		var r, i, l, s, name;
 		if(d.isArray(o)){
@@ -271,7 +270,7 @@ define(["./kernel", "../has", "./sniff"], function(dojo, has){
 		}
 		for(name in o){
 			// the "tobj" condition avoid copying properties in "source"
-			// inherited from Object.prototype.	 For example, if target has a custom
+			// inherited from Object.prototype.  For example, if target has a custom
 			// toString() method, don't overwrite it with the toString() method
 			// that source inherited from Object.prototype
 			s = o[name];
@@ -279,9 +278,9 @@ define(["./kernel", "../has", "./sniff"], function(dojo, has){
 				r[name] = d.clone(s);
 			}
 		}
-		if (has("bug-for-in-skips-shadowed")){
-			var extraNames= dojo._extraNames;
-			for(i= extraNames.length; i;){
+		if(has("bug-for-in-skips-shadowed")){
+			var extraNames = dojo._extraNames;
+			for(i = extraNames.length; i;){
 				name = extraNames[--i];
 				s = o[name];
 				if(!(name in r) || (r[name] !== s && (!(name in empty) || empty[name] !== s))){
