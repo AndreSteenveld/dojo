@@ -211,7 +211,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 	nl._wrap = nlp._wrap = tnl;
 	nl._adaptAsMap = adaptAsMap;
 	nl._adaptAsForEach = adaptAsForEach;
-	nl._adaptAsFilter	 = adaptAsFilter;
+	nl._adaptAsFilter  = adaptAsFilter;
 	nl._adaptWithCondition = adaptWithCondition;
 
 	// mass assignment
@@ -262,7 +262,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		(if dojo.parser has been dojo.required elsewhere).
 
 			//Wanted to just use a DocumentFragment, but for the array/NodeList
-			//case that meant	 using cloneNode, but we may not want that.
+			//case that meant using cloneNode, but we may not want that.
 			//Cloning should only happen if the node operations span
 			//multiple refNodes. Also, need a real array, not a NodeList from the
 			//DOM since the node movements could change those NodeLists.
@@ -532,7 +532,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			// summary:
 			//		Takes the same structure of arguments and returns as
 			//		`dojo.some()` with the caveat that the passed array is
-			//		implicitly this NodeList.	 See `dojo.some()` and Mozilla's
+			//		implicitly this NodeList.  See `dojo.some()` and Mozilla's
 			//		(Array.some
 			//		documentation)[http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:some].
 			// callback: Function: the callback
@@ -731,13 +731,8 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 
 		/*
 		destroy: function(){
-<<<<<<< HEAD
 			// summary:
-			//		destroys every item in 	the list.
-=======
-			//	summary:
-			//		destroys every item in	the list.
->>>>>>> 1.7-bootstrap
+			//		destroys every item in the list.
 			this.forEach(d.destroy);
 			// FIXME: should we be checking for and/or disposing of widgets below these nodes?
 		},
@@ -816,7 +811,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//	|	var l = new dojo.NodeList(dojo.byId("foo"), dojo.byId("bar"));
 			//		it's possible to find all span elements under paragraphs
 			//		contained by these elements with this sub-query:
-			//	|		var spans = l.query("p span");
+			//	|	var spans = l.query("p span");
 
 			// FIXME: probably slow
 			if(!queryStr){ return this; }
@@ -828,12 +823,12 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 		},
 
 		filter: function(/*String|Function*/ filter){
-			//	summary:
+			// summary:
 			//		"masks" the built-in javascript filter() method (supported
 			//		in Dojo via `dojo.filter`) to support passing a simple
 			//		string filter in addition to supporting filtering function
 			//		objects.
-			//	filter:
+			// filter:
 			//		If a string, a CSS rule like ".thinger" or "div > span".
 			// example:
 			//		"regular" JS filter syntax as exposed in dojo.filter:
@@ -870,8 +865,8 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 		addContent: function(/*String||DomNode||Object||dojo.NodeList*/ content, /*String||Integer?*/ position){
 			// summary:
 			//		add a node, NodeList or some HTML as a string to every item in the
-			//		list.	 Returns the original list.
-			//	description:
+			//		list.  Returns the original list.
+			// description:
 			//		a copy of the HTML content is added to each item in the
 			//		list, with an optional position argument. If no position
 			//		argument is provided, the content is appended to the end of
@@ -887,7 +882,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		string should be parsed for widgets (dojo.require("dojo.parser") to get that
 			//		option to work), and "templateFunc" if a template function besides dojo.string.substitute
 			//		should be used to transform the "template".
-			//	position:
+			// position:
 			//		can be one of:
 			//		|	"last"||"end" (default)
 			//		|	"first||"start"
@@ -896,7 +891,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		|	"replace" (replaces nodes in this NodeList with new content)
 			//		|	"only" (removes other children of the nodes so new content is the only child)
 			//		or an offset in the childNodes property
-			//	example:
+			// example:
 			//		appends content to the end if the position is omitted
 			//	|	dojo.query("h3 > p").addContent("hey there!");
 			// example:
@@ -910,7 +905,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//		add a clone of a DOM node to the end of every element in
 			//		the list, removing it from its existing parent.
 			//	|	dojo.query(".note").addContent(dojo.byId("foo"));
-			//	example:
+			// example:
 			//		Append nodes from a templatized string.
 			//		dojo.require("dojo.string");
 			//		dojo.query(".note").addContent({
@@ -918,7 +913,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 			//			id: "user332",
 			//			name: "Mr. Anderson"
 			//		});
-			//	example:
+			// example:
 			//		Append nodes from a templatized string that also has widgets parsed.
 			//		dojo.require("dojo.string");
 			//		dojo.require("dojo.parser");
@@ -993,7 +988,7 @@ define(["./kernel", "../listen", "./lang", "./array", "./html"], function(dojo, 
 		"keyup", "load", "mousedown", "mouseenter", "mouseleave", "mousemove",
 		"mouseout", "mouseover", "mouseup", "submit"
 	];
-	
+
 	// FIXME: pseudo-doc the above automatically generated on-event functions
 
 	// syntactic sugar for DOM events

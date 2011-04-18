@@ -1,26 +1,28 @@
+
+
 (function(eval) {
 define(["../has", "./config", "require"], function(has, config, require){
-	//	module:
+	// module:
 	//		dojo/_base/kernel
-	//	summary:
+	// summary:
 	//		This module is the foundational module of the dojo boot sequence; it defines the dojo object.
 
-	has.add("dojo-load-firebug-console", 
+	has.add("dojo-load-firebug-console",
 		// the firebug 2.0 console
 		!!this["loadFirebugConsole"]
 	);
-	
-	has.add("dojo-debug-messages", 
+
+	has.add("dojo-debug-messages",
 		// include dojo.deprecated/dojo.experimental implementations
 		1
 	);
 
-	has.add("dojo-guarantee-console", 
+	has.add("dojo-guarantee-console",
 		// ensure that console.log, console.warn, etc. are defined
 		1
 	);
 
-	has.add("dojo-register-openAjax", 
+	has.add("dojo-register-openAjax",
 		// register dojo with the OpenAjax hub
 		typeof OpenAjax != "undefined"
 	);
@@ -39,23 +41,23 @@ define(["../has", "./config", "require"], function(has, config, require){
 	var
 		guidRoot= (new Date()).getTime() + "",
 		guidId= 1,
-		getGuid= function(prefix) {
+		getGuid= function(prefix){
 			return prefix + guidRoot + guidId++;
 		};
 
 
 	// create dojo, dijit, and dojox; initialize _scopeName and possibly publish to the global
 	// namespace: three possible cases:
-	// 
+	//
 	//	 1. The namespace is not mentioned in config.scopeMap: _scopeName is set to the default
 	//			name (dojo, dijit, or dojox), and the object is published to the global namespace
-	// 
+	//
 	//	 2. The namespace is mentioned with a nonempty name: _scopeName is set to the name given
 	//			and the object is published to the global namespace under that name
-	// 
+	//
 	//	 3. Then namespace is mentioned, but the value is falsy (e.g., ""): _scopeName is set to
 	//			_(dojo|dijit|dojox)<reasonably-unque-number> and the object is *not* published to the global namespace
-	var 
+	var
 		dojo={
 			config: {},
 			global:this,
@@ -86,7 +88,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 	for(p in config){
 		dojo.config[p]= config[p];
 	}
-	
+
 	var rev = "$Rev: 23930 $".match(/\d+/);
 	dojo.version= {
 		major: 1, minor: 7, patch: 0, flag: "dev",
@@ -97,6 +99,21 @@ define(["../has", "./config", "require"], function(has, config, require){
 		}
 	};
 
+	// the preferred way to load the dojo firebug console is by setting has("dojo-firebug") true before boot
+	// the isDebug config switch is for backcompat and will work fine in sync loading mode; it works in
+	// async mode too, but there's no guarantee when the module is loaded; therefore, if you need a firebug
+	// console guarnanteed at a particular spot in an app, either set config.has["dojo-firebug"] true before
+	// loading dojo.js or explicitly include dojo/_firebug/firebug in a dependency list.
+	if(config.isDebug){
+		require(["dojo/_firebug/firebug"]);
+	}
+
+	// notice that modulePaths won't be applied to any require's before the dojo/_base/kernel factory is run;
+	// this is the v1.6- behavior. Going forward from 1.7+, consider modulePaths deprecated and
+	// configure the loader directly.
+	if(config.modulePaths){
+		require({paths:config.modulePaths});
+	}
 
 	dojo.isAsync= function() {
 		return require.vendor!="dojotoolkit.org" || require.async;
@@ -112,12 +129,12 @@ define(["../has", "./config", "require"], function(has, config, require){
 			quit(exitcode);
 		};
 	}
-	
+
 	if(has("dojo-load-firebug-console")){
 //TODO: look at this
 		loadFirebugConsole();
 	}
-	
+
 	if(has("dojo-guarantee-console")){
 		// intentional global console
 		typeof console!="undefined" || (console= {});
@@ -142,12 +159,12 @@ define(["../has", "./config", "require"], function(has, config, require){
 			}
 		}
 	}
-	
+
 	if (has("dojo-register-openAjax")) {
 		// Register with the OpenAjax hub
 		OpenAjax.hub.registerLibrary(dojo._scopeName, "http://dojotoolkit.org", dojo.version.toString());
 	}
-	
+
 
 	has.add("bug-for-in-skips-shadowed", function() {
 		// if true, the for-in interator skips object properties that exist in Object's prototype (IE 6 - ?)
@@ -161,7 +178,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 			extraNames = dojo._extraNames = "hasOwnProperty.valueOf.isPrototypeOf.propertyIsEnumerable.toLocaleString.toString.constructor".split("."),
 			extraLen= extraNames.length;
 	}
-	var empty= {};	
+	var empty= {};
 	dojo._mixin = function(/*Object*/ target, /*Object*/ source){
 		// summary:
 		//		Adds all properties and methods of source to target. This addition
@@ -178,7 +195,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 				target[name] = s;
 			}
 		}
-	
+
 		if (has("bug-for-in-skips-shadowed")){
 			if(source){
 				for(i = 0; i < extraLen; ++i){
@@ -190,10 +207,10 @@ define(["../has", "./config", "require"], function(has, config, require){
 				}
 			}
 		}
-	
+
 		return target; // Object
 	};
-	
+
 	dojo.mixin = function(/*Object*/obj, /*Object...*/props){
 		// summary:
 		//		Adds all properties and methods of props to obj and returns the
@@ -253,7 +270,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 		}
 		return obj; // Object
 	};
-	
+
 	var getProp = function(/*Array*/parts, /*Boolean*/create, /*Object*/context){
 		var p, amdMid, i = 0, dojoGlobal= dojo.global;
 		if(!context){
@@ -393,7 +410,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 			if(removal){ message += " -- will be removed in version: " + removal; }
 			console.warn(message);
 		};
-	
+
 		dojo.experimental = function(/* String */ moduleName, /* String? */ extra){
 			var message = "EXPERIMENTAL: " + moduleName + " -- APIs subject to change without notice.";
 			if(extra){ message += " " + extra; }
@@ -402,7 +419,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 	} else {
 		dojo.deprecated= dojo.experimental= function(){};
 	}
-	
+
 	return dojo;
 });
 })(

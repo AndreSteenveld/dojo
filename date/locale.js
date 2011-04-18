@@ -1,8 +1,8 @@
 define(["..", "../date", "../cldr/supplemental", "../regexp", "../string", "../i18n!../cldr/nls/gregorian"], function(dojo) {
-  //  module:
-  //    dojo/date/local
-  //  summary:
-  //    This modules defines dojo.date.locale, localization methods for Date.
+	// module:
+	//		dojo/date/local
+	// summary:
+	//		This modules defines dojo.date.locale, localization methods for Date.
 
 dojo.getObject("date.locale", true, dojo);
 

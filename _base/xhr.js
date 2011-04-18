@@ -1,7 +1,7 @@
-define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], function(dojo, has, require){
+define(["./kernel", "../has", "require", "./sniff", "./Deferred", "./json", "./lang"], function(dojo, has, require){
 	//	module:
 	//		dojo/_base.xhr
-	//	summary:
+	// summary:
 	//		This modules defines the dojo.xhr* API.
 
 	has.add("native-xhr", function() {
@@ -38,10 +38,10 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 		}
 		dojo._xhrObj= function() {
 			try{
-				return new ActiveXObject(progid); 
+				return new ActiveXObject(progid);
 			}catch(e){
 				throw new Error("XMLHTTP not available: "+e);
-			}		 
+			}
 		};
 	}
 
@@ -67,7 +67,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 			obj[name] = value;
 		}
 	}
-	
+
 	dojo.fieldToObject = function(/*DOMNode||String*/ inputNode){
 		// summary:
 		//		Serialize a form field to a JavaScript object.
@@ -324,7 +324,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 		xml: function(xhr){
 			// summary: A contentHandler returning an XML Document parsed from the response data
 			var result = xhr.responseXML;
-			
+
 			if(has("ie")){
 				if((!result || !result.documentElement)){
 					//WARNING: this branch used by the xml handling in dojo.io.iframe,
@@ -548,7 +548,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 		if(args.form){
 			var form = _d.byId(args.form);
 			//IE requires going through getAttributeNode instead of just getAttribute in some form cases,
-			//so use it for all.	See #2844
+			//so use it for all. See #2844
 			var actnNode = form.getAttributeNode("action");
 			ioArgs.url = ioArgs.url || (actnNode ? actnNode.value : null);
 			formObject = _d.formToObject(form);
@@ -556,7 +556,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 
 		// set up the query params
 		var miArgs = [{}];
-	
+
 		if(formObject){
 			// potentially over-ride url-provided params w/ form values
 			miArgs.push(formObject);
@@ -569,7 +569,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 			miArgs.push({"dojo.preventCache": new Date().valueOf()});
 		}
 		ioArgs.query = _d.objectToQuery(_d.mixin.apply(null, miArgs));
-	
+
 		// .. and the real work of getting the deferred in order, etc.
 		ioArgs.handleAs = args.handleAs || "text";
 		var d = new _d.Deferred(canceller);
@@ -619,7 +619,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 		}
 
 		d.ioArgs = ioArgs;
-	
+
 		// FIXME: need to wire up the xhr object's abort method to something
 		// analagous in the Deferred
 		return d;
@@ -627,7 +627,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 
 	var _deferredCancel = function(/*Deferred*/dfd){
 		// summary: canceller function for dojo._ioSetArgs call.
-		
+
 		dfd.canceled = true;
 		var xhr = dfd.ioArgs.xhr;
 		var _at = typeof xhr.abort;
@@ -660,8 +660,8 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 	// something fierece if we don't use unified loops.
 	var _inFlightIntvl = null;
 	var _inFlight = [];
-	
-	
+
+
 	//Use a separate count for knowing if we are starting/stopping io calls.
 	//Cannot use _inFlight.length since it can change at a different time than
 	//when we want to do this kind of test. We only want to decrement the count
@@ -681,7 +681,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 		//summary:
 		//		internal method that checks each inflight XMLHttpRequest to see
 		//		if it has completed or if the timeout situation applies.
-		
+
 		var now = (new Date()).getTime();
 		// make sure sync calls stay thread safe, if this callback is called
 		// during a sync call and this results in another sync call before the
@@ -786,7 +786,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 		if(args.timeout){
 			dfd.startTime = (new Date()).getTime();
 		}
-		
+
 		_inFlight.push({dfd: dfd, validCheck: validCheck, ioCheck: ioCheck, resHandle: resHandle});
 		if(!_inFlightIntvl){
 			_inFlightIntvl = setInterval(_watchInFlight, 50);
@@ -865,7 +865,7 @@ define(["./kernel", "../has", "require", "./Deferred", "./json", "./lang"], func
 		//		for those HTTP methods. There are also methods for "raw" PUT and POST methods
 		//		via dojo.rawXhrPut() and dojo.rawXhrPost() respectively.
 		//	method:
-		//		HTTP method to be used, such as GET, POST, PUT, DELETE.	 Should be uppercase.
+		//		HTTP method to be used, such as GET, POST, PUT, DELETE. Should be uppercase.
 		//	hasBody:
 		//		If the request has an HTTP body, then pass true for hasBody.
 

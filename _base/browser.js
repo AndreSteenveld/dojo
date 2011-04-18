@@ -10,9 +10,9 @@ define([
 	"../query", 
 	"./xhr", 
 	"./fx"], function(dojo) {
-	//	module:
+	// module:
 	//		dojo/_base/browser
-	//	summary:
+	// summary:
 	//		This module causes the browser-only base modules to be loaded.
 	return dojo;
 });

@@ -29,7 +29,7 @@ dojo.store.util.QueryResults = function(results){
 	//	|	store.query({ prime: true }).forEach(function(item){
 	//	|		//	do something
 	//	|	});
-	
+
 	if(!results){
 		return results;
 	}

@@ -1,7 +1,7 @@
-define(["./kernel", "./lang"], function(dojo){
-	//	module:
+define(["./kernel", "./lang", "./sniff"], function(dojo){
+	// module:
 	//		dojo/_base/html
-	//	summary:
+	// summary:
 	//		This module defines the core dojo DOM API.
 
 // FIXME: need to add unit tests for all the semi-public methods
@@ -24,17 +24,12 @@ dojo.byId = function(id, doc){
 	//		Returns DOM node with matching `id` attribute or `null`
 	//		if not found. If `id` is a DomNode, this function is a no-op.
 	//
-<<<<<<< HEAD
 	// id: String|DOMNode
 	//	 	A string to match an HTML id attribute or a reference to a DOM Node
-=======
-	//	id: String|DOMNode
-	//		A string to match an HTML id attribute or a reference to a DOM Node
->>>>>>> 1.7-bootstrap
 	//
 	// doc: Document?
 	//		Document to work in. Defaults to the current value of
-	//		dojo.doc.	 Can be used to retrieve
+	//		dojo.doc.  Can be used to retrieve
 	//		node references from other documents.
 	//
 	// example:
@@ -183,7 +178,7 @@ if(dojo.isIE){
 			d.query("*", node).forEach("item.unselectable = '"+v+"'");
 		}
 		//>>excludeEnd("webkitMobile");
-		//FIXME: else?	Opera?
+		//FIXME: else?  Opera?
 	};
 
 	var _insertBefore = function(/*DomNode*/node, /*DomNode*/ref){
@@ -228,7 +223,7 @@ if(dojo.isIE){
 		//	|	* first
 		//	|	* last
 		//		"first" and "last" indicate positions as children of refNode, "replace" replaces refNode,
-		//		"only" replaces all children.	 position defaults to "last" if not specified
+		//		"only" replaces all children.  position defaults to "last" if not specified
 		//
 		// returns: DomNode
 		//		Returned values is the first argument resolved to a DOM node.
@@ -341,7 +336,7 @@ if(dojo.isIE){
 		//		Values may have different formats and value encodings across
 		//		browsers.
 		//
-		//		Note also that this method is expensive.	Wherever possible,
+		//		Note also that this method is expensive.  Wherever possible,
 		//		reuse the returned object.
 		//
 		//		Use the dojo.style() method for more consistent (pixelized)
@@ -580,7 +575,7 @@ if(dojo.isIE){
 		//		pairs suitable for setting each property.
 		// value:
 		//		If passed, sets value on the node for style, handling
-		//		cross-browser concerns.	 When setting a pixel value,
+		//		cross-browser concerns.  When setting a pixel value,
 		//		be sure to include "px" in the value. For instance, top: "200px".
 		//		Otherwise, in some cases, some browsers will not apply the style.
 		// example:
@@ -605,7 +600,7 @@ if(dojo.isIE){
 		//	|		"height": "300px"
 		//	|	});
 		//
-		//	example:
+		// example:
 		//		When the CSS style property is hyphenated, the JavaScript property is camelCased.
 		//		font-size becomes fontSize, and so on.
 		//	|	dojo.style("thinger",{
@@ -646,10 +641,10 @@ if(dojo.isIE){
 	// =============================
 
 	dojo._getPadExtents = function(/*DomNode*/n, /*Object*/computedStyle){
-		//	summary:
+		// summary:
 		//		Returns object with special values specifically useful for node
 		//		fitting.
-		//	description:
+		// description:
 		//		Returns an object with `w`, `h`, `l`, `t` properties:
 		//	|		l/t = left/top padding (respectively)
 		//	|		w = the total of the left and right padding
@@ -674,7 +669,7 @@ if(dojo.isIE){
 		// summary:
 		//		returns an object with properties useful for noting the border
 		//		dimensions.
-		//	description:
+		// description:
 		//		* l/t = the sum of left/top border (respectively)
 		//		* w = the sum of the left and right border
 		//		* h = the sum of the top and bottom border
@@ -812,7 +807,7 @@ if(dojo.isIE){
 			h: node.offsetHeight + me.h
 		};
 	}
-	
+
 	dojo._getMarginSize = function(/*DomNode*/node, /*Object*/computedStyle){
 		// summary:
 		//		returns an object that encodes the width and height of
@@ -1009,7 +1004,7 @@ if(dojo.isIE){
 		//		Set a node's marginbox to the size of another node
 		//	|	var box = dojo.marginBox("someNodeId");
 		//	|	dojo.marginBox("someOtherNode", box);
-		
+
 		var n = byId(node), s = gcs(n), b = box;
 		return !b ? d._getMarginBox(n, s) : d._setMarginBox(n, b.l, b.t, b.w, b.h, s); // Object
 	};
@@ -1153,7 +1148,7 @@ if(dojo.isIE){
 		//		document offsets that may affect the position relative to the
 		//		viewport.
 		//		Uses the border-box model (inclusive of border and padding but
-		//		not margin).	Does not act as a setter.
+		//		not margin).  Does not act as a setter.
 
 		node = byId(node);
 		var	db = d.body(),
@@ -1216,29 +1211,29 @@ if(dojo.isIE){
 
 	var _propNames = {
 			// properties renamed to avoid clashes with reserved words
-			"class":	 "className",
-			"for":		 "htmlFor",
+			"class":   "className",
+			"for":     "htmlFor",
 			// properties written as camelCase
-			tabindex:	 "tabIndex",
-			readonly:	 "readOnly",
-			colspan:	 "colSpan",
+			tabindex:  "tabIndex",
+			readonly:  "readOnly",
+			colspan:   "colSpan",
 			frameborder: "frameBorder",
-			rowspan:	 "rowSpan",
+			rowspan:   "rowSpan",
 			valuetype: "valueType"
 		},
 		_attrNames = {
 			// original attribute names
 			classname: "class",
-			htmlfor:	 "for",
+			htmlfor:   "for",
 			// for IE
-			tabindex:	 "tabIndex",
-			readonly:	 "readOnly"
+			tabindex:  "tabIndex",
+			readonly:  "readOnly"
 		},
 		_forcePropNames = {
 			innerHTML: 1,
 			className: 1,
-			htmlFor:	 d.isIE,
-			value:		 1
+			htmlFor:   d.isIE,
+			value:     1
 		};
 
 	var _fixAttrName = function(/*String*/ name){
@@ -1574,7 +1569,7 @@ if(dojo.isIE){
 
 	d.empty =
 		//>>excludeStart("webkitMobile", kwArgs.webkitMobile);
-		d.isIE ?	function(node){
+		d.isIE ? function(node){
 			node = byId(node);
 			for(var c; c = node.lastChild;){ // intentional assignment
 				d.destroy(c);
@@ -1626,7 +1621,7 @@ if(dojo.isIE){
 	for(var param in tagWrap){
 		if(tagWrap.hasOwnProperty(param)){
 			var tw = tagWrap[param];
-			tw.pre	= param == "option" ? '<select multiple="multiple">' : "<" + tw.join("><") + ">";
+			tw.pre = param == "option" ? '<select multiple="multiple">' : "<" + tw.join("><") + ">";
 			tw.post = "</" + tw.reverse().join("></") + ">";
 			// the last line is destructive: it reverses the array,
 			// but we don't care at this point
@@ -1634,7 +1629,7 @@ if(dojo.isIE){
 	}
 
 	d._toDom = function(frag, doc){
-		//	summary:
+		// summary:
 		//		converts HTML string into DOM nodes.
 		doc = doc || d.doc;
 		var masterId = doc[masterName];
@@ -1694,7 +1689,7 @@ if(dojo.isIE){
 		//		Do something if a node with id="someNode" has class="aSillyClassName" present
 		//	|	if(dojo.hasClass("someNode","aSillyClassName")){ ... }
 
-		return ((" "+ byId(node)[_className] +" ").indexOf(" " + classStr + " ") >= 0);	 // Boolean
+		return ((" "+ byId(node)[_className] +" ").indexOf(" " + classStr + " ") >= 0);  // Boolean
 	};
 
 	var spaces = /\s+/, a1 = [""],
@@ -1828,7 +1823,7 @@ if(dojo.isIE){
 		//		Available in `dojo.NodeList()` for multiple toggles
 		//	|	dojo.query(".findMe").replaceClass("addMe", "removeMe");
 
-				node = byId(node);
+        node = byId(node);
 		fakeNode.className = node.className;
 		dojo.removeClass(fakeNode, removeClassStr);
 		dojo.addClass(fakeNode, addClassStr);
