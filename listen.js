@@ -89,10 +89,10 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	}
 	var touchEvents = /^touch/;
 	function addListener(target, type, listener, dontFix, matchesTarget){
-		if(typeof type == "function"){
+		if(type.call){
 			// event handler function
 			// listen(node, dojo.touch.press, touchListener);
-			return type(target, listener);
+			return type.call(null, target, listener);
 		}
 
 		if(type.indexOf(",") > -1){
