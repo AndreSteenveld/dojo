@@ -42,19 +42,20 @@ define(["./kernel", "../listen", "./keypress", "../has"], function(dojo, listen,
 		return evt;
 	};
 	
-	dojo.stopEvent = has("dom-addeventlistener") ? function(/*Event*/ evt){
+	dojo.stopEvent = function(/*Event*/ evt){
 		// summary:
 		//		prevents propagation and clobbers the default action of the
 		//		passed event
 		// evt: Event
 		//		The event object. If omitted, window.event is used on IE.
-		evt.preventDefault();
-		evt.stopPropagation();
-		// NOTE: below, this method is overridden for IE
-	} : function(evt){
-		evt = evt || window.event;
-		evt.cancelBubble = true;
-		listen._preventDefault.call(evt);
+		if(has("dom-addeventlistener") || (evt && evt.preventDefault)){
+			evt.preventDefault();
+			evt.stopPropagation();
+		}else{
+			evt = evt || window.event;
+			evt.cancelBubble = true;
+			listen._preventDefault.call(evt);
+		}
 	};
 
 return dojo.connect;
