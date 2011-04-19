@@ -12,7 +12,7 @@ has.add("events-keypress-typed", function(){ // keypresses should only occur a p
 		testKeyEvent = document.createEvent("KeyboardEvent");
 		(testKeyEvent.initKeyboardEvent || testKeyEvent.initKeyEvent).call(testKeyEvent, "keypress", true, true, null, false, false, false, false, 9, 3);
 	}catch(e){}
-	return testKeyEvent.charCode == 0;
+	return testKeyEvent.charCode == 0 && !dojo.isOpera;
 });
 // Constants
 
@@ -159,8 +159,6 @@ if(has("events-keypress-typed")){
 				var faux = _synthesizeEvent(evt, {type: 'keypress', faux: true, charCode: c});
 				listener.call(evt.currentTarget, faux);
 				if(dojo.isIE){
-					evt.cancelBubble = faux.cancelBubble;
-					evt.returnValue = faux.returnValue;
 					_trySetKeyCode(evt, faux.keyCode);
 				}
 			}
@@ -182,19 +180,19 @@ if(has("events-keypress-typed")){
 else{
 	if(dojo.isOpera){ // TODO: how to feature detect this behavior?
 		return function(object, listener){
-			return listen(object, "keydown", function(evt){
+			return listen(object, "keypress", function(evt){
 				var c = evt.which;
 				if(c==3){
 					c=99; // Mozilla maps CTRL-BREAK to CTRL-c
 				}
 				// can't trap some keys at all, like INSERT and DELETE
 				// there is no differentiating info between DELETE and ".", or INSERT and "-"
-				c = c<41 && !evt.shiftKey ? 0 : c;
+				c = c<32 && !evt.shiftKey ? 0 : c;
 				if(evt.ctrlKey && !evt.shiftKey && c>=65 && c<=90){
 					// lowercase CTRL-[A-Z] keys
 					c += 32;
 				}
-				return _synthesizeEvent(evt, { charCode: c });
+				return listener.call(this, _synthesizeEvent(evt, { charCode: c }));
 			});
 		};
 	}else{
