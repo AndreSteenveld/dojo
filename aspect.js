@@ -135,7 +135,7 @@ define("dojo/aspect",[], function(){
 						before = before.next;
 					}
 					// around advice 
-					var results = dispatcher.around ? dispatcher.around.advice(this, args) : args;
+					var results = (typeof dispatcher.around == "object") ? dispatcher.around.advice(this, args) : args;
 					// after advice
 					var after = dispatcher.after;
 					while(after){
@@ -146,9 +146,9 @@ define("dojo/aspect",[], function(){
 					return results;
 				};
 				target = null; // make sure we don't have cycles for IE
-				existing && (dispatcher.around = {advice: function(target, args){
+				dispatcher.around = existing ? {advice: function(target, args){
 					return existing.apply(target, args);
-				}});
+				}} : "none";
 			}
 			return advise((dispatcher || existing), type, advice, receiveArguments);
 		};
