@@ -376,7 +376,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				try{
 					// squelch errors when keyCode is read-only
 					// (e.g. if keyCode is ctrl or shift)
-					return (this.keyCode = 0);
+					this.keyCode = 0;
 				}catch(e){
 				}
 			}
