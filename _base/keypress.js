@@ -145,7 +145,6 @@ if(has("events-keypress-typed")){
 			// synthesize keypress for most unprintables and CTRL-keys
 			if(unprintable||evt.ctrlKey){
 				var c = unprintable ? 0 : k;
-			console.log("evt.ctrlKey " + evt.ctrlKey)
 				if(evt.ctrlKey){
 					if(k==3 || k==13){
 						return listener.call(evt.currentTarget, evt); // IE will post CTRL-BREAK, CTRL-ENTER as keypress natively
@@ -156,7 +155,6 @@ if(has("events-keypress-typed")){
 					}else{
 						c = _punctMap[c] || c; // map other problematic CTRL combinations to ASCII
 					}
-					console.log("evt.ctrlKey " + c + " " +  _punctMap[c])
 				}
 				// simulate a keypress event
 				var faux = _synthesizeEvent(evt, {type: 'keypress', faux: true, charCode: c});
