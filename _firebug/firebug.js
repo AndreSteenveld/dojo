@@ -1,4 +1,4 @@
-define([".."], function(dojo) {
+define(["../_base/kernel", "../_base/html", "../_base/sniff", "../_base/array", "../_base/lang", "../_base/event", "../_base/url", "../_base/unload"], function(dojo) {
 	// module:
 	//		dojo/_firebug/firebug
 	// summary:
@@ -54,7 +54,7 @@ define([".."], function(dojo) {
 		try{ console.clear(); }catch(e){}
 	}
 
-  if(
+	if(
 		dojo.isFF ||								// Firefox has Firebug
 		dojo.isChrome ||							// Chrome 3+ has a console
 		dojo.isSafari ||							// Safari 4 has a console
@@ -436,7 +436,7 @@ define([".."], function(dojo) {
 		if(consoleFrame){
 			return;
 		}
-
+		toggleConsole(true);
 		if(dojo.config.popup){
 			var containerHeight = "100%";
 			var cookieMatch = document.cookie.match(/(?:^|; )_firebugPosition=([^;]*)/);
@@ -456,7 +456,7 @@ define([".."], function(dojo) {
 		}
 
 		var styleElement = _firebugDoc.createElement("link");
-		styleElement.href = dojo.moduleUrl("dojo._firebug", "firebug.css");
+		styleElement.href = dojo.moduleUrl("dojo._firebug", "firebug.css")+"";
 		styleElement.rel = "stylesheet";
 		styleElement.type = "text/css";
 		var styleParent = _firebugDoc.getElementsByTagName("head");
