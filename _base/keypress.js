@@ -97,7 +97,8 @@ var _punctMap = {
 	219:91,
 	220:92,
 	221:93,
-	222:39
+	222:39,
+	229:113
 };
 var evtCopyKey = dojo.isMac ? "metaKey" : "ctrlKey";
 
@@ -140,10 +141,11 @@ if(has("events-keypress-typed")){
 			var k=evt.keyCode;
 			// These are Windows Virtual Key Codes
 			// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/WinUI/WindowsUserInterface/UserInput/VirtualKeyCodes.asp
-			var unprintable = k!=13 && k!=32 && (k!=27||!dojo.isIE) && (k<48||k>90) && (k<96||k>111) && (k<186||k>192) && (k<219||k>222);
+			var unprintable = k!=13 && k!=32 && (k!=27||!dojo.isIE) && (k<48||k>90) && (k<96||k>111) && (k<186||k>192) && (k<219||k>222) && k!=229;
 			// synthesize keypress for most unprintables and CTRL-keys
 			if(unprintable||evt.ctrlKey){
 				var c = unprintable ? 0 : k;
+			console.log("evt.ctrlKey " + evt.ctrlKey)
 				if(evt.ctrlKey){
 					if(k==3 || k==13){
 						return listener.call(evt.currentTarget, evt); // IE will post CTRL-BREAK, CTRL-ENTER as keypress natively
@@ -154,6 +156,7 @@ if(has("events-keypress-typed")){
 					}else{
 						c = _punctMap[c] || c; // map other problematic CTRL combinations to ASCII
 					}
+					console.log("evt.ctrlKey " + c + " " +  _punctMap[c])
 				}
 				// simulate a keypress event
 				var faux = _synthesizeEvent(evt, {type: 'keypress', faux: true, charCode: c});
