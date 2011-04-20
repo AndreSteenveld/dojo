@@ -178,7 +178,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return this; // this depends on strict mode
 		})();
 
-	if(has("jscript") < 5.7 && !has("config-allow-leaks")){ 
+	if(true || (has("jscript") < 5.7 && !has("config-allow-leaks"))){ 
 		// prior to JScript 5.7 all cyclic references caused leaks, by default we memory 
 		// manage IE for JScript < 5.7, but users can opt-out. The code below is executed
 		//	node destroys (dojo.destroy) or on unload and will clear all the event handlers so
@@ -195,6 +195,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		var usedEvents = {}, usedEventsArray; 
 		var cleanupHandler = function(){
 			if(usedEventsArray){
+				console.log("cleaning up " + this.id);
 				for(var i = 0, l = usedEventsArray.length; i < l; i++){
 					if(this[i]){
 						this[i] = null;
@@ -212,10 +213,12 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				var element;
 				while(element = children[--i]){
 					if(element.onpage){ // the indicator that it has events, don't go in the loop unless it is there to move along faster
-						element.onpage(usedEventsArray);
+						element.onpage();
 					}
 				}
-				this.onpage();
+				if(this.onpage){
+					this.onpage();
+				}
 				usedEventsArray = null;
 			}
 		}
@@ -223,7 +226,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			cleanupHandler.call(document);
 		});
 		listen.destroy = function(node, listener){
-			// override this to add onpage listeners after this memory managing one is created
+			// overriding default impl to add onpage listeners after this memory managing one is created
 			return listen(node, "page", listener);
 		}
 	}

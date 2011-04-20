@@ -124,6 +124,9 @@ if(dojo.isIE){
 		//	|	dojo.query(".someNode").forEach(dojo.destroy);
 
 		node = byId(node);
+		if(node.onpage){
+			node.onpage();
+		}
 		node.parentNode ? node.parentNode.removeChild(node) : node
 	};
 
