@@ -135,7 +135,9 @@ define("dojo/aspect",[], function(){
 						before = before.next;
 					}
 					// around advice 
-					var results = (typeof dispatcher.around == "object") ? dispatcher.around.advice(this, args) : args;
+					if(typeof dispatcher.around == "object"){
+						var results = dispatcher.around.advice(this, args);
+					}
 					// after advice
 					var after = dispatcher.after;
 					while(after){
