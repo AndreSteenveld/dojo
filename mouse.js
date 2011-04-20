@@ -1,4 +1,4 @@
-define(["./_base/kernel", "./listen"], function(dojo, listen){
+define(["./_base/kernel", "./listen", "./has"], function(dojo, listen, has){
 	// summary:
 	// 		This module provide mouse event handling utility functions and exports
 	// 		mouseenter and mouseleave event emulation.
@@ -17,14 +17,10 @@ define(["./_base/kernel", "./listen"], function(dojo, listen){
 	//		|		listen(targetNode, mouse.leave, function(event){
 	// 		|			dojo.removeClass(targetNode, "highlighted");
 	//		|		});
-	function has(feature){
-		return {
-			"dom-quirks": document.compatMode == "BackCompat",
-			"dom-addeventlistener": document.addEventListener
-		}[feature];
-	}
+	has.add("dom-quirks", document.compatMode == "BackCompat");
+	has.add("events-mouseenter", "onmouseenter" in document);
 	var mouseButtons;
-	if(has("dom-quirks") && !has("dom-addeventlistener")){
+	if(has("dom-quirks") || !has("dom-addeventlistener")){
 		mouseButtons = {
 			LEFT:   1,
 			MIDDLE: 4,
@@ -100,11 +96,7 @@ define(["./_base/kernel", "./listen"], function(dojo, listen){
 		}
 	};
 =====*/
-	function has(feature){
-		return {
-			"events-mouseenter": "onmouseenter" in document
-		}[feature];
-	}
+
 	if(has("events-mouseenter")){
 		var eventHandler = function(type){
 			// essentially a pass through, the browser already has mouseenter/leave
