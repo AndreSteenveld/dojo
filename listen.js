@@ -162,6 +162,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
 			target.onpage = cleanupNode;
 			usedEvents[type] = true; // register it as one of the used events
+			usedEventsArray = null; // empty cache
 		}
 		if(fixListener && target.attachEvent){
 			return fixListener(target, "on" + type, listener);
@@ -178,7 +179,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return this; // this depends on strict mode
 		})();
 
-	if(true || (has("jscript") < 5.7 && !has("config-allow-leaks"))){ 
+	if(has("jscript") < 6 && !has("config-allow-leaks")){ 
 		// prior to JScript 5.7 all cyclic references caused leaks, by default we memory 
 		// manage IE for JScript < 5.7, but users can opt-out. The code below is executed
 		//	node destroys (dojo.destroy) or on unload and will clear all the event handlers so
@@ -207,7 +208,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				if(node.onpage){
 					node.onpage();
 				}
-				usedEventsArray = null;
 			}
 		};
 		var cleanupNode = function (){
