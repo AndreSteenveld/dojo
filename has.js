@@ -98,7 +98,7 @@ define(["require"], function(require) {
 		// can optimize these away iff desired
 		has.add("host-browser", isBrowser);
 		has.add("dom", isBrowser);
-		has.add("host-addEventListener", doc && !!doc.addEventListener);
+		has.add("dom-addeventlistener", !!document.addEventListener);
 		has.add("loader-pageLoadApi", 1);
 		has.add("dojo-sniff", 1);
 	}

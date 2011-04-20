@@ -47,7 +47,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	var attachEvent, after = aspect.after;
 	if(typeof window != "undefined"){ // check to make sure we are in a browser, this module should work anywhere
 		var major = window.ScriptEngineMajorVersion;
-		has.add("dom-addeventlistener", !!document.addEventListener);
 		has.add("config-allow-leaks", dojo.config._allow_leaks); // TODO: I think we can have config settings be assigned in kernel or bootstrap
 		has.add("jscript", major && (major() + ScriptEngineMinorVersion() / 10));
 		has.add("event-orientationchange", has("touch") && !dojo.isAndroid); // TODO: how do we detect this?
