@@ -54,7 +54,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	var undefinedThis = (function(){
 		return this; // this depends on strict mode
 	})();
-	
 	var listen = function(target, type, listener, dontFix){
 		if(!listener){
 			// two args, do pub/sub
@@ -145,7 +144,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				target = window;
 				listener = fixTouchListener(listener);
 			} 
-		} 		
+		}
 		// normal path, the target is |this|
 		if(target.addEventListener){
 			// the target has addEventListener, which should be used if available (might or might not be a node, non-nodes can implement this method as well)
@@ -158,9 +157,11 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return signal;
 		}
 
-		if(target.attachEvent && cleanupNode && !target.onpage){
+		if(target.attachEvent && cleanupNode){
 			// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
-			target.onpage = cleanupNode;
+			if(!target.onpage){
+				target.onpage = cleanupNode;
+			}
 			usedEvents[type] = true; // register it as one of the used events
 			usedEventsArray = null; // empty cache
 		}
@@ -193,7 +194,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		// page is unloaded even when no cycles are present and GC is working properly.
 		// This memory management mechanism (clearing event handlers on unload/destroy)
 		// avoids adding extra memory leaks while still helping to prevent page transition leaks.
-		var usedEvents = {}, usedEventsArray; 
+		var usedEvents = {page:true}, usedEventsArray; 
 		var cleanup = dojo._cleanup = function(node){
 			// top level, need to create array and recurse down
 			if(node.getElementsByTagName){

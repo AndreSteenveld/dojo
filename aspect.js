@@ -152,7 +152,9 @@ define("dojo/aspect",[], function(){
 					return existing.apply(target, args);
 				}} : "none";
 			}
-			return advise((dispatcher || existing), type, advice, receiveArguments);
+			var results = advise((dispatcher || existing), type, advice, receiveArguments);
+			advice = null;
+			return results;
 		};
 	}
 	return {
