@@ -158,9 +158,9 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return signal;
 		}
 
-		if(target.attachEvent && cleanupHandler && !target.onpage){
+		if(target.attachEvent && cleanupNode && !target.onpage){
 			// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
-			target.onpage = cleanupHandler;
+			target.onpage = cleanupNode;
 			usedEvents[type] = true; // register it as one of the used events
 		}
 		if(fixListener && target.attachEvent){
@@ -191,39 +191,41 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		// actually introduces a memory leak for in page actions, as the reference won't be eliminated until the 
 		// page is unloaded even when no cycles are present and GC is working properly.
 		// This memory management mechanism (clearing event handlers on unload/destroy)
-		// avoids adding extra memory leaks while still helping to prevent page transition leaks. 
+		// avoids adding extra memory leaks while still helping to prevent page transition leaks.
 		var usedEvents = {}, usedEventsArray; 
-		var cleanupHandler = function(){
-			if(usedEventsArray){
-				console.log("cleaning up " + this.id);
-				for(var i = 0, l = usedEventsArray.length; i < l; i++){
-					if(this[i]){
-						this[i] = null;
-					}
-				}
-			}else{
-				// top level, need to create array and recurse down
-				usedEventsArray = [];
-				for(var i in usedEvents){
-					usedEventsArray.push("on" + i);
-				}
-				var children = this.getElementsByTagName("*");
+		var cleanup = dojo._cleanup = function(node){
+			// top level, need to create array and recurse down
+			if(node.getElementsByTagName){
+				var children = node.getElementsByTagName("*");
 				i = children.length;
-				var eventsLength = usedEventsArray.length;
 				var element;
 				while(element = children[--i]){
 					if(element.onpage){ // the indicator that it has events, don't go in the loop unless it is there to move along faster
 						element.onpage();
 					}
 				}
-				if(this.onpage){
-					this.onpage();
+				if(node.onpage){
+					node.onpage();
 				}
 				usedEventsArray = null;
 			}
+		};
+		var cleanupNode = function (){
+			if(!usedEventsArray){
+				// it is from the higher scope so it is cached
+				usedEventsArray = [];
+				for(var i in usedEvents){
+					usedEventsArray.push("on" + i);
+				}
+			}
+			for(var i = 0, l = usedEventsArray.length; i < l; i++){
+				if(this[usedEventsArray[i]]){
+					this[usedEventsArray[i]] = null;
+				}
+			}
 		}
 		listen(window, "unload", function(){
-			cleanupHandler.call(document);
+			cleanup(document);
 		});
 		listen.destroy = function(node, listener){
 			// overriding default impl to add onpage listeners after this memory managing one is created
