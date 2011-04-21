@@ -88,9 +88,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	}
 	var touchEvents = /^touch/;
 	function addListener(target, type, listener, dontFix, matchesTarget){
-		if(target.tagName == "BODY"){
-			debugger;
-		}
 		if(type.call){
 			// event handler function
 			// listen(node, dojo.touch.press, touchListener);
@@ -160,32 +157,35 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			target.addEventListener(type, listener, false);
 			return signal;
 		}
-		
+		type = "on" + type;
 		if(target.uniqueID && cleanupNode){
 			// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
-/*			var onpage = target.onpage; 
-			if(!onpage){
-				target.onpage = onpage = cleanupNode;
-			}
-			onpage.usedEvents[type] = true; // register it as one of the used events
-			onpage.usedEventsArray = null; // empty cache*/
 			//connected[target.uniqueID] = target;
-			var uniqueID = target.nodeType == 9 ? "document" : target.uniqueID;
-			var newTarget = __delegate__[uniqueID];
-			if(!newTarget){
-				newTarget = __delegate__[uniqueID] = {};
+			if(true || has("config-use-global-redirect")){
+				var uniqueID = target.nodeType == 9 ? "document" : target.uniqueID;
+				var newTarget = __ieDispatch__[uniqueID];
+				if(!newTarget){
+					newTarget = __ieDispatch__[uniqueID] = {};
+				}
+				if(target[type] != __ieDispatch__){
+					newTarget[type] = target[type];
+					target[type] = __ieDispatch__;
+				}
+				return fixListener(newTarget, type, listener);
+			}else{
+				var onpage = target.onpage; 
+				if(!onpage){
+					target.onpage = onpage = cleanupNode;
+				}
+				onpage.usedEvents[type] = true; // register it as one of the used events
+				onpage.usedEventsArray = null; // empty cache*/
 			}
-			if(target["on" + type] != __delegate__){
-				newTarget["on" + type] = target["on" + type];
-				target["on" + type] = __delegate__;
-			}
-			return fixListener(newTarget, "on" + type, listener);
 		}
-/*		if(fixListener && target.attachEvent){
-			
-		}*/
+		if(fixListener && target.attachEvent){
+			return fixListener(target, type, listener);
+		}
 	 // use aop
-		return after(target, "on" + type, listener, true);
+		return after(target, type, listener, true);
 	}
 	listen.destroy = function(node, listener){
 		// summary:
@@ -244,9 +244,9 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		cleanupNode.usedEvents = {page:true};
 		// register to cleanup afterwards
 		listen(window, "unload", function(){
-			for(var i in __delegate__){
-				delete __delegate__[i];
-			}
+/*			for(var i in __ieDispatch__){
+				delete __ieDispatch__[i];
+			}*/
 			cleanup(document);
 /*			var leaks = [];
 			for(var i in connected){
@@ -477,4 +477,4 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	};
 	return listen;
 });
-__delegate__ = new Function('var uniqueID = this.nodeType == 9 ? "document" : this.uniqueID;if(uniqueID)return __delegate__[uniqueID]["on" + event.type].call(this, event);');
+__ieDispatch__ = new Function('var uniqueID = this.nodeType == 9 ? "document" : this.uniqueID;if(uniqueID)return __ieDispatch__[uniqueID]["on" + event.type].call(this, event);');
