@@ -1,4 +1,4 @@
-define(["./kernel", "../listen", "./keypress", "../has"], function(dojo, listen, keypress, has){
+define(["./kernel", "../listen", "../has"], function(dojo, listen, has){
   //  module:
   //    dojo/_base/event
   //  summary:
@@ -35,10 +35,6 @@ define(["./kernel", "../listen", "./keypress", "../has"], function(dojo, listen,
 		if(listen._fixEvent){
 			return listen._fixEvent(evt, sender);
 		}
-/*		TODO: Fix this
- * if(evt.type == "keydown" || evt.type == "keypress"){
-			return keypress.fixEvent(evt);
-		}*/
 		return evt;
 	};
 	
