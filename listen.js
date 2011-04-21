@@ -181,8 +181,8 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		})();
 
 	if(has("jscript") < 6 && !has("config-allow-leaks")){ 
-		// prior to JScript 5.7 all cyclic references caused leaks, by default we memory 
-		// manage IE for JScript < 5.7, but users can opt-out. The code below is executed
+		// JScript 5.8 and earlier is very leaky, by default we memory 
+		// manage IE for JScript < 6, but users can opt-out. The code below is executed
 		//	node destroys (dojo.destroy) or on unload and will clear all the event handlers so
 		// that the nodes GC'ed.
 		// The previous dojo.connect code included some code to help protect against notorious memory leaks in IE with 
@@ -225,6 +225,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				}
 			}
 		}
+		// register to cleanup afterwards
 		listen(window, "unload", function(){
 			cleanup(document);
 		});
