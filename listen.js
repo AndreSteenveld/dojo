@@ -244,6 +244,9 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		cleanupNode.usedEvents = {page:true};
 		// register to cleanup afterwards
 		listen(window, "unload", function(){
+			for(var i in __delegate__){
+				delete __delegate__[i];
+			}
 			cleanup(document);
 /*			var leaks = [];
 			for(var i in connected){
@@ -474,7 +477,4 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	};
 	return listen;
 });
-function __delegate__(){
-	var uniqueID = this.nodeType == 9 ? "document" : this.uniqueID;
-	return __delegate__[uniqueID]["on" + event.type].call(this, event);
-}
+__delegate__ = new Function('var uniqueID = this.nodeType == 9 ? "document" : this.uniqueID;if(uniqueID)return __delegate__[uniqueID]["on" + event.type].call(this, event);');
