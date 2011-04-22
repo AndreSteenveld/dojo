@@ -36,7 +36,7 @@ define(["./_base/kernel", "./has"], function(dojo, has){
 				//		When set to true, this will ensure that only valid, secure JSON is ever parsed.
 				// 		Make sure this is set to true for untrusted content. Note that on browsers/engines
 				//		without native JSON support, setting this to true will run slower.
-				if(strict && !/^([\s\[\{]*(null|true|false|-?\d[\d\.]*([Ee][+-]?\d+)?|"(\\.|[^"])+")[\s\]\}]*(:|,|$))+$/.test(str)){
+				if(strict && !/^([\s\[\{]*(?:"(?:\\.|[^"])+"|-?\d[\d\.]*(?:[Ee][+-]?\d+)?|null|true|false|)[\s\]\}]*(?:,|:|$))+$/.test(str)){
 					throw new SyntaxError("Invalid characters in JSON");
 				}
 				return eval('(' + str + ')');
