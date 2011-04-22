@@ -1002,15 +1002,11 @@
 						if(syncDepth && !isXdPath(url)){
 							execQ.push(module);
 							++syncDepth;
-							try{
-								// always synchronous...
-								getText(url, 0, function(text){
-									injecting.push(module);
-									reqEval(text, module.path);
-								});
-							}catch(e){
-								req.onError("loader/failed-sync", [pqn, url, e]);
-							}
+							// always synchronous...
+							getText(url, 0, function(text){
+								injecting.push(module);
+								reqEval(text, module.path);
+							});
 							--syncDepth;
 							injecting.pop();
 							onLoadCallback(1);
