@@ -86,6 +86,12 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	prototype.on = function(type, listener, dontFix){
 		return addListener(this, type, listener, dontFix, this);
 	}
+	function IESignal(handle){
+		this.handle = handle;
+	}
+	IESignal.prototype.cancel = function(){
+ 		delete dojo.global.__ieListeners__[this.handle];		
+	}
 	var touchEvents = /^touch/;
 	function addListener(target, type, listener, dontFix, matchesTarget){
 		if(type.call){
@@ -160,16 +166,38 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		type = "on" + type;
 		if(cleanupNode && (target.uniqueID || target.Math)){
 			if(true || has("config-use-global-redirect")){
+				var listeners = dojo.global.__ieListeners__; 
+				if(!listeners){
+					dojo.global.__ieListeners__ = listeners = [];
+					
+				}
+				var dispatcher = target[type];
+				if(!dispatcher || !dispatcher.listeners){
+					var oldListener = dispatcher;
+					target[type] = dispatcher = Function('var callee = arguments.callee; for(var i = 0; i<callee.listeners.length; i++){var listener = dojo.global.__ieListeners__[callee.listeners[i]]; if(listener){listener.call(this,event);}}');
+					dispatcher.listeners = [];
+					if(oldListener){
+						dispatcher.listeners.push(listeners.push(oldListener));
+					}
+				}
+				var handle;
+				
+				dispatcher.listeners.push(handle = listeners.push(fixListener(listener)));
+				return new IESignal(handle);
+				/*
+				target[type] = new win.Function('var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
+				new win.Function('var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
 				// use global redirection to fix memory leaks here
 				var win = target.ownerDocument ? target.ownerDocument.parentWindow : target.parentWindow || target;  
 				var dispatcher = win.__ieDispatcher__;
 				if(!dispatcher){
-					dispatcher = win.__ieDispatcher__ = new win.Function('var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
+					dispatcher = win.__ieDispatcher__ = 
+					win.__ieListeners__ = {};
+					addListener(win, "unload", function(){
+						win.__ieListeners__ = null;
+					});
 				}
 				var listeners = win.__ieListeners__;
-				if(!listeners){
-					win.__ieListeners__ = listeners = {};
-				}
 				var uniqueID = target.nodeType == 9 ? "document" : target.uniqueID;
 				var newTarget = listeners[uniqueID];
 				if(!newTarget){
@@ -179,7 +207,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 					newTarget[type] = target[type];
 					target[type] = dispatcher;
 				}
-				return fixListener(newTarget, type, listener);
+				return fixListener(newTarget, type, listener);*/
 			}else{
 				// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
 				var onpage = target.onpage; 
@@ -191,7 +219,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			}
 		}
 		if(fixListener && target.attachEvent){
-			return fixListener(target, type, listener);
+			listener = fixListener(target, type, listener);
 		}
 	 // use aop
 		return after(target, type, listener, true);
@@ -279,13 +307,11 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			}
 			return evt;
 		}
-		var fixListener = function(target, type, listener){
-			var signal = after(target, type, function(evt){
+		var fixListener = function(listener){
+			return function(evt){
 				evt = listen._fixEvent(evt, this);
 				return listener.call(this, evt);
-			}, true);
-			target = null;
-			return signal;
+			};
 		};
 
 		var _setKeyChar = function(evt){
@@ -367,6 +393,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		listen(window, "unload", function(){
 /*			*/
 			cleanup(document);
+			//__ieListeners__ = null;
 //			for(var i in __ieListeners__){
 	//			delete __ieListeners__[i];
 		//	}
