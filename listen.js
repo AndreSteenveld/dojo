@@ -1,3 +1,4 @@
+
 define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 // summary:
 //		The export of this module is a function that provides core event listening functionality. With this function
@@ -44,7 +45,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 //
 //
  	"use strict";
- 	connected = {};
 	var after = aspect.after;
 	if(typeof window != "undefined"){ // check to make sure we are in a browser, this module should work anywhere
 		var major = window.ScriptEngineMajorVersion;
@@ -158,21 +158,30 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			return signal;
 		}
 		type = "on" + type;
-		if(target.uniqueID && cleanupNode){
-			// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
-			//connected[target.uniqueID] = target;
+		if(cleanupNode && (target.uniqueID || target.Math)){
 			if(true || has("config-use-global-redirect")){
-				var uniqueID = target.nodeType == 9 ? "document" : target.uniqueID;
-				var newTarget = __ieDispatch__[uniqueID];
-				if(!newTarget){
-					newTarget = __ieDispatch__[uniqueID] = {};
+				// use global redirection to fix memory leaks here
+				var win = target.ownerDocument ? target.ownerDocument.parentWindow : target.parentWindow || target;  
+				var dispatcher = win.__ieDispatcher__;
+				if(!dispatcher){
+					dispatcher = win.__ieDispatcher__ = new win.Function('var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
 				}
-				if(target[type] != __ieDispatch__){
+				var listeners = win.__ieListeners__;
+				if(!listeners){
+					win.__ieListeners__ = listeners = {};
+				}
+				var uniqueID = target.nodeType == 9 ? "document" : target.uniqueID;
+				var newTarget = listeners[uniqueID];
+				if(!newTarget){
+					newTarget = listeners[uniqueID] = {};
+				}
+				if(target[type] != dispatcher){
 					newTarget[type] = target[type];
-					target[type] = __ieDispatch__;
+					target[type] = dispatcher;
 				}
 				return fixListener(newTarget, type, listener);
 			}else{
+				// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
 				var onpage = target.onpage; 
 				if(!onpage){
 					target.onpage = onpage = cleanupNode;
@@ -195,121 +204,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	var undefinedThis = (function(){
 			return this; // this depends on strict mode
 		})();
-
-	if(has("jscript") < 6 && !has("config-allow-leaks")){ 
-		// JScript 5.8 and earlier is very leaky, by default we memory 
-		// manage IE for JScript < 6, but users can opt-out. The code below is executed
-		//	node destroys (dojo.destroy) or on unload and will clear all the event handlers so
-		// that the nodes GC'ed.
-		// The previous dojo.connect code included some code to help protect against notorious memory leaks in IE with 
-		// reference cycles. This worked by adding the global object into the reference chain that often is cyclic. The 
-		// global object is basically always destroyed on page unload, and this break the cycle allowing nodes and 
-		// references to be properly GC'ed. This hels prevent memory leaks on page transitions for earlier versions of IE. This mechanism 
-		// isn't ideal. Adding the global into the reference chain effectively pins the reference cycle in memory. This 
-		// actually introduces a memory leak for in page actions, as the reference won't be eliminated until the 
-		// page is unloaded even when no cycles are present and GC is working properly.
-		// This memory management mechanism (clearing event handlers on unload/destroy)
-		// avoids adding extra memory leaks while still helping to prevent page transition leaks.
-		var cleanup = dojo._cleanup = function(node){
-			// top level, need to create array and recurse down
-			if(node.getElementsByTagName){
-				var children = node.getElementsByTagName("*");
-				i = children.length;
-				var element;
-				while(element = children[--i]){
-					if(element.onpage){ // the indicator that it has events, don't go in the loop unless it is there to move along faster
-						element.onpage();
-					}
-				}
-				if(node.onpage){
-					node.onpage();
-				}
-			}
-		};
-		var cleanupNode = function (){
-			var usedEventsArray = cleanupNode.usedEventsArray;
-			if(!usedEventsArray){
-				// it is from the higher scope so it is cached
-				cleanupNode.usedEventsArray = usedEventsArray = [];
-				for(var i in cleanupNode.usedEvents){
-					usedEventsArray.push("on" + i);
-				}
-			}
-			for(var i = 0, l = usedEventsArray.length; i < l; i++){
-				if(this[usedEventsArray[i]]){
-					this[usedEventsArray[i]] = null;
-				}
-			}
-		}
-		cleanupNode.usedEvents = {page:true};
-		// register to cleanup afterwards
-		listen(window, "unload", function(){
-/*			for(var i in __ieDispatch__){
-				delete __ieDispatch__[i];
-			}*/
-			cleanup(document);
-/*			var leaks = [];
-			for(var i in connected){
-				node = connected[i];
-				for(var j in node){
-					if(node[j] && j.substring(0,2) == "on" && node !== window){
-						leaks.push([j, node]);
-					}
-				}
-			}
-			if(leaks.length){
-				debugger;
-			}*/
-		});
-		listen.destroy = function(node, listener){
-			// overriding default impl to add onpage listeners after this memory managing one is created
-			return listen(node, "page", listener);
-		}
-	}
-	
-	function syntheticPreventDefault(){
-		this.cancelable = false;
-	}
-	function syntheticStopPropagation(){
-		this.bubbles = false;
-	}
-	var syntheticDispatch = listen.dispatch = function(target, type, event){
-		// summary:
-		//		Fires an event on the target object.
-		//	target:
-		//		The target object to fire the event on
-		//	type:
-		//		The event type name
-		//	event:
-		//		An object to use as the event. See https://developer.mozilla.org/en/DOM/event.initEvent for some of the properties.
-		//	example:
-		//		To fire our own click event
-		//	|	listen.dispatch(dojo.byId("button"), "click", {
-		//	|		cancelable: true,
-		//	|		bubbles: true,
-		//	|		screenX: 33,
-		//	|		screenY: 44
-		//	|	});
-		//		We can also fire our own custom events:
-		//	|	listen.dispatch(dojo.byId("slider"), "swipe", {
-		//	|		cancelable: true,
-		//	|		bubbles: true,
-		//	|		direction: "left-to-right"
-		//	|	});
-		var method = "on" + type;
-		if("parentNode" in target){
-			// node (or node-like), create event controller methods
-			event.preventDefault = syntheticPreventDefault;
-			event.stopPropagation = syntheticStopPropagation;
-			event.target = target;
-		}
-		do{
-			// call any node which has a handler (note that ideally we would try/catch to simulate normal event propagation but that causes too much pain for debugging)
-			target[method] && target[method].call(target, event);
-			// and then continue up the parent node chain if it is still bubbling (if started as bubbles and stopPropagation hasn't been called)
-		}while(event.bubbles && (target = target.parentNode));
-		return event.cancelable; // if it is still true (was cancelable and was cancelled, return true to indicate default action should happen)
-	};
 
 	if(has("dom-addeventlistener")){
 		// dispatcher that works with native event handling
@@ -421,6 +315,125 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			this.returnValue = false;
 		};
 	}
+
+
+	if(has("jscript") < 6 && !has("config-allow-leaks")){ 
+		// JScript 5.8 and earlier is very leaky, by default we memory 
+		// manage IE for JScript < 6, but users can opt-out. The code below is executed
+		//	node destroys (dojo.destroy) or on unload and will clear all the event handlers so
+		// that the nodes GC'ed.
+		// The previous dojo.connect code included some code to help protect against notorious memory leaks in IE with 
+		// reference cycles. This worked by adding the global object into the reference chain that often is cyclic. The 
+		// global object is basically always destroyed on page unload, and this break the cycle allowing nodes and 
+		// references to be properly GC'ed. This hels prevent memory leaks on page transitions for earlier versions of IE. This mechanism 
+		// isn't ideal. Adding the global into the reference chain effectively pins the reference cycle in memory. This 
+		// actually introduces a memory leak for in page actions, as the reference won't be eliminated until the 
+		// page is unloaded even when no cycles are present and GC is working properly.
+		// This memory management mechanism (clearing event handlers on unload/destroy)
+		// avoids adding extra memory leaks while still helping to prevent page transition leaks.
+		var cleanup = dojo._cleanup = function(node){
+			// top level, need to create array and recurse down
+			if(node.getElementsByTagName){
+				var children = node.getElementsByTagName("*");
+				i = children.length;
+				var element;
+				while(element = children[--i]){
+					if(element.onpage){ // the indicator that it has events, don't go in the loop unless it is there to move along faster
+						element.onpage();
+					}
+				}
+				if(node.onpage){
+					node.onpage();
+				}
+			}
+		};
+		var cleanupNode = function (){
+			var usedEventsArray = cleanupNode.usedEventsArray;
+			if(!usedEventsArray){
+				// it is from the higher scope so it is cached
+				cleanupNode.usedEventsArray = usedEventsArray = [];
+				for(var i in cleanupNode.usedEvents){
+					usedEventsArray.push("on" + i);
+				}
+			}
+			for(var i = 0, l = usedEventsArray.length; i < l; i++){
+				if(this[usedEventsArray[i]]){
+					this[usedEventsArray[i]] = null;
+				}
+			}
+		}
+		cleanupNode.usedEvents = {page:true};
+		// register to cleanup afterwards
+		listen(window, "unload", function(){
+/*			*/
+			cleanup(document);
+//			for(var i in __ieListeners__){
+	//			delete __ieListeners__[i];
+		//	}
+			//window.onunload = null;
+/*			var leaks = [];
+			for(var i in connected){
+				node = connected[i];
+				for(var j in node){
+					if(node[j] && j.substring(0,2) == "on" && node !== window){
+						leaks.push([j, node]);
+					}
+				}
+			}
+			if(leaks.length){
+				debugger;
+			}*/
+		});
+		listen.destroy = function(node, listener){
+			// overriding default impl to add onpage listeners after this memory managing one is created
+			return listen(node, "page", listener);
+		}
+	}
+	
+	function syntheticPreventDefault(){
+		this.cancelable = false;
+	}
+	function syntheticStopPropagation(){
+		this.bubbles = false;
+	}
+	var syntheticDispatch = listen.dispatch = function(target, type, event){
+		// summary:
+		//		Fires an event on the target object.
+		//	target:
+		//		The target object to fire the event on
+		//	type:
+		//		The event type name
+		//	event:
+		//		An object to use as the event. See https://developer.mozilla.org/en/DOM/event.initEvent for some of the properties.
+		//	example:
+		//		To fire our own click event
+		//	|	listen.dispatch(dojo.byId("button"), "click", {
+		//	|		cancelable: true,
+		//	|		bubbles: true,
+		//	|		screenX: 33,
+		//	|		screenY: 44
+		//	|	});
+		//		We can also fire our own custom events:
+		//	|	listen.dispatch(dojo.byId("slider"), "swipe", {
+		//	|		cancelable: true,
+		//	|		bubbles: true,
+		//	|		direction: "left-to-right"
+		//	|	});
+		var method = "on" + type;
+		if("parentNode" in target){
+			// node (or node-like), create event controller methods
+			event.preventDefault = syntheticPreventDefault;
+			event.stopPropagation = syntheticStopPropagation;
+			event.target = target;
+		}
+		do{
+			// call any node which has a handler (note that ideally we would try/catch to simulate normal event propagation but that causes too much pain for debugging)
+			target[method] && target[method].call(target, event);
+			// and then continue up the parent node chain if it is still bubbling (if started as bubbles and stopPropagation hasn't been called)
+		}while(event.bubbles && (target = target.parentNode));
+		return event.cancelable; // if it is still true (was cancelable and was cancelled, return true to indicate default action should happen)
+	};
+
 	if(has("touch")){ 
 		var windowOrientation = window.orientation; 
 		var Event = function (){};
@@ -477,4 +490,3 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 	};
 	return listen;
 });
-__ieDispatch__ = new Function('var uniqueID = this.nodeType == 9 ? "document" : this.uniqueID;if(uniqueID)return __ieDispatch__[uniqueID]["on" + event.type].call(this, event);');
