@@ -7,6 +7,7 @@ define([
 	"dojo/tests/data",
 	"dojo/tests/date",
 	"dojo/tests/listen",
+	"dojo/tests/json",
 	"dojo/tests/aspect",
 	"dojo/tests/number",
 	"dojo/tests/currency",
