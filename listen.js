@@ -174,15 +174,15 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				var dispatcher = target[type];
 				if(!dispatcher || !dispatcher.listeners){
 					var oldListener = dispatcher;
-					target[type] = dispatcher = Function('var callee = arguments.callee; for(var i = 0; i<callee.listeners.length; i++){var listener = dojo.global.__ieListeners__[callee.listeners[i]]; if(listener){listener.call(this,event);}}');
+					target[type] = dispatcher = Function('event', 'var callee = arguments.callee; for(var i = 0; i<callee.listeners.length; i++){var listener = dojo.global.__ieListeners__[callee.listeners[i]]; if(listener){listener.call(this,event);}}');
 					dispatcher.listeners = [];
 					if(oldListener){
-						dispatcher.listeners.push(listeners.push(oldListener));
+						dispatcher.listeners.push(listeners.push(oldListener) - 1);
 					}
 				}
 				var handle;
 				
-				dispatcher.listeners.push(handle = listeners.push(fixListener(listener)));
+				dispatcher.listeners.push(handle = (listeners.push(fixListener(listener)) - 1));
 				return new IESignal(handle);
 				/*
 				target[type] = new win.Function('var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
