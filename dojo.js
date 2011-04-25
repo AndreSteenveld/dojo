@@ -1112,14 +1112,14 @@
 	}
 
 	if(has("dom")){
-		has.add("dom-addEventListener", !!doc.addEventListener);
+		has.add("dom-addeventlistener", !!doc.addEventListener);
 	}
 
 	if(has("dom") && (has("loader-pageLoadApi") || has("loader-injectApi"))){
 		var on = function(node, eventName, handler, useCapture, ieEventName){
 			// Add an event listener to a DOM node using the API appropriate for the current browser;
 			// return a function that will disconnect the listener.
-			if(has("dom-addEventListener")){
+			if(has("dom-addeventlistener")){
 				node.addEventListener(eventName, handler, !!useCapture);
 				return function(){
 					node.removeEventListener(eventName, handler, !!useCapture);
@@ -1200,7 +1200,7 @@
 				DOMContentLoadedDisconnector = on(doc, "DOMContentLoaded", detectPageLoaded, false, false);
 			}
 
-			if(!has("dom-addEventListener")){
+			if(!has("dom-addeventlistener")){
 				// note: this code courtesy of James Burke (https://github.com/jrburke/requirejs)
 				//DOMContentLoaded approximation, as found by Diego Perini:
 				//http://javascript.nwbox.com/IEContentLoaded/
@@ -1410,7 +1410,7 @@
 			// other than a deps list being injected. For example, code may define modules on-the-fly due to some user stimulus.
 			// In such cases, there is nothing to trigger the defQ and the dependencies are never requested; therefore, do it here.
 			injectDependencies(defineModule(getModule(args[0]), args[1], args[2]));
-		}else if(has("dom-addEventListener") || !has("host-browser")){
+		}else if(has("dom-addeventlistener") || !has("host-browser")){
 			// anonymous module and therefore must have been injected and not IE; therefore, onLoad will fire immediately
 			// after script finishes being evaluated and the defQ can be run from that callback to detect the module id
 			defQ.push(args);
