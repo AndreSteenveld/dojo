@@ -780,6 +780,7 @@
 					}
 				}else{
 					module.result = runFactory(pqn, module.def, args, module.cjs);
+					module.executed = executed;
 				}
 				if(module.loadQ){
 					// this was a plugin module
