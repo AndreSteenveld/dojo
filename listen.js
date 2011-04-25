@@ -185,13 +185,11 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 				dispatcher.listeners.push(handle = (listeners.push(fixListener(listener)) - 1));
 				return new IESignal(handle);
 				/*
-				target[type] = new win.Function('var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
-				new win.Function('var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
 				// use global redirection to fix memory leaks here
 				var win = target.ownerDocument ? target.ownerDocument.parentWindow : target.parentWindow || target;  
 				var dispatcher = win.__ieDispatcher__;
 				if(!dispatcher){
-					dispatcher = win.__ieDispatcher__ = 
+					dispatcher = win.__ieDispatcher__ = new win.Function('event', 'event = event || window.event; var uniqueID=this.nodeType==9?"document":this.uniqueID;return __ieListeners__[uniqueID]["on" + event.type].call(this, event);');
 					win.__ieListeners__ = {};
 					addListener(win, "unload", function(){
 						win.__ieListeners__ = null;
@@ -207,7 +205,8 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 					newTarget[type] = target[type];
 					target[type] = dispatcher;
 				}
-				return fixListener(newTarget, type, listener);*/
+				return after(newTarget, type, fixListener(listener), true);
+				*/
 			}else{
 				// we set the onpage function to indicate it is a node that needs cleanup. onpage is an unused event in IE, and non-existent elsewhere
 				var onpage = target.onpage; 
@@ -219,7 +218,7 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 			}
 		}
 		if(fixListener && target.attachEvent){
-			listener = fixListener(target, type, listener);
+			listener = fixListener(listener);
 		}
 	 // use aop
 		return after(target, type, listener, true);
@@ -229,10 +228,55 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		//		Extension event that is fired when a node is destroyed (through dojo.destroy)
 		return after(node, "onpage", listener);
 	}
+
+	function syntheticPreventDefault(){
+		this.cancelable = false;
+	}
+	function syntheticStopPropagation(){
+		this.bubbles = false;
+	}
+	var syntheticDispatch = listen.dispatch = function(target, type, event){
+		// summary:
+		//		Fires an event on the target object.
+		//	target:
+		//		The target object to fire the event on
+		//	type:
+		//		The event type name
+		//	event:
+		//		An object to use as the event. See https://developer.mozilla.org/en/DOM/event.initEvent for some of the properties.
+		//	example:
+		//		To fire our own click event
+		//	|	listen.dispatch(dojo.byId("button"), "click", {
+		//	|		cancelable: true,
+		//	|		bubbles: true,
+		//	|		screenX: 33,
+		//	|		screenY: 44
+		//	|	});
+		//		We can also fire our own custom events:
+		//	|	listen.dispatch(dojo.byId("slider"), "swipe", {
+		//	|		cancelable: true,
+		//	|		bubbles: true,
+		//	|		direction: "left-to-right"
+		//	|	});
+		var method = "on" + type;
+		if("parentNode" in target){
+			// node (or node-like), create event controller methods
+			event.preventDefault = syntheticPreventDefault;
+			event.stopPropagation = syntheticStopPropagation;
+			event.target = target;
+			event.type = type;
+		}
+		do{
+			// call any node which has a handler (note that ideally we would try/catch to simulate normal event propagation but that causes too much pain for debugging)
+			target[method] && target[method].call(target, event);
+			// and then continue up the parent node chain if it is still bubbling (if started as bubbles and stopPropagation hasn't been called)
+		}while(event.bubbles && (target = target.parentNode));
+		return event.cancelable; // if it is still true (was cancelable and was cancelled, return true to indicate default action should happen)
+	};
+
 	var undefinedThis = (function(){
 			return this; // this depends on strict mode
 		})();
-
 	if(has("dom-addeventlistener")){
 		// dispatcher that works with native event handling
 		listen.dispatch = function(target, type, event){
@@ -417,49 +461,6 @@ define(["./aspect", "./_base/kernel", "./has"], function(aspect, dojo, has){
 		}
 	}
 	
-	function syntheticPreventDefault(){
-		this.cancelable = false;
-	}
-	function syntheticStopPropagation(){
-		this.bubbles = false;
-	}
-	var syntheticDispatch = listen.dispatch = function(target, type, event){
-		// summary:
-		//		Fires an event on the target object.
-		//	target:
-		//		The target object to fire the event on
-		//	type:
-		//		The event type name
-		//	event:
-		//		An object to use as the event. See https://developer.mozilla.org/en/DOM/event.initEvent for some of the properties.
-		//	example:
-		//		To fire our own click event
-		//	|	listen.dispatch(dojo.byId("button"), "click", {
-		//	|		cancelable: true,
-		//	|		bubbles: true,
-		//	|		screenX: 33,
-		//	|		screenY: 44
-		//	|	});
-		//		We can also fire our own custom events:
-		//	|	listen.dispatch(dojo.byId("slider"), "swipe", {
-		//	|		cancelable: true,
-		//	|		bubbles: true,
-		//	|		direction: "left-to-right"
-		//	|	});
-		var method = "on" + type;
-		if("parentNode" in target){
-			// node (or node-like), create event controller methods
-			event.preventDefault = syntheticPreventDefault;
-			event.stopPropagation = syntheticStopPropagation;
-			event.target = target;
-		}
-		do{
-			// call any node which has a handler (note that ideally we would try/catch to simulate normal event propagation but that causes too much pain for debugging)
-			target[method] && target[method].call(target, event);
-			// and then continue up the parent node chain if it is still bubbling (if started as bubbles and stopPropagation hasn't been called)
-		}while(event.bubbles && (target = target.parentNode));
-		return event.cancelable; // if it is still true (was cancelable and was cancelled, return true to indicate default action should happen)
-	};
 
 	if(has("touch")){ 
 		var windowOrientation = window.orientation; 
