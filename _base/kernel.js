@@ -1,5 +1,3 @@
-
-
 (function(eval) {
 define(["../has", "./config", "require"], function(has, config, require){
 	// module:
@@ -41,17 +39,17 @@ define(["../has", "./config", "require"], function(has, config, require){
 		};
 
 
-	// create dojo, dijit, and dojox; initialize _scopeName and possibly publish to the global
-	// namespace: three possible cases:
-	//
-	//	 1. The namespace is not mentioned in config.scopeMap: _scopeName is set to the default
-	//			name (dojo, dijit, or dojox), and the object is published to the global namespace
-	//
-	//	 2. The namespace is mentioned with a nonempty name: _scopeName is set to the name given
-	//			and the object is published to the global namespace under that name
-	//
-	//	 3. Then namespace is mentioned, but the value is falsy (e.g., ""): _scopeName is set to
-	//			_(dojo|dijit|dojox)<reasonably-unque-number> and the object is *not* published to the global namespace
+    // create dojo, dijit, and dojox; initialize _scopeName and possibly publish to the global
+    // namespace: three possible cases:
+    //
+    //   1. The namespace is not mentioned in config.scopeMap: _scopeName is set to the default
+    //      name (dojo, dijit, or dojox), and the object is published to the global namespace
+    //
+    //   2. The namespace is mentioned with a nonempty name: _scopeName is set to the name given
+    //      and the object is published to the global namespace under that name
+    //
+    //   3. Then namespace is mentioned, but the value is falsy (e.g., ""): _scopeName is set to
+    //       _(dojo|dijit|dojox)<reasonably-unque-number> and the object is *not* published to the global namespace
 	var
 		dojo={
 			config: {},
@@ -66,11 +64,9 @@ define(["../has", "./config", "require"], function(has, config, require){
 		scopeMap[configScopeMap[i][0]]= configScopeMap[i][1];
 	}
 	for(p in temp){
-		if(scopeMap[p]){
-			temp[p]._scopeName= scopeMap[p];
+		temp[p]._scopeName= scopeMap[p];
+		if(!config.noGlobals){
 			dojo.global[scopeMap[p]]= temp[p];
-		}else{
-			temp[p]._scopeName= getGuid("_" + p);
 		}
 	}
 
@@ -101,8 +97,10 @@ define(["../has", "./config", "require"], function(has, config, require){
 		require({paths:config.modulePaths});
 	}
 
+	dojo.isDojoLoader= define.amd && define.amd.vendor=="dojotoolkit.org";
+
 	dojo.isAsync= function() {
-		return require.vendor!="dojotoolkit.org" || require.async;
+		return !dojo.isDojoLoader || require.async;
 	};
 
 
@@ -260,7 +258,7 @@ define(["../has", "./config", "require"], function(has, config, require){
 			}else{
 				p= parts[i++];
 				try{
-					context= (scopeMap[p] && require(scopeMap[p])) || require(p);
+					context= (scopeMap[p] && require(scopeMap[p]));
 				}catch(e){}
 				context= context || (p in dojoGlobal ? dojoGlobal[p] : (create ? dojoGlobal[p] = {} : undefined));
 			}

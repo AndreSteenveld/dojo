@@ -79,20 +79,17 @@
 		},
 
 		toString = {}.toString,
-		functionMarker = "[object Function]",
-		arrayMarker = "[object Array]",
-		stringMarker = "[object String]",
 
 		isFunction = function(it){
-			return toString.call(it) == functionMarker;
+			return toString.call(it) == "[object Function]";
 		},
 
 		isString = function(it){
-			return toString.call(it) == stringMarker;
+			return toString.call(it) == "[object String]";
 		},
 
 		isArray = function(it){
-			return toString.call(it) == arrayMarker;
+			return toString.call(it) == "[object Array]";
 		},
 
 		forEach = function(vector, callback){
@@ -148,7 +145,7 @@
 
 		element = doc && doc.createElement("DiV"),
 
-		has = function(name){
+		has = req.has = function(name){
 			return hasCache[name] = isFunction(hasCache[name]) ? hasCache[name](global, doc, element) : hasCache[name];
 		},
 
@@ -183,25 +180,28 @@
 		rhinoDojoConfig(defaultConfig, baseUrl, rhinoArgs);
 	}
 
-	// userConfig has tests override defaultConfig has tests...
+	// userConfig has tests override defaultConfig has tests; do this after the environment detection because
+	// the environment detection usually sets some has feature values in the hasCache.
 	for(var p in userConfig.has){
 		has.add(p, userConfig.has[p], 0, 1);
 	}
 
 	//
-	// defining the loader data
+	// define the loader data
 	//
 
-	// the loader will use these like symbols
+	// the loader will use these like symbols if the loader has the traceApi; otherwise
+	// define magic numbers so that modules can be provided as part of defaultConfig
 	var
-		requested = {},
-		arrived = {},
-		nonmodule = {},
-		executing = {},
-		executed = {};
+		requested = 1,
+		arrived = 2,
+		nonmodule = 3,
+		executing = 4,
+		executed = 5,
+		execThrew = 6;
 
 	if(has("loader-traceApi")){
-		// these make debugging nice
+		// TODO: consider moving the symbol table to a public API offered by the loader
 		var
 			symbols =
 				{},
@@ -210,266 +210,250 @@
 				return symbols[name] || (symbols[name] = {value:name});
 			};
 
+		// these make debugging nice
 		requested = symbol("requested");
 		arrived = symbol("arrived");
 		nonmodule = symbol("not-a-module");
-
 		executing = symbol("executing");
 		executed = symbol("executed");
+		execThrew = symbol("exec-threw");
 	}
 
-	var
-		// use the function constructor so our eval is scoped in the global space
-		// note: userConfig cannot override; default can override so hosts like node can give something different
-		// note: do this definition as a two-step since the Function constructor has problems with the firebug hint
-		eval =
-			new Function("__text", "return eval(__text);"),
+	// lexical variables that hold key loader data structures; may be completely initialized by
+	// defaultConfig for optimized/built versions of the loader. The packages property is deleted
+	// because it is not used by the loader (package config info is cleaned up and stuffed into
+	// the packs property) and keeping can lead to confusion when inspecting loader props while debuggin
+	var reqEval, pathTransforms, paths, pathsMapProg, packs, packageMap, packageMapProg, modules, cache;
+	mix(req, defaultConfig);
+	delete req.packages;
+	if(!has("loader-auto-initialization")){
+		reqEval= req.eval= req.eval ||
+			// use the function constructor so our eval is scoped in the global space
+			new Function("__text", "__hint", 'return eval(__text + "\\r\\n//@ sourceURL=" + __hint);');
 
-		reqEval = req.eval =
-			defaultConfig.eval || function(text, hint){
-				return eval(text + "\r\n//@ sourceURL=" + hint);
-			},
+		pathTransforms = req.pathTransforms = req.pathTransforms ||
+			// list of functions from URL(string) to (URL(string) | falsy)
+			[];
 
-		nonModuleProps = {
-			injected: arrived,
-			deps: [],
-			def: nonmodule,
-			result: nonmodule,
-			executed: executed
-		},
-
-		pathTransforms =
-			// list of functions from URL(string) to URL(string)
-			req.pathTransforms = [],
-
-		paths =
+		paths = req.paths = req.paths ||
 			// CommonJS paths
-			{},
+			{};
 
-		pathsMapProg =
+		pathsMapProg = req.pathsMapProg = req.pathsMapProg ||
 			// list of (from-path, to-path, regex, length) derived from paths;
 			// a "program" to apply paths; see computeMapProg
-			[],
+			[];
 
-		packages =
-			// a map from packageId to package configuration object
-			{},
+		packs = req.packs = req.packs ||
+			// a map from packageId to package configuration object; see fixupPackageInfo
+			{};
 
-		packageMap =
+		packageMap = req.packageMap = req.packageMap ||
 			// map from package name to local-installed package name
-			{},
+			{};
 
-		packageMapProg =
+		packageMapProg = req.packageMapProg = req.packageMapProg ||
 			// list of (from-package, to-package, regex, length) derived from packageMap;
 			// a "program" to apply paths; see computeMapProg
-			[],
+			[];
 
-		modules =
+		modules = req.modules = req.modules ||
 			// A hash:(pqn) --> (module-object). module objects are simple JavaScript objects with the
 			// following properties:
 			//
-			//	 pid: the package identifier to which the module belongs; "" indicates the system or default package
-			//	 id: the module identifier without the package identifier
-			//	 pqn: the full context-qualified name
+			//	 pid: the package identifier to which the module belongs (e.g., "dojo"); "" indicates the system or default package
+			//	 id: the module identifier without the package identifier (e.g., "io/script")
+			//	 pqn: the full package-qualified name (e.g., "dojo*io/script")
 			//	 url: the URL from which the module was retrieved
 			//	 pack: the package object of the package to which the module belongs
-			//	 path: the full module name (package + path) resolved with respect to the loader (i.e., mappings have been applied)
-			//	 executed: 1 <==> the factory has been executed
+			//	 path: the full module name (package + path) resolved with respect to the loader (i.e., mappings have been applied) (e.g., dojo/io/script)
+			//	 executed: 0 => not executed; executing => in the process of tranversing deps and running factory; executed => factory has been executed
 			//	 deps: the dependency vector for this module (vector of modules objects)
 			//	 def: the factory for this module
 			//	 result: the result of the running the factory for this module
 			//	 injected: (requested | arrived | nonmodule) the status of the module; nonmodule means the resource did not call define
-			//	 ready: 1 <==> all prerequisite fullfilled to execute the module
 			//	 load: plugin load function; applicable only for plugins
 			//
 			// Modules go through several phases in creation:
 			//
-			// 1. Requested: some other module's definition contains the requested module in
-			//		its dependency vector or executing code explicitly demands a module via req.require.
+			// 1. Requested: some other module's definition or a require application contained the requested module in
+			//    its dependency vector or executing code explicitly demands a module via req.require.
 			//
 			// 2. Injected: a script element has been appended to the head element demanding the resource implied by the URL
 			//
-			// 3. Loaded: the resource injected in [2] has been evaluated.
+			// 3. Loaded: the resource injected in [2] has been evalated.
 			//
-			// 4. Defined: the resource contained a define statement that advised the loader
-			//		about the module. Notice that some resources may just contain a bundle of code
-			//		and never formally define a module via define
+			// 4. Defined: the resource contained a define statement that advised the loader about the module. Notice that some
+			//    resources may just contain a bundle of code and never formally define a module via define
 			//
 			// 5. Evaluated: the module was defined via define and the loader has evaluated the factory and computed a result.
 			{},
 
-		cache =
+		cache = req.cache = req.cache ||
 			///
 			// hash:(pqn)-->(function)
 			///
 			// Gives the contents of a cached resource; function should cause the same actions as if the given pqn was downloaded
 			// and evaluated by the host environment
-			{},
+			{};
+	}
 
-		//
-		// configuration machinery
-		//
-
-		computeMapProg = function(map){
-			// This routine takes a map target-prefix(string)-->replacement(string) into a vector
-			// of quads (target-prefix, replacement, regex-for-target-prefix, length-of-target-prefix)
-			//
-			// The loader contains processes that map one string prefix to another. These
-			// are encountered when applying the requirejs paths configuration and when mapping
-			// package names. We can make the mapping and any replacement easier and faster by
-			// replacing the map with a vector of quads and then using this structure in the simple machine runMapProg.
-			var p, i, item, mapProg = [];
-			for(p in map){
-				mapProg.push([p, map[p]]);
-			}
-			mapProg.sort(function(lhs, rhs){
-				return rhs[0].length - lhs[0].length;
-			});
-			for(i = 0; i < mapProg.length;){
-				item = mapProg[i++];
-				item[2] = new RegExp("^" + escapeRegEx(item[0]) + "(\/|$)");
-				item[3] = item[0].length + 1;
-			}
-			return mapProg;
-		},
-
-		fixupPackageInfo = function(packageInfo, baseUrl){
-			// calculate the precise (name, baseUrl, lib, main, mappings) for a package
-			baseUrl = baseUrl || "";
-			packageInfo = mix({lib:"lib", main:"main", pathTransforms:[]}, (isString(packageInfo) ? {name:packageInfo} : packageInfo));
-			packageInfo.location = baseUrl + (packageInfo.location ? packageInfo.location : packageInfo.name);
-			packageInfo.mapProg = computeMapProg(packageInfo.packageMap);
-			var name = packageInfo.name;
-
-			// allow paths to be specified in the package info
-			mix(paths, packageInfo.paths);
-
-			// now that we've got a fully-resolved package object, push it into the configuration
-			packages[name] = packageInfo;
-			packageMap[name] = name;
-		},
-
-		doWork = function(deps, callback, onLoadCallback){
-			((deps && deps.length) || callback) && req(deps || [], callback || noop);
-			onLoadCallback && req.ready(onLoadCallback);
-		},
-
-		config = function(config, booting){
-			// mix config into require
-			var p, i, transforms;
-
-			// async, urlArgs, and baseUrl just replace whatever is already there
-			// async is only meaningful if it's set before booting the loader
-			for(p in config){
-				if(/async|waitSeconds|urlArgs|baseUrl|locale/.test(p)){
-					req[p] = p=="waitSeconds" ? config[p] * 1000 : config[p];
+	//
+	// configuration machinery (with an optimized/built defaultConfig, this can be discarded)
+	//
+	if(has("loader-configApi")){
+		var
+			computeMapProg = function(map){
+				// This routine takes a map target-prefix(string)-->replacement(string) into a vector
+				// of quads (target-prefix, replacement, regex-for-target-prefix, length-of-target-prefix)
+				//
+				// The loader contains processes that map one string prefix to another. These
+				// are encountered when applying the requirejs paths configuration and when mapping
+				// package names. We can make the mapping and any replacement easier and faster by
+				// replacing the map with a vector of quads and then using this structure in the simple machine runMapProg.
+				var p, i, item, mapProg = [];
+				for(p in map){
+					mapProg.push([p, map[p]]);
 				}
-				// accumulate raw config info for client apps which can use this to pass their own config
-				req.rawConfig[p]= config[p];
-			}
-
-			// config.override allows overriding any loader data/variable; this is an advanced option
-			// to be used with care and "at your own risk"; its main use is to replace log, traceSet, trace, and onError
-			if(has("loader-overrideApi")){
-				for(p in config.override){
-					req[p] = config.override[p];
-				}
-			}
-
-			// now do the special work for has, pathTransforms, packagePaths, packages, paths, deps, callback, and ready
-
-			for(p in config.has){
-				has.add(p, config.has[p], 0, 1);
-			}
-
-			// make sure baseUrl ends with a slash
-			if(!req.baseUrl){
-				req.baseUrl = "./";
-			}else if(!/\/$/.test(req.baseUrl)){
-				req.baseUrl += "/";
-			}
-
-			// interpret a pathTransforms as items that should be added to the end of the existing map
-			for(transforms = config.pathTransforms,i = 0; transforms && i < transforms.length; i++){
-				pathTransforms.push(transforms[i]);
-			}
-
-			// for each package found in any packages config item, augment the packages map owned by the loader
-			forEach(config.packages, fixupPackageInfo);
-
-			// for each packagePath found in any packagePaths config item, augment the packages map owned by the loader
-			for(baseUrl in config.packagePaths){
-				forEach(config.packagePaths[baseUrl], function(packageInfo){
-					fixupPackageInfo(packageInfo, baseUrl + "/");
+				mapProg.sort(function(lhs, rhs){
+					return rhs[0].length - lhs[0].length;
 				});
-			}
+				for(i = 0; i < mapProg.length;){
+					item = mapProg[i++];
+					item[2] = new RegExp("^" + escapeRegEx(item[0]) + "(\/|$)");
+					item[3] = item[0].length + 1;
+				}
+				return mapProg;
+			},
 
-			// push in any paths and recompute the internal pathmap
-			// warning: this cann't be done until the package config is processed since packages may include path info
-			pathsMapProg = computeMapProg(mix(paths, config.paths));
+			fixupPackageInfo = function(packageInfo, baseUrl){
+				// calculate the precise (name, baseUrl, lib, main, mappings) for a package
+				baseUrl = baseUrl || "";
+				packageInfo = mix({lib:"lib", main:"main", pathTransforms:[]}, (isString(packageInfo) ? {name:packageInfo} : packageInfo));
+				packageInfo.location = baseUrl + (packageInfo.location ? packageInfo.location : packageInfo.name);
+				packageInfo.mapProg = computeMapProg(packageInfo.packageMap);
+				var name = packageInfo.name;
 
-			// mix any packageMap config item and recompute the internal packageMapProg
-			packageMapProg = computeMapProg(mix(packageMap, config.packageMap));
+				// allow paths to be specified in the package info
+				mix(paths, packageInfo.paths);
 
-			// push in any new cache values
-			mix(cache, config.cache);
+				// now that we've got a fully-resolved package object, push it into the configuration
+				packs[name] = packageInfo;
+				packageMap[name] = name;
+			},
 
-			if(booting){
-				// TODO: reverse these to prefer config
-				req.deps= req.deps || config.deps;
-				req.callback= req.callback || config.callback;
-			}else{
-				doWork(config.deps, config.callback, config.ready);
-			}
-		};
+			config = function(config, booting){
+				// mix config into require
+				var p, i, transforms;
 
-	//
-	// execute the various sniffs
-	//
+				// async, urlArgs, and baseUrl just replace whatever is already there
+				// async is only meaningful if it's set before booting the loader
+				for(p in config){
+					if(/async|waitSeconds|urlArgs|baseUrl|locale/.test(p)){
+						req[p] = p=="waitSeconds" ? config[p] * 1000 : config[p];
+					}
+					// accumulate raw config info for client apps which can use this to pass their own config
+					req.rawConfig[p]= config[p];
+				}
 
-	if(has("loader-sniff")){
-		for(var src, match, dataMain, scripts = doc.getElementsByTagName("script"), i = 0; i < scripts.length && !match; i++){
-			if((src = scripts[i].getAttribute("src")) && (match = src.match(/require\.js$/))){
-				req.baseUrl = src.substring(0, match.index) || "./";
-				dataMain = scripts[i].getAttribute("data-main");
-				if(dataMain){
-					req.deps = req.deps || [dataMain];
+				// now do the special work for has, pathTransforms, packagePaths, packages, paths, deps, callback, and ready
+
+				for(p in config.has){
+					has.add(p, config.has[p], 0, 1);
+				}
+
+				// make sure baseUrl ends with a slash
+				if(!req.baseUrl){
+					req.baseUrl = "./";
+				}else if(!/\/$/.test(req.baseUrl)){
+					req.baseUrl += "/";
+				}
+
+				// interpret a pathTransforms as items that should be added to the end of the existing map
+				for(transforms = config.pathTransforms,i = 0; transforms && i < transforms.length; i++){
+					pathTransforms.push(transforms[i]);
+				}
+
+				// for each package found in any packages config item, augment the packs map owned by the loader
+				forEach(config.packages, fixupPackageInfo);
+
+				// for each packagePath found in any packagePaths config item, augment the packs map owned by the loader
+				for(baseUrl in config.packagePaths){
+					forEach(config.packagePaths[baseUrl], function(packageInfo){
+						fixupPackageInfo(packageInfo, baseUrl + "/");
+					});
+				}
+
+				// push in any paths and recompute the internal pathmap
+				// warning: this cann't be done until the package config is processed since packages may include path info
+				pathsMapProg = computeMapProg(mix(paths, config.paths));
+
+				// mix any packageMap config item and recompute the internal packageMapProg
+				packageMapProg = computeMapProg(mix(packageMap, config.packageMap));
+
+				// push in any new cache values
+				mix(cache, config.cache);
+
+				if(booting){
+					// TODO: reverse these to prefer config
+					req.deps= req.deps || config.deps;
+					req.callback= req.callback || config.callback;
+				}else{
+					(function(deps, callback, readyCallback){
+						((deps && deps.length) || callback) && req(deps || [], callback || noop);
+						readyCallback && req.ready(readyCallback);
+					})(config.deps, config.callback, config.ready);
+				}
+			};
+
+		//
+		// execute the various sniffs
+		//
+
+		if(has("loader-sniff")){
+			for(var src, match, dataMain, scripts = doc.getElementsByTagName("script"), i = 0; i < scripts.length && !match; i++){
+				if((src = scripts[i].getAttribute("src")) && (match = src.match(/require\.js$/))){
+					req.baseUrl = src.substring(0, match.index) || "./";
+					dataMain = scripts[i].getAttribute("data-main");
+					if(dataMain){
+						req.deps = req.deps || [dataMain];
+					}
 				}
 			}
 		}
-	}
 
-	var dojoSniffConfig = {};
-	if(has("dojo-sniff")){
-		for(var src, match, scripts = doc.getElementsByTagName("script"), i = 0; i < scripts.length && !match; i++){
-			if((src = scripts[i].getAttribute("src")) && (match = src.match(/(.*)\/?dojo\.js(\W|$)/i))){
-                // if baseUrl wasn't explicitly set, set it here to the dojo directory; this is the 1.6- behavior
-				userConfig.baseUrl = userConfig.baseUrl || defaultConfig.baseUrl || match[1];
+		var dojoSniffConfig = {};
+		if(has("dojo-sniff")){
+			for(var src, match, scripts = doc.getElementsByTagName("script"), i = 0; i < scripts.length && !match; i++){
+				if((src = scripts[i].getAttribute("src")) && (match = src.match(/(.*)\/?dojo\.js(\W|$)/i))){
+					// if baseUrl wasn't explicitly set, set it here to the dojo directory; this is the 1.6- behavior
+					userConfig.baseUrl = userConfig.baseUrl || defaultConfig.baseUrl || match[1];
 
-				// see if there's a dojo configuration stuffed into the node
-				src = (scripts[i].getAttribute("data-dojo-config") || scripts[i].getAttribute("djConfig"));
-				if(src){
-					dojoSniffConfig = reqEval("({ " + src + " })", "dojo/data-dojo-config");
+					// see if there's a dojo configuration stuffed into the node
+					src = (scripts[i].getAttribute("data-dojo-config") || scripts[i].getAttribute("djConfig"));
+					if(src){
+						dojoSniffConfig = reqEval("({ " + src + " })", "dojo/data-dojo-config");
+					}
 				}
 			}
 		}
-	}
 
-	if(has("dojo-test-sniff")){
-		// pass down doh.testConfig from parent as if it were a data-dojo-config
-		try{
-			if(window.parent != window && window.parent.require){
-				var doh = window.parent.require("doh");
-				doh && mix(dojoSniffConfig, doh.testConfig);
-			}
-		}catch(e){}
-	}
+		if(has("dojo-test-sniff")){
+			// pass down doh.testConfig from parent as if it were a data-dojo-config
+			try{
+				if(window.parent != window && window.parent.require){
+					var doh = window.parent.require("doh");
+					doh && mix(dojoSniffConfig, doh.testConfig);
+				}
+			}catch(e){}
+		}
 
-	// configure the loader; let the user override defaults
-	req.rawConfig= {};
-	config(defaultConfig, 1);
-	config(userConfig, 1);
-	config(dojoSniffConfig, 1);
+		// configure the loader; let the user override defaults
+		req.rawConfig= {};
+		config(defaultConfig, 1);
+		config(userConfig, 1);
+		config(dojoSniffConfig, 1);
+	}
 
 	//
 	// build the loader machinery iaw configuration, including has feature tests
@@ -545,15 +529,13 @@
 					return nameToUrl(name, ext, module);
 				};
 				result.toAbsMid = function(mid){
-					return getModuleInfo(mid, module, packages, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms).path;
+					return getModuleInfo(mid, module, packs, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms).path;
 				};
 				if(has("loader-undefApi")){
 					result.undef = function(moduleId){
 						// In order to reload a module, it must be undefined (this routine) and then re-requested.
 						// This is useful for testing frameworks (at least).
-						var
-							module = getModule(moduleId, module),
-							pqn = module.pqn;
+						var pqn = getModule(moduleId, module).pqn;
 						setDel(modules, pqn);
 						setDel(waiting, pqn);
 					};
@@ -575,6 +557,10 @@
 			// The list of modules that need to be evaluated.
 			[],
 
+		defQ =
+			// The queue of define arguments sent to loader.
+			[],
+
 		waiting =
 			// The set of modules upon which the loader is waiting for definition to arrive
 			{},
@@ -582,7 +568,7 @@
 		execComplete =
 			// says the loader has completed (or not) its work
 			function(){
-				return syncDepth == syncLoadComplete && defQ && !defQ.length && isEmpty(waiting) && !execQ.length;
+				return syncDepth == syncLoadComplete && !defQ.length && isEmpty(waiting) && !execQ.length;
 			},
 
 		runMapProg = function(targetMid, map){
@@ -624,8 +610,8 @@
 			return result;
 		},
 
-		getModuleInfo = function(mid, referenceModule, packages, modules, baseUrl, pageUrl, packageMapProg, pathsMapProg, pathTransforms, alwaysCreate){
-			// arguments are passed instead of using lexical variables so that this function my be used independent of bdLoad (e.g., in bdBuild)
+		getModuleInfo = function(mid, referenceModule, packs, modules, baseUrl, pageUrl, packageMapProg, pathsMapProg, pathTransforms, alwaysCreate){
+			// arguments are passed instead of using lexical variables so that this function my be used independent of the loader (e.g., the builder)
 			// alwaysCreate is useful in this case so that getModuleInfo never returns references to real modules owned by the loader
 			var pid, pack, pqn, mapProg, mapItem, path, url, result;
 			if(/(^\/)|(\:)/.test(mid)){
@@ -674,7 +660,7 @@
 			if(mapItem){
 					url = mapItem[1] + path.substring(mapItem[3] - 1);
 			}else if(pid){
-				pack = packages[pid];
+				pack = packs[pid];
 				url = transformPath(path, pack.pathTransforms);
 				if(!url){
 					path = pid + "/" + (mid || pack.main);
@@ -707,7 +693,7 @@
 					// anything* anything-other-than-a-dot+ dot anything-other-than-a-dot+ => a url that ends with a filetype
 					return makeModuleInfo(0, mid, "*" + mid, 0, mid, mid);
 				}
-				result = getModuleInfo(mid, referenceModule, packages, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms);
+				result = getModuleInfo(mid, referenceModule, packs, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms);
 				return modules[result.pqn] || (modules[result.pqn] = result);
 			}
 		},
@@ -717,20 +703,22 @@
 			// a filetype. This is a requirejs artifact which we don't like.
 			var
 				match = !ext && name.match(/(.+)(\.[^\/]+?)$/),
-				url = getModuleInfo(match && match[1] || name, referenceModule, packages, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms).url;
+				url = getModuleInfo(match && match[1] || name, referenceModule, packs, modules, req.baseUrl, ".", packageMapProg, pathsMapProg, pathTransforms).url;
 			// recall, getModuleInfo always returns a url with a ".js" suffix; therefore, we've got to trim it
 			return url.substring(0, url.length - 3) + (ext ? ext : (match ? match[2] : ""));
 		},
 
-		cjsModuleInfo = {
+		nonModuleProps = {
 			injected: arrived,
 			deps: [],
-			executed: executed,
-			result: 1
+			def: nonmodule,
+			result: nonmodule,
+			executed: executed
 		},
-		cjsRequireModule = mix(getModule("require"), cjsModuleInfo),
-		cjsExportsModule = mix(getModule("exports"), cjsModuleInfo),
-		cjsModuleModule = mix(getModule("module"), cjsModuleInfo),
+
+		cjsRequireModule = mix(getModule("require"), nonModuleProps),
+		cjsExportsModule = mix(getModule("exports"), nonModuleProps),
+		cjsModuleModule = mix(getModule("module"), nonModuleProps),
 
 		// this is a flag to say at least one factory was run during a deps tree traversal
 		runFactory = function(pqn, factory, args, cjs){
@@ -779,11 +767,13 @@
 					}
 					args.push(argResult);
 				}
-				module.executed = executed;
+				module.evalOrder = evalOrder++;
 				if(has("loader-catchApi")){
 					try{
 						module.result = runFactory(pqn, module.def, args, module.cjs);
+						module.executed = executed;
 					}catch(e){
+						module.executed = execThrew;
 						if(!has("loader-errorApi") || !req.onError("loader/exec", [e, pqn].concat(args))){
 							throw e;
 						}
@@ -791,7 +781,6 @@
 				}else{
 					module.result = runFactory(pqn, module.def, args, module.cjs);
 				}
-				module.evalOrder = evalOrder++;
 				if(module.loadQ){
 					// this was a plugin module
 					var
@@ -812,7 +801,7 @@
 			// keep going through the execQ as long as at least one factory is executed
 			// plugins, recursion, cached modules all make for many execution path possibilities
 			isEmpty(waiting) && clearTimer();
-			for(var result, module, i = 0; i < execQ.length; i++){
+			for(var result, module, i = 0; i < execQ.length;){
 				module = execQ[i];
 				execModule(module);
 				if(module.executed === executed){
@@ -824,6 +813,8 @@
 							break;
 						}
 					}
+				}else{
+					i++;
 				}
 			}
 			if(has("loader-priority-readyApi")){
@@ -860,8 +851,8 @@
 				return new ActiveXObject(progid);
 			};
 		}
+		req.getXhr = getXhr;
 	}
-	req.getXhr = getXhr;
 
 	// the dojo loader needs/optionally provides a getText API
 	if(has("dojo-loader") || has("loader-getTextApi")){
@@ -897,9 +888,7 @@
 		req.undef = function(moduleId){
 			// In order to reload a module, it must be undefined (this routine) and then re-requested.
 			// This is useful for testing frameworks (at least).
-			var
-				module = getModule(moduleId, 0),
-				pqn = module.pqn;
+			var pqn = getModule(moduleId, 0).pqn;
 			setDel(modules, pqn);
 			setDel(waiting, pqn);
 		};
@@ -909,7 +898,7 @@
 		var
 			injectPlugin = function(
 				module,
-				immediate // this is consequent to a require call like require(["text!some/text"])
+				immediate // this is consequent to a require call like require("text!some/text")
 				){
 				// injects the plugin module given by module; may have to inject the plugin itself
 				var plugin = module.plugin;
@@ -1004,6 +993,9 @@
 							++syncDepth;
 							try{
 								// always synchronous...
+								if(has("loader-traceApi")){
+									req.trace("loader-inject", [module.pqn, url]);
+								}
 								getText(url, 0, function(text){
 									injecting.push(module);
 									reqEval(text, module.path);
@@ -1023,13 +1015,8 @@
 					}
 					module.node = req.injectUrl(url, onLoadCallback);
 					injecting.pop();
-					startTimer();
 				}
 			},
-
-			defQ =
-				// The queue of define arguments sent to loader.
-				[],
 
 			defineModule = function(module, deps, def){
 				if(has("loader-traceApi")){
@@ -1062,10 +1049,6 @@
 
 				setDel(waiting, pqn);
 
-				// don't inject dependencies; wait until the current script has completed executing and then inject.
-				// This allows several definitions to be contained within one script without prematurely requesting
-				// resources from the server.
-
 				if(!deps.length){
 					execModule(module);
 				}
@@ -1090,40 +1073,35 @@
 			};
 	}
 
+	var
+		timerId = 0,
+		clearTimer = noop,
+		startTimer = noop;
 	if(has("loader-timeoutApi")){
-		var
-			// Timer machinery that monitors how long the loader is waiting and signals
-			// an error when the timer runs out.
-			timerId =
-				0,
+		// Timer machinery that monitors how long the loader is waiting and signals an error when the timer runs out.
+		clearTimer = function(){
+			timerId && clearTimeout(timerId);
+			timerId = 0;
+		},
 
-			clearTimer = function(){
-				timerId && clearTimeout(timerId);
-				timerId = 0;
-			},
-
-			startTimer = function(){
+		startTimer = function(){
+			clearTimer();
+			req.waitSeconds && (timerId = setTimeout(function(){
 				clearTimer();
-				req.waitSeconds && (timerId = setTimeout(function(){
-					clearTimer();
-					req.onError("loader/timeout", [waiting]);
-				}, req.waitSeconds));
-			};
-	}else{
-		var
-			clearTimer = noop,
-			startTimer = noop;
+				req.onError("loader/timeout", [waiting]);
+			}, req.waitSeconds));
+		};
 	}
 
 	if(has("dom")){
-		has.add("dom-addEventListener", !!doc.addEventListener);
+		has.add("dom-addeventlistener", !!doc.addEventListener);
 	}
 
 	if(has("dom") && (has("loader-pageLoadApi") || has("loader-injectApi"))){
 		var on = function(node, eventName, handler, useCapture, ieEventName){
 			// Add an event listener to a DOM node using the API appropriate for the current browser;
 			// return a function that will disconnect the listener.
-			if(has("dom-addEventListener")){
+			if(has("dom-addeventlistener")){
 				node.addEventListener(eventName, handler, !!useCapture);
 				return function(){
 					node.removeEventListener(eventName, handler, !!useCapture);
@@ -1147,6 +1125,8 @@
 		req.injectUrl = req.injectUrl || function(url, callback){
 			// Append a script element to the head element with src=url; apply callback upon
 			// detecting the script has loaded.
+
+			startTimer();
 			var
 				node = doc.createElement("script"),
 				onLoad = function(e){
@@ -1167,10 +1147,7 @@
 	}
 
 	if(has("loader-pageLoadApi")){
-		// page load detect code derived from Dojo, Copyright (c) 2005-2010, The Dojo Foundation. Use, modification, and distribution subject to terms of license.
-
-		//warn
-		// document.readyState does not work with Firefox before 3.6. To support
+		// WARNING: document.readyState does not work with Firefox before 3.6. To support
 		// those browsers, manually init require.pageLoaded in configuration.
 
 		// require.pageLoaded can be set truthy to indicate the app "knows" the page is loaded and/or just wants it to behave as such
@@ -1204,21 +1181,16 @@
 				DOMContentLoadedDisconnector = on(doc, "DOMContentLoaded", detectPageLoaded, false, false);
 			}
 
-			if(!has("dom-addEventListener")){
+			if(!has("dom-addeventlistener")){
 				// note: this code courtesy of James Burke (https://github.com/jrburke/requirejs)
-				//DOMContentLoaded approximation, as found by Diego Perini:
-				//http://javascript.nwbox.com/IEContentLoaded/
+				// DOMContentLoaded approximation, as found by Diego Perini: http://javascript.nwbox.com/IEContentLoaded/
 				if(self === self.top){
 					scrollIntervalId = setInterval(function (){
 						try{
-							//From this ticket:
-							//http://bugs.dojotoolkit.org/ticket/11106,
-							//In IE HTML Application (HTA), such as in a selenium test,
-							//javascript in the iframe can't see anything outside
-							//of it, so self===self.top is true, but the iframe is
-							//not the top window and doScroll will be available
-							//before document.body is set. Test document.body
-							//before trying the doScroll trick.
+							// From this ticket: http://bugs.dojotoolkit.org/ticket/11106. In IE HTML Application (HTA),
+							// such as in a selenium test, javascript in the iframe can't see anything outside of it,
+							// so self===self.top is true, but the iframe is not the top window and doScroll will be
+							// available before document.body is set. Test document.body before trying the doScroll trick.
 							if(doc.body){
 								doc.documentElement.doScroll("left");
 								detectPageLoaded();
@@ -1266,7 +1238,7 @@
 		req.ready = function(
 			priority,//(integer, optional) The order in which to exec this callback relative to other callbacks, defaults to 1000
 			context, //(object) The context in which to run execute callback
-							 //(function) callback, if context missing
+					 //(function) callback, if context missing
 			callback //(function) The function to execute.
 		){
 			///
@@ -1375,9 +1347,9 @@
 	}
 
 	var def = function(
-		mid,					//(commonjs.moduleId, optional) list of modules to be loaded before running factory
+		mid,		  //(commonjs.moduleId, optional) list of modules to be loaded before running factory
 		dependencies, //(array of commonjs.moduleId, optional)
-		factory				//(any)
+		factory		  //(any)
 	){
 		///
 		// Advises the loader of a module factory. //Implements http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition.
@@ -1414,13 +1386,13 @@
 			// other than a deps list being injected. For example, code may define modules on-the-fly due to some user stimulus.
 			// In such cases, there is nothing to trigger the defQ and the dependencies are never requested; therefore, do it here.
 			injectDependencies(defineModule(getModule(args[0]), args[1], args[2]));
-		}else if(has("dom-addEventListener") || !has("host-browser")){
-			// anonymous module and therefore must have been injected and not IE; therefore, onLoad will fire immediately
+		}else if(has("dom-addeventlistener") || !has("host-browser")){
+			// not IE path: anonymous module and therefore must have been injected; therefore, onLoad will fire immediately
 			// after script finishes being evaluated and the defQ can be run from that callback to detect the module id
 			defQ.push(args);
 		}else{
-			// anonymous module and therefore must have been injected and IE; therefore, cannot depend on 1-to-1,
-			// in-order exec of onLoad with script eval and must manually detect here
+			// IE path: anonymous module and therefore must have been injected; therefore, cannot depend on 1-to-1,
+			// in-order exec of onLoad with script eval (since its IE) and must manually detect here
 			var
 				length = injecting.length,
 				targetModule = length && injecting[length - 1],
@@ -1441,40 +1413,44 @@
 			}
 		}
 	};
+	def.amd = {
+		vendor:"dojotoolkit.org"
+	};
 
 	if(has("loader-requirejsApi")){
 		req.def = def;
 	}
 
 	if(has("dojo-loader")){
+		var isXdPath = noop;
 		if(has("dom")){
 			var
 				locationProtocol = location.protocol,
 				locationHost = location.host,
-				fileProtocol = !locationHost,
-				isXdPath = function(path){
-					if(has("dojo-test-xd")){
-						if(/_xd/.test(path)){
-							return true;
-						}
-					}
-					if(fileProtocol || /^\./.test(path)){
-						// begins with a dot is always relative to page URL; therefore not xdomain
-						return false;
-					}
-					if(/^\/\//.test(path)){
-						// for v1.6- backcompat, path starting with // indicates xdomain
+				fileProtocol = !locationHost;
+			isXdPath = function(path){
+				if(has("dojo-test-xd")){
+					if(/_xd/.test(path)){
 						return true;
 					}
-					// get protocol and host
-					var match = path.match(/^([^\/\:]+\:)\/\/([^\/]+)/);
-					return match && (match[1] != locationProtocol || match[2] != locationhost);
-				};
-		}else{
-			var isXdPath = function(){
-				return 0;
+				}
+				if(fileProtocol || /^\./.test(path)){
+					// begins with a dot is always relative to page URL; therefore not xdomain
+					return false;
+				}
+				if(/^\/\//.test(path)){
+					// for v1.6- backcompat, path starting with // indicates xdomain
+					return true;
+				}
+				// get protocol and host
+				var match = path.match(/^([^\/\:]+\:)\/\/([^\/]+)/);
+				return match && (match[1] != locationProtocol || match[2] != locationhost);
 			};
 		}
+
+		req.debugAtAllCosts= function(){
+			syncDepth= syncLoadComplete = 0;
+		};
 
 		req.getDojoLoader = function(dojo, dijit, dojox){
 			var
@@ -1487,17 +1463,18 @@
 				require = createRequire(referenceModule);
 
 			dojo.provide = function(mid){
-				// kernel provide
-				return mix(getModule(slashName(mid), referenceModule), {
+				var module= getModule(slashName(mid), referenceModule);
+                module.executed!==executed && mix(module, {
 					injected: arrived,
 					deps: [],
 					executed: executed,
 					result: dojo.getObject(mid.replace(/\//g, "."), true)
-				}).result;
+				});
+				return module.result;
 			};
 
 			return function(mid){
-				// kernel require
+				// dojo.provide
 				mid = slashName(mid);
 				var
 					module = getModule(mid, referenceModule),
@@ -1520,10 +1497,6 @@
 
 	if(has("loader-publish-privates")){
 		mix(req, {
-			// standard API
-			vendor:"dojotoolkit.org",
-			has:has,
-
 			// these may be interesting for other modules to use
 			isEmpty:isEmpty,
 			isFunction:isFunction,
@@ -1537,16 +1510,13 @@
 			on:on,
 
 			// these may be interesting to look at when debugging
-			paths:paths,
-			packages:packages,
-			modules:modules,
 			execQ:execQ,
 			defQ:defQ,
 			waiting:waiting,
 			loadQ:loadQ,
 			checkComplete:checkComplete,
 
-			// these are used by bdBuild (at least)
+			// these are used by the builder (at least)
 			computeMapProg:computeMapProg,
 			runMapProg:runMapProg,
 			compactPath:compactPath,
@@ -1591,6 +1561,7 @@
 			"loader-publish-privates":1,
 			"loader-getTextApi":1,
 			"loader-overrideApi":1,
+			"loader-configApi":1,
 			"dojo-sniff":1,
 			"dojo-loader":1,
 			"dojo-boot":1,
@@ -1637,7 +1608,7 @@
 );
 
 (function(){
-	// must use this.require to make this work in node.jsg
+	// must use this.require to make this work in node.js
 	var require = this.require;
 	if(require.has("dojo-boot")){
 		require(["dojo"]);
