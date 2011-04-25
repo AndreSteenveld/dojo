@@ -4,7 +4,7 @@ define(["./kernel", "../has", "require"], function(dojo, has, require) {
 	// summary:
 	//		This module defines the v1.x synchronous loader API.
 
-	if (require.vendor!="dojotoolkit.org") {
+	if (!dojo.isDojoLoader) {
 		console.error("cannot load the Dojo v1.x loader with a foreign loader");
 		return;
 	}
@@ -55,7 +55,7 @@ define(["./kernel", "../has", "require"], function(dojo, has, require) {
 		//	|		dojo.require("foo.thud.xyzzy");
 		//	|	</script>
     var paths= {};
-    paths[module]= prefix;
+    paths[module.replace(/\./g, "/")]= prefix;
     require({paths:paths});
 	};
 

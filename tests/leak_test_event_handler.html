@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>No Leak Test</title>
-<!--    <meta http-equiv="refresh" content="2;url=">-->
+    <meta http-equiv="refresh" content="2;url=">
 
 	<script type="text/javascript" src="../dojo.js"
 			djConfig="isDebug: false"></script>
@@ -11,19 +11,18 @@
     <!-- Adapted from https://gist.github.com/43245cbb7db4eab2ad8c -->
     <div id="container"></div>
     <script>
-        var i =-1, l = 10000, container = document.getElementById("container");
+        var i =-1, l = 1000, container = document.getElementById("container");
         while (++i < l){
             var e = document.createElement("div");
             (function(elem){
                 function LeakFunc(){
                     elem.innerHTML = "foo";
                 }
-                dojo.connect(elem, "onclick", LeakFunc);
+                dojo.listen(elem, "onclick", LeakFunc);
                 container.appendChild(elem);
             })(e);
         }
-        dojo.destroy(container);
-        //container.innerHTML = "";
+        container.innerHTML = "";
     </script>
 </body>
 </html>

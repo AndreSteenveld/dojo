@@ -1,4 +1,4 @@
-define("dojo/robotx", ["dojo", "dojo/robot"], function(dojo) {
+define(["dojo", "dojo/robot"], function(dojo) {
 
 dojo.experimental("dojo.robotx");
 
@@ -108,7 +108,7 @@ dojo.mixin(doh.robot,{
 			dojo.subscribe = win.dojo.subscribe;
 			dojo.connectPublisher = win.dojo.connectPublisher;  
 		}
-		 
+
 	},
 
 	initRobot: function(/*String*/ url){
@@ -123,7 +123,7 @@ dojo.mixin(doh.robot,{
 		// see above note about race conditions
 		if(robotReady){
 			attachIframe();
-			
+
 		}
 	},
 
