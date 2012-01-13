@@ -1,27 +1,60 @@
-define("dojo/store/Observable", ["dojo"], function(dojo) {
+define(["../_base/kernel", "../_base/lang", "../_base/Deferred", "../_base/array"
+], function(kernel, lang, Deferred, array) {
+	// module:
+	//		dojo/store/Observable
+	// summary:
+	//		TODOC
 
-dojo.store.Observable = function(store){
-	//	summary: 
+var ds = lang.getObject("dojo.store", true);
+
+return ds.Observable = function(store){
+	// summary:
 	//		The Observable store wrapper takes a store and sets an observe method on query()
-	// 		results that can be used to monitor results for changes
-	var queryUpdaters = [], revision = 0;
-	// a Comet driven store could directly call notify to notify watchers when data has
+	//		results that can be used to monitor results for changes.
+	//
+	// description:
+	//		Observable wraps an existing store so that notifications can be made when a query
+	//		is performed.
+	//
+	// example:
+	//		Create a Memory store that returns an observable query, and then log some
+	//		information about that query.
+	//
+	//	|	var store = dojo.store.Observable(new dojo.store.Memory({
+	//	|		data: [
+	//	|			{id: 1, name: "one", prime: false},
+	//	|			{id: 2, name: "two", even: true, prime: true},
+	//	|			{id: 3, name: "three", prime: true},
+	//	|			{id: 4, name: "four", even: true, prime: false},
+	//	|			{id: 5, name: "five", prime: true}
+	//	|		]
+	//	|	}));
+	//	|	var changes = [], results = store.query({ prime: true });
+	//	|	var observer = results.observe(function(object, previousIndex, newIndex){
+	//	|		changes.push({previousIndex:previousIndex, newIndex:newIndex, object:object});
+	//	|	});
+	//
+	//		See the Observable tests for more information.
+
+	var undef, queryUpdaters = [], revision = 0;
+	// a Comet driven store could directly call notify to notify observers when data has
 	// changed on the backend
-	var notifyAll = store.notify = function(object, existingId){
+	store.notify = function(object, existingId){
 		revision++;
-		for(var i = 0, l = queryUpdaters.length; i < l; i++){
-			queryUpdaters[i](object, existingId);
+		var updaters = queryUpdaters.slice();
+		for(var i = 0, l = updaters.length; i < l; i++){
+			updaters[i](object, existingId);
 		}
-	}
+	};
 	var originalQuery = store.query;
 	store.query = function(query, options){
 		options = options || {};
 		var results = originalQuery.apply(this, arguments);
 		if(results && results.forEach){
-			var nonPagedOptions = dojo.mixin({}, options);
+			var nonPagedOptions = lang.mixin({}, options);
 			delete nonPagedOptions.start;
 			delete nonPagedOptions.count;
-			
+
 			var queryExecutor = store.queryEngine && store.queryEngine(query, nonPagedOptions);
 			var queryRevision = revision;
 			var listeners = [], queryUpdater;
@@ -29,52 +62,58 @@ dojo.store.Observable = function(store){
 				if(listeners.push(listener) == 1){
 					// first listener was added, create the query checker and updater
 					queryUpdaters.push(queryUpdater = function(changed, existingId){
-						dojo.when(results, function(resultsArray){
+						Deferred.when(results, function(resultsArray){
 							var atEnd = resultsArray.length != options.count;
-							var i;
+							var i, l, listener;
 							if(++queryRevision != revision){
-								throw new Error("Query is out of date, you must watch() the query prior to any data modifications");
+								throw new Error("Query is out of date, you must observe() the query prior to any data modifications");
 							}
-							var removedObject, removedFrom, insertedInto;
-							if(existingId){
+							var removedObject, removedFrom = -1, insertedInto = -1;
+							if(existingId !== undef){
 								// remove the old one
 								for(i = 0, l = resultsArray.length; i < l; i++){
 									var object = resultsArray[i];
 									if(store.getIdentity(object) == existingId){
 										removedObject = object;
 										removedFrom = i;
-										resultsArray.splice(i, 1);
+										if(queryExecutor || !changed){// if it was changed and we don't have a queryExecutor, we shouldn't remove it because updated objects would be eliminated
+											resultsArray.splice(i, 1);
+										}
 										break;
 									}
 								}
 							}
 							if(queryExecutor){
 								// add the new one
-								if(changed && 
+								if(changed &&
 										// if a matches function exists, use that (probably more efficient)
-										(queryExecutor.matches ? queryExecutor.matches(changed) : queryExecutor([changed]).length)){ 
+										(queryExecutor.matches ? queryExecutor.matches(changed) : queryExecutor([changed]).length)){
 
-									if(removedFrom > -1){
-										// put back in the original slot so it doesn't move unless it needs to (relying on a stable sort below)
-										resultsArray.splice(removedFrom, 0, changed);
-									}else{
-										resultsArray.push(changed);
-									}
-									insertedInto = queryExecutor(resultsArray).indexOf(changed);
+									var firstInsertedInto = removedFrom > -1 ? 
+										removedFrom : // put back in the original slot so it doesn't move unless it needs to (relying on a stable sort below)
+										resultsArray.length;
+									resultsArray.splice(firstInsertedInto, 0, changed); // add the new item
+									insertedInto = array.indexOf(queryExecutor(resultsArray), changed); // sort it
+									// we now need to push the chagne back into the original results array
+									resultsArray.splice(firstInsertedInto, 1); // remove the inserted item from the previous index
+									
 									if((options.start && insertedInto == 0) ||
-										(!atEnd && insertedInto == resultsArray.length -1)){
+										(!atEnd && insertedInto == resultsArray.length)){
 										// if it is at the end of the page, assume it goes into the prev or next page
 										insertedInto = -1;
+									}else{
+										resultsArray.splice(insertedInto, 0, changed); // and insert into the results array with the correct index
 									}
 								}
-							}else if(changed){
-								// we don't have a queryEngine, so we can't provide any information 
-								// about where it was inserted, but we can at least indicate a new object  
-								insertedInto = removedFrom || -1;
+							}else if(changed && !options.start){
+								// we don't have a queryEngine, so we can't provide any information
+								// about where it was inserted, but we can at least indicate a new object
+								insertedInto = removedFrom >= 0 ? removedFrom : (store.defaultIndex || 0);
 							}
-							if((removedFrom > -1 || insertedInto > -2) && 
-									(includeObjectUpdates || (removedFrom != insertedInto))){
-								for(i = 0;listener = listeners[i]; i++){
+							if((removedFrom > -1 || insertedInto > -1) &&
+									(includeObjectUpdates || !queryExecutor || (removedFrom != insertedInto))){
+								var copyListeners = listeners.slice();
+								for(i = 0;listener = copyListeners[i]; i++){
 									listener(changed || removedObject, removedFrom, insertedInto);
 								}
 							}
@@ -82,15 +121,18 @@ dojo.store.Observable = function(store){
 					});
 				}
 				return {
-					dismiss: function(){
+					cancel: function(){
 						// remove this listener
-						listeners.splice(dojo.indexOf(listeners, listener), 1);
-						if(!listeners.length){
-							// no more listeners, remove the query updater too
-							queryUpdaters.splice(dojo.indexOf(queryUpdaters, queryUpdater), 1);
-						}
+						var index = array.indexOf(listeners, listener);
+						if(index > -1){ // check to make sure we haven't already called cancel
+							listeners.splice(index, 1);
+							if(!listeners.length){
+								// no more listeners, remove the query updater too
+								queryUpdaters.splice(array.indexOf(queryUpdaters, queryUpdater), 1);
+							}
+						}						
 					}
-				}
+				};
 			};
 		}
 		return results;
@@ -106,27 +148,28 @@ dojo.store.Observable = function(store){
 				}
 				inMethod = true;
 				try{
-					return dojo.when(original.apply(this, arguments), function(results){
+					var results = original.apply(this, arguments);
+					Deferred.when(results, function(results){
 						action((typeof results == "object" && results) || value);
-						return results;
 					});
+					return results;
 				}finally{
 					inMethod = false;
 				}
 			};
-		}		
+		}
 	}
-	// monitor for updates by listening to these methods  
+	// monitor for updates by listening to these methods
 	whenFinished("put", function(object){
-		notifyAll(object, store.getIdentity(object));
+		store.notify(object, store.getIdentity(object));
 	});
-	whenFinished("add", notifyAll);
+	whenFinished("add", function(object){
+		store.notify(object);
+	});
 	whenFinished("remove", function(id){
-		notifyAll(undefined, id);
+		store.notify(undefined, id);
 	});
 
 	return store;
 };
-
-return dojo.store.Observable;
 });

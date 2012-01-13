@@ -1,22 +1,28 @@
-define("dojo/date", ["dojo"], function(dojo) {
-dojo.getObject("date", true, dojo);
+define(["./_base/lang"], function(lang) {
+	// module:
+	//		dojo/date
+	// summary:
+	//		TODOC
+
+var date = lang.getObject("dojo.date", true);
 
 /*=====
 dojo.date = {
 	// summary: Date manipulation utilities
-}
+};
+date = dojo.date;
 =====*/
 
-dojo.date.getDaysInMonth = function(/*Date*/dateObject){
+date.getDaysInMonth = function(/*Date*/dateObject){
 	//	summary:
 	//		Returns the number of days in the month used by dateObject
 	var month = dateObject.getMonth();
 	var days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-	if(month == 1 && dojo.date.isLeapYear(dateObject)){ return 29; } // Number
+	if(month == 1 && date.isLeapYear(dateObject)){ return 29; } // Number
 	return days[month]; // Number
 };
 
-dojo.date.isLeapYear = function(/*Date*/dateObject){
+date.isLeapYear = function(/*Date*/dateObject){
 	//	summary:
 	//		Determines if the year of the dateObject is a leap year
 	//	description:
@@ -31,7 +37,7 @@ dojo.date.isLeapYear = function(/*Date*/dateObject){
 };
 
 // FIXME: This is not localized
-dojo.date.getTimezoneName = function(/*Date*/dateObject){
+date.getTimezoneName = function(/*Date*/dateObject){
 	//	summary:
 	//		Get the user's time zone as provided by the browser
 	// dateObject:
@@ -53,7 +59,7 @@ dojo.date.getTimezoneName = function(/*Date*/dateObject){
 	}else{
 		// If at first you don't succeed ...
 		// If IE knows about the TZ, it appears before the year
-		// Capital letters or slash before a 4-digit year 
+		// Capital letters or slash before a 4-digit year
 		// at the end of string
 		var pat = /([A-Z\/]+) \d{4}$/;
 		if((match = str.match(pat))){
@@ -62,7 +68,7 @@ dojo.date.getTimezoneName = function(/*Date*/dateObject){
 		// Some browsers (e.g. Safari) glue the TZ on the end
 		// of toLocaleString instead of putting it in toString
 			str = dateObject.toLocaleString();
-			// Capital letters or slash -- end of string, 
+			// Capital letters or slash -- end of string,
 			// after space
 			pat = / ([A-Z\/]+)$/;
 			if((match = str.match(pat))){
@@ -77,7 +83,7 @@ dojo.date.getTimezoneName = function(/*Date*/dateObject){
 
 // Utility methods to do arithmetic calculations with Dates
 
-dojo.date.compare = function(/*Date*/date1, /*Date?*/date2, /*String?*/portion){
+date.compare = function(/*Date*/date1, /*Date?*/date2, /*String?*/portion){
 	//	summary:
 	//		Compare two date objects by date, time, or both.
 	//	description:
@@ -104,13 +110,13 @@ dojo.date.compare = function(/*Date*/date1, /*Date?*/date2, /*String?*/portion){
 		date1.setFullYear(0, 0, 0);
 		date2.setFullYear(0, 0, 0);
 	}
-	
+
 	if(date1 > date2){ return 1; } // int
 	if(date1 < date2){ return -1; } // int
 	return 0; // int
 };
 
-dojo.date.add = function(/*Date*/date, /*String*/interval, /*int*/amount){
+date.add = function(/*Date*/date, /*String*/interval, /*int*/amount){
 	//	summary:
 	//		Add to a Date in intervals of different size, from milliseconds to years
 	//	date: Date
@@ -203,7 +209,7 @@ dojo.date.add = function(/*Date*/date, /*String*/interval, /*int*/amount){
 	return sum; // Date
 };
 
-dojo.date.difference = function(/*Date*/date1, /*Date?*/date2, /*String?*/interval){
+date.difference = function(/*Date*/date1, /*Date?*/date2, /*String?*/interval){
 	//	summary:
 	//		Get the difference in a specific unit of time (e.g., number of
 	//		months, weeks, days, etc.) between two dates, rounded to the
@@ -235,8 +241,8 @@ dojo.date.difference = function(/*Date*/date1, /*Date?*/date2, /*String?*/interv
 			delta = q2 - q1;
 			break;
 		case "weekday":
-			var days = Math.round(dojo.date.difference(date1, date2, "day"));
-			var weeks = parseInt(dojo.date.difference(date1, date2, "week"));
+			var days = Math.round(date.difference(date1, date2, "day"));
+			var weeks = parseInt(date.difference(date1, date2, "week"));
 			var mod = days % 7;
 
 			// Even number of weeks
@@ -316,7 +322,7 @@ dojo.date.difference = function(/*Date*/date1, /*Date?*/date2, /*String?*/interv
 		case "week":
 			// Truncate instead of rounding
 			// Don't use Math.floor -- value may be negative
-			delta = parseInt(dojo.date.difference(date1, date2, "day")/7);
+			delta = parseInt(date.difference(date1, date2, "day")/7);
 			break;
 		case "day":
 			delta /= 24;
@@ -338,5 +344,5 @@ dojo.date.difference = function(/*Date*/date1, /*Date?*/date2, /*String?*/interv
 	return Math.round(delta); // Number (integer)
 };
 
-return dojo.date;
+return date;
 });

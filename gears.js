@@ -1,20 +1,29 @@
-define("dojo/gears", ["dojo"], function(dojo) {
-dojo.getObject("gears", true, dojo);
+define(["./_base/lang", "./_base/sniff"], function(lang, has) {
 
-dojo.gears._gearsObject = function(){
-	// summary: 
+// module:
+//		dojo/gears
+// summary:
+//		TODOC
+
+var gears = lang.getObject("dojo.gears", true);
+
+/*=====
+var gears = dojo.gears;
+=====*/
+
+gears._gearsObject = function(){
+	// summary:
 	//		factory method to get a Google Gears plugin instance to
 	//		expose in the browser runtime environment, if present
 	var factory;
-	var results;
-	
-	var gearsObj = dojo.getObject("google.gears");
+
+	var gearsObj = lang.getObject("google.gears");
 	if(gearsObj){ return gearsObj; } // already defined elsewhere
-	
+
 	if(typeof GearsFactory != "undefined"){ // Firefox
 		factory = new GearsFactory();
 	}else{
-		if(dojo.isIE){
+		if(has("ie")){
 			// IE
 			try{
 				factory = new ActiveXObject("Gears.Factory");
@@ -34,12 +43,12 @@ dojo.gears._gearsObject = function(){
 
 	// still nothing?
 	if(!factory){ return null; }
-	
+
 	// define the global objects now; don't overwrite them though if they
 	// were somehow set internally by the Gears plugin, which is on their
 	// dev roadmap for the future
-	dojo.setObject("google.gears.factory", factory);
-	return dojo.getObject("google.gears");
+	lang.setObject("google.gears.factory", factory);
+	return lang.getObject("google.gears");
 };
 
 /*=====
@@ -50,7 +59,7 @@ dojo.gears.available = {
 // see if we have Google Gears installed, and if
 // so, make it available in the runtime environment
 // and in the Google standard 'google.gears' global object
-dojo.gears.available = (!!dojo.gears._gearsObject())||0;
+gears.available = (!!gears._gearsObject())||0;
 
-return dojo.gears;
+return gears;
 });

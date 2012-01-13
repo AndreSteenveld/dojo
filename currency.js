@@ -1,5 +1,11 @@
-define("dojo/currency", ["dojo", "dojo/number", "dojo/i18n", "i18n!dojo/cldr/nls/currency", "dojo/cldr/monetary"], function(dojo) {
-dojo.getObject("currency", true, dojo);
+define(["./_base/lang", "./_base/array", "./number", "./i18n", "./i18n!./cldr/nls/currency", "./cldr/monetary"],
+	function(lang, darray, dnumber, i18n, nlsCurrency, cldrMonetary) {
+	// module:
+	//		dojo/currency
+	// summary:
+	//		TODOC
+
+var currency = lang.getObject("dojo.currency", true);
 
 /*=====
 dojo.currency = {
@@ -12,32 +18,33 @@ dojo.currency = {
 	//	currency support is included.  A fixed number of decimal places is determined based
 	//	on the currency type and is not determined by the 'pattern' argument.  The fractional
 	//	portion is optional, by default, and variable length decimals are not supported.
-}
+};
+currency = dojo.currency;
 =====*/
 
-dojo.currency._mixInDefaults = function(options){
+currency._mixInDefaults = function(options){
 	options = options || {};
 	options.type = "currency";
 
 	// Get locale-dependent currency data, like the symbol
-	var bundle = dojo.i18n.getLocalization("dojo.cldr", "currency", options.locale) || {};
+	var bundle = i18n.getLocalization("dojo.cldr", "currency", options.locale) || {};
 
 	// Mixin locale-independent currency data, like # of places
 	var iso = options.currency;
-	var data = dojo.cldr.monetary.getData(iso);
+	var data = cldrMonetary.getData(iso);
 
-	dojo.forEach(["displayName","symbol","group","decimal"], function(prop){
+	darray.forEach(["displayName","symbol","group","decimal"], function(prop){
 		data[prop] = bundle[iso+"_"+prop];
 	});
 
 	data.fractional = [true, false];
 
 	// Mixin with provided options
-	return dojo.mixin(data, options);
+	return lang.mixin(data, options);
 };
 
 /*=====
-dojo.declare("dojo.currency.__FormatOptions", [dojo.number.__FormatOptions], {
+declare("dojo.currency.__FormatOptions", [dojo.number.__FormatOptions], {
 	//	type: String?
 	//		Should not be set.  Value is assumed to be "currency".
 	//	symbol: String?
@@ -55,7 +62,7 @@ dojo.declare("dojo.currency.__FormatOptions", [dojo.number.__FormatOptions], {
 });
 =====*/
 
-dojo.currency.format = function(/*Number*/value, /*dojo.currency.__FormatOptions?*/options){
+currency.format = function(/*Number*/value, /*dojo.currency.__FormatOptions?*/options){
 // summary:
 //		Format a Number as a currency, using locale-specific settings
 //
@@ -68,10 +75,10 @@ dojo.currency.format = function(/*Number*/value, /*dojo.currency.__FormatOptions
 // value:
 //		the number to be formatted.
 
-	return dojo.number.format(value, dojo.currency._mixInDefaults(options));
+	return dnumber.format(value, currency._mixInDefaults(options));
 };
 
-dojo.currency.regexp = function(/*dojo.number.__RegexpOptions?*/options){
+currency.regexp = function(/*dojo.number.__RegexpOptions?*/options){
 //
 // summary:
 //		Builds the regular needed to parse a currency value
@@ -79,11 +86,11 @@ dojo.currency.regexp = function(/*dojo.number.__RegexpOptions?*/options){
 // description:
 //		Returns regular expression with positive and negative match, group and decimal separators
 //		Note: the options.places default, the number of decimal places to accept, is defined by the currency type.
-	return dojo.number.regexp(dojo.currency._mixInDefaults(options)); // String
+	return dnumber.regexp(currency._mixInDefaults(options)); // String
 };
 
 /*=====
-dojo.declare("dojo.currency.__ParseOptions", [dojo.number.__ParseOptions], {
+declare("dojo.currency.__ParseOptions", [dojo.number.__ParseOptions], {
 	//	type: String?
 	//		Should not be set.  Value is assumed to be currency.
 	//	currency: String?
@@ -106,7 +113,7 @@ dojo.declare("dojo.currency.__ParseOptions", [dojo.number.__ParseOptions], {
 });
 =====*/
 
-dojo.currency.parse = function(/*String*/expression, /*dojo.currency.__ParseOptions?*/options){
+currency.parse = function(/*String*/expression, /*dojo.currency.__ParseOptions?*/options){
 	//
 	// summary:
 	//		Convert a properly formatted currency string to a primitive Number,
@@ -120,8 +127,8 @@ dojo.currency.parse = function(/*String*/expression, /*dojo.currency.__ParseOpti
 	//
 	// expression: A string representation of a currency value
 
-	return dojo.number.parse(expression, dojo.currency._mixInDefaults(options));
+	return dnumber.parse(expression, currency._mixInDefaults(options));
 };
 
-return dojo.currency;
+return currency;
 });

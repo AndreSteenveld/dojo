@@ -1,9 +1,22 @@
-define("dojo/date/stamp", ["dojo"], function(dojo) {
-dojo.getObject("date.stamp", true, dojo);
+define(["../_base/lang", "../_base/array"], function(lang, array) {
+	// module:
+	//		dojo/date/stamp
+	// summary:
+	//		TODOC
+
+var stamp = lang.getObject("dojo.date.stamp", true);
+
+/*=====
+dojo.stamp = {
+	// summary:
+	//		TODOC
+};
+stamp = dojo.stamp;
+=====*/
 
 // Methods to convert dates to or from a wire (string) format using well-known conventions
 
-dojo.date.stamp.fromISOString = function(/*String*/formattedString, /*Number?*/defaultTime){
+stamp.fromISOString = function(/*String*/formattedString, /*Number?*/defaultTime){
 	//	summary:
 	//		Returns a Date object given a string formatted according to a subset of the ISO-8601 standard.
 	//
@@ -36,13 +49,13 @@ dojo.date.stamp.fromISOString = function(/*String*/formattedString, /*Number?*/d
 	//		Used for defaults for fields omitted in the formattedString.
 	//		Uses 1970-01-01T00:00:00.0Z by default.
 
-	if(!dojo.date.stamp._isoRegExp){
-		dojo.date.stamp._isoRegExp =
+	if(!stamp._isoRegExp){
+		stamp._isoRegExp =
 //TODO: could be more restrictive and check for 00-59, etc.
 			/^(?:(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(.\d+)?)?((?:[+-](\d{2}):(\d{2}))|Z)?)?$/;
 	}
 
-	var match = dojo.date.stamp._isoRegExp.exec(formattedString),
+	var match = stamp._isoRegExp.exec(formattedString),
 		result = null;
 
 	if(match){
@@ -53,7 +66,7 @@ dojo.date.stamp.fromISOString = function(/*String*/formattedString, /*Number?*/d
 		if(defaultTime){
 			// mix in defaultTime.  Relatively expensive, so use || operators for the fast path of defaultTime === 0
 			defaultTime = new Date(defaultTime);
-			dojo.forEach(dojo.map(["FullYear", "Month", "Date", "Hours", "Minutes", "Seconds", "Milliseconds"], function(prop){
+			array.forEach(array.map(["FullYear", "Month", "Date", "Hours", "Minutes", "Seconds", "Milliseconds"], function(prop){
 				return defaultTime["get" + prop]();
 			}), function(value, index){
 				match[index] = match[index] || value;
@@ -96,7 +109,7 @@ dojo.date.stamp.fromISOString = function(/*String*/formattedString, /*Number?*/d
 	}
 =====*/
 
-dojo.date.stamp.toISOString = function(/*Date*/dateObject, /*dojo.date.stamp.__Options?*/options){
+stamp.toISOString = function(/*Date*/dateObject, /*dojo.date.stamp.__Options?*/options){
 	//	summary:
 	//		Format a Date object as a string according a subset of the ISO-8601 standard
 	//
@@ -129,7 +142,7 @@ dojo.date.stamp.toISOString = function(/*Date*/dateObject, /*dojo.date.stamp.__O
 		}else if(options.selector != "time"){
 			var timezoneOffset = dateObject.getTimezoneOffset();
 			var absOffset = Math.abs(timezoneOffset);
-			time += (timezoneOffset > 0 ? "-" : "+") + 
+			time += (timezoneOffset > 0 ? "-" : "+") +
 				_(Math.floor(absOffset/60)) + ":" + _(absOffset%60);
 		}
 		formattedDate.push(time);
@@ -137,5 +150,5 @@ dojo.date.stamp.toISOString = function(/*Date*/dateObject, /*dojo.date.stamp.__O
 	return formattedDate.join('T'); // String
 };
 
-return dojo.date.stamp;
+return stamp;
 });

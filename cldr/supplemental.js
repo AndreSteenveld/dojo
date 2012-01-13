@@ -1,7 +1,14 @@
-define("dojo/cldr/supplemental", ["dojo", "dojo/i18n"], function(dojo) {
-dojo.getObject("cldr.supplemental", true, dojo);
+define(["../_base/lang", "../i18n"], function(lang, i18n) {
 
-dojo.cldr.supplemental.getFirstDayOfWeek = function(/*String?*/locale){
+// module:
+//		dojo/cldr/supplemental
+// summary:
+//		TODOC
+
+var supplemental = lang.getObject("dojo.cldr.supplemental", true);
+/*===== supplemental = dojo.cldr.supplemental =====*/
+
+supplemental.getFirstDayOfWeek = function(/*String?*/locale){
 // summary: Returns a zero-based index for first day of the week
 // description:
 //		Returns a zero-based index for first day of the week, as used by the local (Gregorian) calendar.
@@ -19,13 +26,13 @@ dojo.cldr.supplemental.getFirstDayOfWeek = function(/*String?*/locale){
 // variant. do not use?		gb:0,
 	};
 
-	var country = dojo.cldr.supplemental._region(locale);
+	var country = supplemental._region(locale);
 	var dow = firstDay[country];
 	return (dow === undefined) ? 1 : dow; /*Number*/
 };
 
-dojo.cldr.supplemental._region = function(/*String?*/locale){
-	locale = dojo.i18n.normalizeLocale(locale);
+supplemental._region = function(/*String?*/locale){
+	locale = i18n.normalizeLocale(locale);
 	var tags = locale.split('-');
 	var region = tags[1];
 	if(!region){
@@ -41,7 +48,7 @@ dojo.cldr.supplemental._region = function(/*String?*/locale){
 	return region;
 };
 
-dojo.cldr.supplemental.getWeekend = function(/*String?*/locale){
+supplemental.getWeekend = function(/*String?*/locale){
 // summary: Returns a hash containing the start and end days of the weekend
 // description:
 //		Returns a hash containing the start and end days of the weekend according to local custom using locale,
@@ -60,7 +67,7 @@ dojo.cldr.supplemental.getWeekend = function(/*String?*/locale){
 		ae:6,bh:5,eg:6,il:6,iq:6,jo:6,kw:6,ly:6,ma:6,qa:6,sd:6,sy:6,tn:6
 	};
 
-	var country = dojo.cldr.supplemental._region(locale);
+	var country = supplemental._region(locale);
 	var start = weekendStart[country];
 	var end = weekendEnd[country];
 	if(start === undefined){start=6;}
@@ -68,5 +75,5 @@ dojo.cldr.supplemental.getWeekend = function(/*String?*/locale){
 	return {start:start, end:end}; /*Object {start,end}*/
 };
 
-return dojo.cldr.supplemental;
+return supplemental;
 });

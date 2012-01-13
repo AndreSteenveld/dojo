@@ -1,7 +1,15 @@
-define("dojo/cldr/monetary", ["dojo"], function(dojo) {
-dojo.getObject("cldr.monetary", true, dojo);
+define(["../main"], function(dojo) {
+	// module:
+	//		dojo/cldr/monetary
+	// summary:
+	//		TODOC
 
-dojo.cldr.monetary.getData = function(/*String*/code){
+var monetary = dojo.getObject("dojo.cldr.monetary", true);
+/*=====
+monetary = dojo.cldr.monetary;
+=====*/
+
+monetary.getData = function(/*String*/code){
 // summary: A mapping of currency code to currency-specific formatting information. Returns a unique object with properties: places, round.
 // code: an [ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code
 
@@ -26,5 +34,5 @@ dojo.cldr.monetary.getData = function(/*String*/code){
 	return {places: places, round: round}; // Object
 };
 
-return dojo.cldr.monetary;
+return monetary;
 });

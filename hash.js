@@ -1,17 +1,17 @@
-define("dojo/hash", ["dojo"], function(dojo) {
+define(["./_base/kernel", "require", "./_base/config", "./_base/connect", "./_base/lang", "./ready", "./_base/sniff"],
+	function(dojo, require, config, connect, lang, ready, has) {
 
-//TODOC: where does this go?
-// summary:
-//		Methods for monitoring and updating the hash in the browser URL.
-//
-// example:
-//		dojo.subscribe("/dojo/hashchange", context, callback);
-//
-//		function callback (hashValue){
-//			// do something based on the hash value.
-// 		}
+	// module:
+	//		dojo/hash
+	// summary:
+	//		Methods for monitoring and updating the hash in the browser URL.
+	// example:
+	//		dojo.subscribe("/dojo/hashchange", context, callback);
+	//
+	//		function callback (hashValue){
+	//			// do something based on the hash value.
+	//		}
 
-(function(){
 	dojo.hash = function(/* String? */ hash, /* Boolean? */ replace){
 		//	summary:
 		//		Gets or sets the hash string.
@@ -19,15 +19,15 @@ define("dojo/hash", ["dojo"], function(dojo) {
 		//		Handles getting and setting of location.hash.
 		//		 - If no arguments are passed, acts as a getter.
 		//		 - If a string is passed, acts as a setter.
-		//	hash: 
-		//		String: the hash is set - #string.
+		//	hash:
+		//		the hash is set - #string.
 		//	replace:
-		//		Boolean: If true, updates the hash value in the current history 
-		//			state instead of creating a new history state.
+		//		If true, updates the hash value in the current history
+		//		state instead of creating a new history state.
 		//	returns:
 		//		when used as a getter, returns the current hash string.
 		//		when used as a setter, returns the new hash string.
-		
+
 		// getter
 		if(!arguments.length){
 			return _getHash();
@@ -45,22 +45,21 @@ define("dojo/hash", ["dojo"], function(dojo) {
 	};
 
 	// Global vars
-	var _recentHash = null,
-		_ieUriMonitor = null,
-		_pollFrequency = dojo.config.hashPollFrequency || 100;
+	var _recentHash, _ieUriMonitor, _connect,
+		_pollFrequency = config.hashPollFrequency || 100;
 
 	//Internal functions
 	function _getSegment(str, delimiter){
 		var i = str.indexOf(delimiter);
-		return (i >= 0) ? str.substring(i+1) : "";  
+		return (i >= 0) ? str.substring(i+1) : "";
 	}
-	
+
 	function _getHash(){
 		return _getSegment(location.href, "#");
 	}
 
 	function _dispatchEvent(){
-		dojo.publish("/dojo/hashchange", [_getHash()]);
+		connect.publish("/dojo/hashchange", [_getHash()]);
 	}
 
 	function _pollLocation(){
@@ -70,11 +69,11 @@ define("dojo/hash", ["dojo"], function(dojo) {
 		_recentHash = _getHash();
 		_dispatchEvent();
 	}
-	
+
 	function _replace(hash){
 		if(_ieUriMonitor){
 			if(_ieUriMonitor.isTransitioning()){
-				setTimeout(dojo.hitch(null,_replace,hash), _pollFrequency);
+				setTimeout(lang.hitch(null,_replace,hash), _pollFrequency);
 				return;
 			}
 			var href = _ieUriMonitor.iframe.location.href;
@@ -84,18 +83,18 @@ define("dojo/hash", ["dojo"], function(dojo) {
 			return;
 		}
 		location.replace("#"+hash);
-		_pollLocation();
+		!_connect && _pollLocation();
 	}
 
 	function IEUriMonitor(){
 		// summary:
-		//		Determine if the browser's URI has changed or if the user has pressed the 
+		//		Determine if the browser's URI has changed or if the user has pressed the
 		//		back or forward button. If so, call _dispatchEvent.
 		//
 		//	description:
 		//		IE doesn't add changes to the URI's hash into the history unless the hash
 		//		value corresponds to an actual named anchor in the document. To get around
-		//      this IE difference, we use a background IFrame to maintain a back-forward
+		//		this IE difference, we use a background IFrame to maintain a back-forward
 		//		history, by updating the IFrame's query string to correspond to the
 		//		value of the main browser location's hash value.
 		//
@@ -127,7 +126,7 @@ define("dojo/hash", ["dojo"], function(dojo) {
 		//			case we do nothing because we need to wait for the iframe's
 		//			location to reflect its actual state.
 		//			Transitions: s4, s5
-		//		s5:	IEUriMonitor has programmatically changed the location of the
+		//		s5: IEUriMonitor has programmatically changed the location of the
 		//			background iframe, and the iframe's location has caught up with
 		//			reality. In this case we need to transition to s1.
 		//			Transitions: s1
@@ -138,9 +137,9 @@ define("dojo/hash", ["dojo"], function(dojo) {
 		// create and append iframe
 		var ifr = document.createElement("iframe"),
 			IFRAME_ID = "dojo-hash-iframe",
-			ifrSrc = dojo.config.dojoBlankHtmlUrl || dojo.moduleUrl("dojo", "resources/blank.html");
+			ifrSrc = config.dojoBlankHtmlUrl || require.toUrl("./resources/blank.html");
 
-		if(dojo.config.useXDomain && !dojo.config.dojoBlankHtmlUrl){
+		if(config.useXDomain && !config.dojoBlankHtmlUrl){
 			console.warn("dojo.hash: When using cross-domain Dojo builds,"
 				+ " please save dojo/resources/blank.html to your domain and set djConfig.dojoBlankHtmlUrl"
 				+ " to the path on your domain to blank.html");
@@ -165,7 +164,7 @@ define("dojo/hash", ["dojo"], function(dojo) {
 		this.isTransitioning = function(){
 			return transitioning;
 		};
-		
+
 		this.pollLocation = function(){
 			if(!ifrOffline) {
 				try{
@@ -190,7 +189,7 @@ define("dojo/hash", ["dojo"], function(dojo) {
 					_dispatchEvent();
 				}else{
 					// s4 (waiting for iframe to catch up to main window)
-					setTimeout(dojo.hitch(this,this.pollLocation),0);
+					setTimeout(lang.hitch(this,this.pollLocation),0);
 					return;
 				}
 			}else if(_recentHash === hash && (ifrOffline || recentIframeQuery === iframeSearch)){
@@ -204,8 +203,8 @@ define("dojo/hash", ["dojo"], function(dojo) {
 					transitioning = true;
 					expectedIFrameQuery = hash;
 					ifr.src = ifrSrc + "?" + expectedIFrameQuery;
-					ifrOffline = false;	//we're updating the iframe src - set offline to false so we can check again on next poll.
-					setTimeout(dojo.hitch(this,this.pollLocation),0); //yielded transition to s4 while iframe reloads.
+					ifrOffline = false; //we're updating the iframe src - set offline to false so we can check again on next poll.
+					setTimeout(lang.hitch(this,this.pollLocation),0); //yielded transition to s4 while iframe reloads.
 					return;
 				}else if(!ifrOffline){
 					// s3 (iframe location changed via back/forward button), set main window url and transition to s1.
@@ -214,14 +213,14 @@ define("dojo/hash", ["dojo"], function(dojo) {
 					_dispatchEvent();
 				}
 			}
-			setTimeout(dojo.hitch(this,this.pollLocation), _pollFrequency);
+			setTimeout(lang.hitch(this,this.pollLocation), _pollFrequency);
 		};
 		resetState(); // initialize state (transition to s1)
-		setTimeout(dojo.hitch(this,this.pollLocation), _pollFrequency);
+		setTimeout(lang.hitch(this,this.pollLocation), _pollFrequency);
 	}
-	dojo.addOnLoad(function(){
-		if("onhashchange" in dojo.global && (!dojo.isIE || (dojo.isIE >= 8 && document.compatMode != "BackCompat"))){	//need this IE browser test because "onhashchange" exists in IE8 in IE7 mode
-			dojo.connect(dojo.global,"onhashchange",_dispatchEvent);
+	ready(function(){
+		if("onhashchange" in dojo.global && (!has("ie") || (has("ie") >= 8 && document.compatMode != "BackCompat"))){	//need this IE browser test because "onhashchange" exists in IE8 in IE7 mode
+			_connect = connect.connect(dojo.global,"onhashchange",_dispatchEvent);
 		}else{
 			if(document.addEventListener){ // Non-IE
 				_recentHash = _getHash();
@@ -229,11 +228,11 @@ define("dojo/hash", ["dojo"], function(dojo) {
 			}else if(document.attachEvent){ // IE7-
 				//Use hidden iframe in versions of IE that don't have onhashchange event
 				_ieUriMonitor = new IEUriMonitor();
-			} 
+			}
 			// else non-supported browser, do nothing.
 		}
 	});
-})();
 
-  return dojo.hash;
+	return dojo.hash;
+
 });
