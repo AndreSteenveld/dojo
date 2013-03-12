@@ -1,12 +1,7 @@
-dojo.provide("tests.rpc");
+define(["doh/main", "require", "../rpc/RpcService", "../rpc/JsonService", "../rpc/JsonpService"],
+	function(doh, require, RpcService, JsonService, JsonpService){
 
-dojo.require("dojo.rpc.RpcService");
-dojo.require("dojo.rpc.JsonService");
-dojo.require("dojo.rpc.JsonpService");
-
-doh.register("tests.rpc", 
-	[ 
-
+	doh.register("tests.rpc", [
 		{
 			name: "JsonRPC-EchoTest",
 			timeout: 2000,
@@ -24,22 +19,22 @@ doh.register("tests.rpc",
 								}
 							]
 						}
-					]	
-				}
-			
-				this.svc = new dojo.rpc.JsonService(testSmd);
+					]
+				};
+
+				this.svc = new JsonService(testSmd);
 			},
 			runTest: function(){
 				var d = new doh.Deferred();
 				var td = this.svc.myecho("RPC TEST");
 
-				if (window.location.protocol=="file:") {
+				if (window.location.protocol=="file:"){
 					var err= new Error("This Test requires a webserver and PHP and will fail intentionally if loaded from file://");
 					d.errback(err);
 					return d;
 				}
 
-				td.addCallbacks(function(result) {
+				td.addCallbacks(function(result){
 					if(result=="<P>RPC TEST</P>"){
 						return true;
 					}else{
@@ -62,16 +57,16 @@ doh.register("tests.rpc",
 			setUp: function(){
 				var testSmd={
 					serviceURL:"../../dojo/tests/resources/test_JsonRPCMediator.php",
-					methods:[ { name:"contentB" } ]	
-				}
-			
-				this.svc = new dojo.rpc.JsonService(testSmd);
+					methods:[ { name:"contentB" } ]
+				};
+
+				this.svc = new JsonService(testSmd);
 			},
 			runTest: function(){
 				var d = new doh.Deferred();
 				var td = this.svc.contentB();
 
-				if (window.location.protocol=="file:") {
+				if (window.location.protocol=="file:"){
 					var err= new Error("This Test requires a webserver and PHP and will fail intentionally if loaded from file://");
 					d.errback(err);
 					return d;
@@ -96,13 +91,13 @@ doh.register("tests.rpc",
 		{
 			name: "JsonRPC_SMD_Loading_test",
 			setUp: function(){
-				this.svc = new dojo.rpc.JsonService("../../dojo/tests/resources/testClass.smd");
+				this.svc = new JsonService("../../dojo/tests/resources/testClass.smd");
 			},
 			runTest: function(){
 
-				if (this.svc.objectName=="testClass") {
+				if (this.svc.objectName=="testClass"){
 					return true;
-				} else {
+				}else{
 					return new Error("Error loading and/or parsing an smd file");
 				}
 			}
@@ -112,12 +107,12 @@ doh.register("tests.rpc",
 			name: "JsonP_test",
 			timeout: 10000,
 			setUp: function(){
-				this.svc = new dojo.rpc.JsonpService(dojo.moduleUrl("dojo.tests.resources","yahoo_smd_v1.smd"), {appid: "foo"});
+				this.svc = new JsonpService(require.toUrl("dojo/tests/resources/yahoo_smd_v1.smd"), {appid: "foo"});
 			},
 			runTest: function(){
 				var d = new doh.Deferred();
 
-				if (window.location.protocol=="file:") {
+				if (window.location.protocol=="file:"){
 					var err= new Error("This Test requires a webserver and will fail intentionally if loaded from file://");
 					d.errback(err);
 					return d;
@@ -127,7 +122,7 @@ doh.register("tests.rpc",
 
 				td.addCallbacks(function(result){
 					return true;
-					if (result["ResultSet"]["Result"][0]["DisplayUrl"]=="dojotoolkit.org/") {
+					if (result["ResultSet"]["Result"][0]["DisplayUrl"]=="dojotoolkit.org/"){
 						return true;
 					}else{
 						return new Error("JsonRpc_SMD_Loading_Test failed, resultant content didn't match");
@@ -141,7 +136,6 @@ doh.register("tests.rpc",
 				return d;
 			}
 		}
-	]
-);
+	]);
 
-
+});

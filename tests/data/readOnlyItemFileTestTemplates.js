@@ -1,10 +1,11 @@
-define("tests/data/readOnlyItemFileTestTemplates", ["dojo/data/api/Read", "dojo/data/api/Identity", "dojo/date", "dojo/date/stamp"], function() {
+// FIXME: this test assumes the existence of the global object "tests"
+define(["dojo/main", "doh/main", "require", "dojo/data/api/Read", "dojo/data/api/Identity", "dojo/date", "dojo/date/stamp"], function(dojo, doh, require){
 
 dojo.getObject("data.readOnlyItemFileTestTemplates", true, tests);
 
 dojo.declare("tests.data.Wrapper", null, {
-	//	summary:
-	//		Simple class to use for typeMap in order to	test out 
+	// summary:
+	//		Simple class to use for typeMap in order to	test out
 	//		'falsy' values for _value.
 	_wrapped: null,
 
@@ -12,11 +13,11 @@ dojo.declare("tests.data.Wrapper", null, {
 		this._wrapped = obj;
 	},
 
-	getValue: function() {
+	getValue: function(){
 		return this._wrapped;
 	},
 
-	setValue: function(obj) {
+	setValue: function(obj){
 		this._wrapped = obj;
 	},
 
@@ -38,7 +39,7 @@ tests.data.readOnlyItemFileTestTemplates.registerTestsForDatastore = function(/*
 	var makeNewTestFunction = function(template){
 		return function(t){return template.runTest(datastoreClass, t);};
 	};
-	for(var i = 0; i < testTemplates.length; ++i) {
+	for(var i = 0; i < testTemplates.length; ++i){
 		var testTemplate = testTemplates[i];
 		var test = {};
 		test.name = testTemplate.name;
@@ -56,9 +57,9 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 	var data = null;
 	if(name === "countries"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/countries.json").toString() };
+			data = {url: require.toUrl("./countries.json")};
 		}else{
-			data = {data: { 
+			data = {data: {
 				identifier:"abbr",
 				label:"name",
 				items:[
@@ -71,12 +72,12 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 					{abbr:'et', name:'Ethiopia', capital:'Addis Ababa'}
 				]
 			} };
-		}	
+		}
 	}else if(name === "countries_withNull"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/countries_withNull.json").toString() };
+			data = {url: require.toUrl("./countries_withNull.json")};
 		}else{
-			data = {data: { 
+			data = {data: {
 				identifier:"abbr",
 				items:[
 					{abbr:"ec", name:null, capital:"Quito"},
@@ -91,9 +92,9 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 		}
 	}else if(name === "countries_withoutid"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/countries_withoutid.json").toString() };
+			data = {url: require.toUrl("./countries_withoutid.json")};
 		}else{
-			data = {data: { 
+			data = {data: {
 				label: "name",
 				items:[
 					{abbr:"ec", name:null, capital:"Quito"},
@@ -108,9 +109,9 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 		}
 	}else if (name === "countries_withBoolean"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/countries_withBoolean.json").toString() };
+			data = {url: require.toUrl("./countries_withBoolean.json")};
 		}else{
-			data = {data: { 
+			data = {data: {
 				identifier:"abbr",
 				items:[
 					{abbr:"ec", name:"Ecuador", capital:"Quito", real:true},
@@ -126,9 +127,9 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 		}
 	}else if (name === "countries_withDates"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/countries_withDates.json").toString() };
+			data = {url: require.toUrl("./countries_withDates.json")};
 		}else{
-			data = {data: { 
+			data = {data: {
 				identifier:"abbr",
 				items:[
 					{abbr:"ec", name:"Ecuador", capital:"Quito"},
@@ -143,9 +144,9 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 		}
 	}else if (name === "geography_hierarchy_small"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/geography_hierarchy_small.json").toString() };
+			data = {url: require.toUrl("./geography_hierarchy_small.json")};
 		}else{
-			data = {data: { 
+			data = {data: {
 				items:[
 					{ name:'Africa', countries:[
 						{ name:'Egypt', capital:'Cairo' },
@@ -167,11 +168,11 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 		}
 	}else if (name === "data_multitype"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/data_multitype.json").toString() };
+			data = {url: require.toUrl("./data_multitype.json")};
 		}else{
-			data = {data: { 
+			data = {data: {
 							"identifier": "count",
-							"label": "count", 
+							"label": "count",
 							items: [
 								{ count: 1,    value: "true" },
 								{ count: 2,    value: true   },
@@ -186,12 +187,12 @@ tests.data.readOnlyItemFileTestTemplates.getTestData = function(name){
 								{ count: 11,   value: [false, false]},
 								{ count: "12", value: [false, "true"]}
 						   ]
-						} 
+						}
 					};
 		}
 	}else if (name === "countries_references"){
 		if(dojo.isBrowser){
-			data = {url: dojo.moduleUrl("tests", "data/countries_references.json").toString() };
+			data = {url: require.toUrl("./countries_references.json")};
 		}else{
 			data = {data: { identifier: 'name',
 							label: 'name',
@@ -250,7 +251,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: fetchItemByIdentity()",
 		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the fetchItemByIdentity function of the store.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -274,7 +275,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: fetchItemByIdentity() preventCache",
 		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the fetchItemByIdentity function of the store.
 			var args = tests.data.readOnlyItemFileTestTemplates.getTestData("countries");
 			args.urlPreventCache = true;
@@ -300,9 +301,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: fetchItemByIdentity() notFound",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the fetchItemByIdentity function of the store.
-			//	description:
+			// description:
 			//		Simple test of the fetchItemByIdentity function of the store.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -322,15 +323,15 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: getIdentityAttributes()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getIdentityAttributes function.
-			//	description:
+			// description:
 			//		Simple test of the getIdentityAttributes function.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
 			var d = new doh.Deferred();
 			function onItem(item){
-				t.assertTrue(item !== null)
+				t.assertTrue(item !== null);
 				var identifiers = store.getIdentityAttributes(item);
 				t.assertTrue(dojo.isArray(identifiers));
 				t.assertEqual(1, identifiers.length);
@@ -348,16 +349,16 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: fetchItemByIdentity() commentFilteredJson",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the fetchItemByIdentity function of the store.
-			//	description:
+			// description:
 			//		Simple test of the fetchItemByIdentity function of the store.
 			//		This tests loading a comment-filtered json file so that people using secure
 			//		data with this store can bypass the JavaSceipt hijack noted in Fortify's
 			//		paper.
 
 			if(dojo.isBrowser){
-                var store = new datastore({url: dojo.moduleUrl("tests", "data/countries_commentFiltered.json").toString()});
+                var store = new datastore({url: require.toUrl("./countries_commentFiltered.json")});
 
 				var d = new doh.Deferred();
 				function onItem(item){
@@ -378,9 +379,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: fetchItemByIdentity() nullValue",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the fetchItemByIdentity function of the store, checling a null value.
-			//	description:
+			// description:
 			//		Simple test of the fetchItemByIdentity function of the store, checking a null value.
 			//		This tests handling attributes in json that were defined as null properly.
 			//		Introduced because of tracker: #3153
@@ -404,9 +405,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: fetchItemByIdentity() booleanValue",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the fetchItemByIdentity function of the store, checking a boolean value.
-			//	description:
+			// description:
 			//		Simple test of the fetchItemByIdentity function of the store, checking a boolean value.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_withBoolean"));
 
@@ -430,9 +431,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: fetchItemByIdentity() withoutSpecifiedIdInData",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of bug #4691, looking up something by assigned id, not one specified in the JSON data.
-			//	description:
+			// description:
 			//		Simple test of bug #4691, looking up something by assigned id, not one specified in the JSON data.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_withoutid"));
 
@@ -454,13 +455,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
         name: "Identity API: fetchItemByIdentity() Object.prototype item identifier",
         runTest: function(datastore, t){
-			//      summary:
-			//          Simple test of bug where store would raise an error
-			//          if the item identifier was the same as an Object property name.
+			// summary:
+			//		Simple test of bug where store would raise an error
+			//		if the item identifier was the same as an Object property name.
 			var data = {identifier: 'id', items: [{id: 'toString', value: 'aha'}]};
 			var store = new datastore({data: data});
 			var d = new doh.Deferred();
-			function onitem(item) {
+			function onitem(item){
 				t.assertTrue(item.value == 'aha');
 				d.callback(true);
 			}
@@ -475,13 +476,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
         name: "Identity API: fetchItemByIdentity() Object.prototype item identifier 2",
         runTest: function(datastore, t){
-			//      summary:
-			//          Simple test of bug where store would raise an error
-			//          if the item identifier was the same as an Object property name.
+			// summary:
+			//		Simple test of bug where store would raise an error
+			//		if the item identifier was the same as an Object property name.
 			var data = {identifier: 'id', items: [{id: 'hasOwnProperty', value: 'yep'}]};
 			var store = new datastore({data: data});
 			var d = new doh.Deferred();
-			function onitem(item) {
+			function onitem(item){
 				t.assertTrue(item.value == 'yep');
 				d.callback(true);
 			}
@@ -496,9 +497,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
         name: "Identity API: fetchItemByIdentity() Object.prototype identity",
         runTest: function(datastore, t){
-			//      summary:
-			//          Simple test of bug where fetchItemByIdentity would return
-			//          an object property.
+			// summary:
+			//		Simple test of bug where fetchItemByIdentity would return
+			//		an object property.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_withoutid"));
 			var d = new doh.Deferred();
 			function onItem(item){
@@ -516,9 +517,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
         name: "Identity API: fetchItemByIdentity() Object.prototype identity 2",
         runTest: function(datastore, t){
-			//      summary:
-			//          Simple test of bug where fetchItemByIdentity would return
-			//          an object property.
+			// summary:
+			//		Simple test of bug where fetchItemByIdentity would return
+			//		an object property.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_withoutid"));
 			var d = new doh.Deferred();
 			function onItem(item){
@@ -536,9 +537,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: getIdentity()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getIdentity function of the store.
-			//	description:
+			// description:
 			//		Simple test of the getIdentity function of the store.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -559,9 +560,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: getIdentity() withoutSpecifiedId",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the #4691 bug
-			//	description:
+			// description:
 			//		Simple test of the #4691 bug
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_withoutid"));
 
@@ -582,12 +583,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() all",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 			var d = new doh.Deferred();
 			function completedAll(items, request){
 				t.is(7, items.length);
@@ -606,25 +607,25 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() all failOk",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore that fails quietly.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore that fails quietly.
 			if(dojo.isBrowser){
 				var storeParams = {
 					url: "noSuchUrl",
 					failOk: true
-				}
+				};
 				var store = new datastore(storeParams);
 				console.log(store);
-                
+
 				var d = new doh.Deferred();
 				var completedAll = function(items, request){
 					d.errback(new Error("Should not be here, should have failed load."));
-				}
+				};
 				var error = function(errData, request){
 					d.callback(true);
-				}
+				};
 
 				//Get everything...
 				store.fetch({ onComplete: completedAll, onError: error});
@@ -635,14 +636,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() abort",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch abort on ItemFileReadStore.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch abort on ItemFileReadStore.
 			//Can only async abort in a browser, so disable this test from rhino
 			if(dojo.isBrowser){
 				var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 				var d = new doh.Deferred();
 				var abortCalled = false;
 				function completedAll(items, request){
@@ -675,12 +676,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() all (count === Infinity)",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore and with a count of Infinity.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore and with a count of Infinity.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 			var d = new doh.Deferred();
 			function completedAll(items, request){
 				t.is(7, items.length);
@@ -699,14 +700,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() all PreventCache",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore.
 			var args = tests.data.readOnlyItemFileTestTemplates.getTestData("countries");
 			args.urlPreventCache = true;
 			var store = new datastore(args);
-			
+
 			var d = new doh.Deferred();
 			function completedAll(items, request){
 				t.is(7, items.length);
@@ -725,12 +726,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() one",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore of a single item.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore of a single item.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(items.length, 1);
@@ -740,8 +741,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {abbr: "ec"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {abbr: "ec"},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -750,12 +751,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() shallow",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore of only toplevel items
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore of only toplevel items.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("geography_hierarchy_small"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(items.length, 2);
@@ -766,8 +767,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				d.errback(errData);
 			}
 			//Find all items starting with A, only toplevel (root) items.
-			store.fetch({ 	query: {name: "A*"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {name: "A*"},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -776,12 +777,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() Multiple",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Tests that multiple fetches at the same time queue up properly and do not clobber each other on initial load.
-			//	description:
+			// description:
 			//		Tests that multiple fetches at the same time queue up properly and do not clobber each other on initial load.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("geography_hierarchy_small"));
-			
+
 			var d = new doh.Deferred();
 			var done = [false, false];
 
@@ -803,14 +804,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				d.errback(errData);
 			}
 			//Find all items starting with A, only toplevel (root) items.
-			store.fetch({ 	query: {name: "A*"}, 
-									onComplete: onCompleteOne, 
+			store.fetch({ 	query: {name: "A*"},
+									onComplete: onCompleteOne,
 									onError: onError
 								});
 
 			//Find all items starting with A, only toplevel (root) items.
-			store.fetch({ 	query: {name: "N*"}, 
-									onComplete: onCompleteTwo, 
+			store.fetch({ 	query: {name: "N*"},
+									onComplete: onCompleteTwo,
 									onError: onError
 								});
 
@@ -820,13 +821,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() MultipleMixedFetch",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Tests that multiple fetches at the same time queue up properly and do not clobber each other on initial load.
-			//	description:
+			// description:
 			//		Tests that multiple fetches at the same time queue up properly and do not clobber each other on initial load.
 			//		Tests an item fetch and an identity fetch.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 			var d = new doh.Deferred();
 			var done = [false, false];
 
@@ -842,7 +843,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(item !== null);
 				var name = store.getValue(item,"name");
 				t.assertEqual(name, "El Salvador");
-				
+
 				if(done[0] && done[1]){
 					d.callback(true);
 				}
@@ -851,13 +852,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			
+
 			//Find all items starting with A, only toplevel (root) items.
-			store.fetch({ 	query: {name: "El*"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {name: "El*"},
+									onComplete: onComplete,
 									onError: onError
 								});
-			
+
 			store.fetchItemByIdentity({identity: "sv", onItem: onItem, onError: onError});
 			return d;
 		}
@@ -865,12 +866,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() deep",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore of all items (including children (nested))
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore of all items (including children (nested))
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("geography_hierarchy_small"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(items.length, 4);
@@ -881,8 +882,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				d.errback(errData);
 			}
 			//Find all items starting with A, including child (nested) items.
-			store.fetch({ 	query: {name: "A*"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {name: "A*"},
+									onComplete: onComplete,
 									onError: onError,
 									queryOptions: {deep:true}
 								});
@@ -892,19 +893,19 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() hierarchy off",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore of all items with hierarchy disabled
 			//		This should turn off processing child objects as data store items.  It will still process
 			//		references and type maps.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore of all items with hierarchy disabled
 			//		This should turn off processing child objects as data store items.  It will still process
 			//		references and type maps.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("geography_hierarchy_small"));
-			
+
 			//Set this as hierarchy off before fetch to make sure it traps and configs right.
 			store.hierarchical = false;
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				//With hierarchy off, this should only match 2, as only two data store items
@@ -939,8 +940,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				d.errback(errData);
 			}
 			//Find all items starting with A, including child (nested) items.
-			store.fetch({ 	query: {name: "A*"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {name: "A*"},
+									onComplete: onComplete,
 									onError: onError,
 									queryOptions: {deep:true}
 								});
@@ -950,19 +951,19 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() hierarchy off refs still parse",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore of all items with hierarchy disabled
 			//		This should turn off processing child objects as data store items.  It will still process
 			//		references and type maps.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore of all items with hierarchy disabled
 			//		This should turn off processing child objects as data store items.  It will still process
 			//		references and type maps.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_references"));
-			
+
 			//Set this as hierarchy off before fetch to make sure it traps and configs right.
 			store.hierarchical = false;
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				//With hierarchy off, this should only match 2, as only two data store items
@@ -997,8 +998,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				d.errback(errData);
 			}
 			//Find all items starting with A, including child (nested) items.
-			store.fetch({ 	query: {name: "A*"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {name: "A*"},
+									onComplete: onComplete,
 									onError: onError,
 									queryOptions: {deep:true}
 								});
@@ -1008,15 +1009,15 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() one_commentFilteredJson",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore of a single item.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore of a single item.
 			//		This tests loading a comment-filtered json file so that people using secure
 			//		data with this store can bypass the JavaSceipt hijack noted in Fortify's
 			//		paper.
 			if(dojo.isBrowser){
-                var store = new datastore({url: dojo.moduleUrl("tests", "data/countries_commentFiltered.json").toString()});
+                var store = new datastore({url: require.toUrl("./countries_commentFiltered.json")});
 
 				var d = new doh.Deferred();
 				function onComplete(items, request){
@@ -1027,8 +1028,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					t.assertTrue(false);
 					d.errback(errData);
 				}
-				store.fetch({ 	query: {abbr: "ec"}, 
-										onComplete: onComplete, 
+				store.fetch({ 	query: {abbr: "ec"},
+										onComplete: onComplete,
 										onError: onError
 									});
 				return d;
@@ -1038,13 +1039,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() withNull",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore of a single item where some attributes are null.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore of a single item where some attributes are null.
 			//		Introduced because of tracker: #3153
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_withNull"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(4, items.length);
@@ -1054,8 +1055,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {name: "E*"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {name: "E*"},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -1064,9 +1065,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() all_streaming",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch on ItemFileReadStore.
-			//	description:
+			// description:
 			//		Simple test of a basic fetch on ItemFileReadStore.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1092,7 +1093,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 
 			//Get everything...
 			store.fetch({	onBegin: onBegin,
-									onItem: onItem, 
+									onItem: onItem,
 									onComplete: onComplete,
 									onError: onError
 								});
@@ -1102,12 +1103,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() paging",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Test of multiple fetches on a single result.  Paging, if you will.
-			//	description:
+			// description:
 			//		Test of multiple fetches on a single result.  Paging, if you will.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 			var d = new doh.Deferred();
 			function dumpFirstFetch(items, request){
 				t.assertEqual(items.length, 5);
@@ -1173,13 +1174,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() with MultiType Match",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch againct an attribute that has different types for the value across items
-			//	description:
+			// description:
 			//		Simple test of a basic fetch againct an attribute that has different types for the value across items
 			//		Introduced because of tracker: #4931
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("data_multitype"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(4, items.length);
@@ -1189,8 +1190,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {count: "1*"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {count: "1*"},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -1199,12 +1200,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() with RegExp Match",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch using a RegExp works with IFRS
-			//	description:
+			// description:
 			//		Simple test of a basic fetch using a RegExp works with IFRS
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("data_multitype"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(4, items.length);
@@ -1214,8 +1215,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {count: new RegExp("^1.*$", "gi")}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {count: new RegExp("^1.*$", "gi")},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -1224,12 +1225,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() with RegExp Match Inline",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch using a RegExp works with IFRS
-			//	description:
+			// description:
 			//		Simple test of a basic fetch using a RegExp works with IFRS
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("data_multitype"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(4, items.length);
@@ -1239,8 +1240,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {count: /^1.*$/gi}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {count: /^1.*$/gi},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -1249,13 +1250,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() with MultiType, MultiValue Match",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of a basic fetch againct an attribute that has different types for the value across items
-			//	description:
+			// description:
 			//		Simple test of a basic fetch againct an attribute that has different types for the value across items
 			//		Introduced because of tracker: #4931
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("data_multitype"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(7, items.length);
@@ -1265,8 +1266,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {value: "true"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {value: "true"},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -1275,12 +1276,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: getLabel()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getLabel function against a store set that has a label defined.
-			//	description:
+			// description:
 			//		Simple test of the getLabel function against a store set that has a label defined.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(items.length, 1);
@@ -1293,8 +1294,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {abbr: "ec"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {abbr: "ec"},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -1303,12 +1304,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: getLabelAttributes()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getLabelAttributes function against a store set that has a label defined.
-			//	description:
+			// description:
 			//		Simple test of the getLabelAttributes function against a store set that has a label defined.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
-			
+
 			var d = new doh.Deferred();
 			function onComplete(items, request){
 				t.assertEqual(items.length, 1);
@@ -1321,8 +1322,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.errback(errData);
 			}
-			store.fetch({ 	query: {abbr: "ec"}, 
-									onComplete: onComplete, 
+			store.fetch({ 	query: {abbr: "ec"},
+									onComplete: onComplete,
 									onError: onError
 								});
 			return d;
@@ -1331,9 +1332,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: getValue()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getValue function of the store.
-			//	description:
+			// description:
 			//		Simple test of the getValue function of the store.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1355,9 +1356,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: getValues()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getValues function of the store.
-			//	description:
+			// description:
 			//		Simple test of the getValues function of the store.
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1381,9 +1382,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: isItem()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the isItem function of the store
-			//	description:
+			// description:
 			//		Simple test of the isItem function of the store
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1405,16 +1406,16 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: isItem() multistore",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the isItem function of the store
 			//		to verify two different store instances do not accept
 			//		items from each other.
-			//	description:
+			// description:
 			//		Simple test of the isItem function of the store
 			//		to verify two different store instances do not accept
 			//		items from each other.
 
-			// Two different instances, even  if they read from the same URL 
+			// Two different instances, even  if they read from the same URL
 			// should not accept items between each other!
 			var store1 = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 			var store2 = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
@@ -1422,7 +1423,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 			var d = new doh.Deferred();
 			function onItem1(item1){
 				t.assertTrue(item1 !== null);
-				
+
 				function onItem2(item2){
 					t.assertTrue(item1 !== null);
 					t.assertTrue(item2 !== null);
@@ -1446,9 +1447,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: hasAttribute()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the hasAttribute function of the store
-			//	description:
+			// description:
 			//		Simple test of the hasAttribute function of the store
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1484,9 +1485,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: containsValue()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the containsValue function of the store
-			//	description:
+			// description:
 			//		Simple test of the containsValue function of the store
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1518,9 +1519,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: getAttributes()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getAttributes function of the store
-			//	description:
+			// description:
 			//		Simple test of the getAttributes function of the store
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1547,9 +1548,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: getFeatures()",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the getFeatures function of the store
-			//	description:
+			// description:
 			//		Simple test of the getFeatures function of the store
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
@@ -1561,14 +1562,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() patternMatch0",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test pattern matching of everything starting with lowercase e
-			//	description:
+			// description:
 			//		Function to test pattern matching of everything starting with lowercase e
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 
 			var d = new doh.Deferred();
-			function completed(items, request) {
+			function completed(items, request){
 				t.assertEqual(items.length, 5);
 				var passed = true;
 				for(var i = 0; i < items.length; i++){
@@ -1585,7 +1586,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected abbreviation found, match failure."));
 				}
 			}
-			function error(error, request) {
+			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
@@ -1596,14 +1597,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() patternMatch1",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test pattern matching of everything with $ in it.
-			//	description:
+			// description:
 			//		Function to test pattern matching of everything with $ in it.
 
-			var store = new datastore({data: { identifier: "uniqueId", 
+			var store = new datastore({data: { identifier: "uniqueId",
 											  items: [ {uniqueId: 1, value:"foo*bar"},
-												   {uniqueId: 2, value:"bar*foo"}, 
+												   {uniqueId: 2, value:"bar*foo"},
 												   {uniqueId: 3, value:"boomBam"},
 												   {uniqueId: 4, value:"bit$Bite"},
 												   {uniqueId: 5, value:"ouagadogou"},
@@ -1614,7 +1615,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												 ]
 										}
 								 });
-			
+
 			var d = new doh.Deferred();
 			function completed(items, request){
 				t.assertEqual(items.length, 2);
@@ -1644,14 +1645,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() patternMatch2",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test exact pattern match
-			//	description:
+			// description:
 			//		Function to test exact pattern match
 
-			var store = new datastore({data: { identifier: "uniqueId", 
+			var store = new datastore({data: { identifier: "uniqueId",
 											  items: [ {uniqueId: 1, value:"foo*bar"},
-												   {uniqueId: 2, value:"bar*foo"}, 
+												   {uniqueId: 2, value:"bar*foo"},
 												   {uniqueId: 3, value:"boomBam"},
 												   {uniqueId: 4, value:"bit$Bite"},
 												   {uniqueId: 5, value:"ouagadogou"},
@@ -1692,20 +1693,20 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() patternMatch_caseSensitive",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test pattern matching of a pattern case-sensitively
-			//	description:
+			// description:
 			//		Function to test pattern matching of a pattern case-sensitively
 
-			var store = new datastore({data: { identifier: "uniqueId", 
+			var store = new datastore({data: { identifier: "uniqueId",
 											  items: [ {uniqueId: 1, value:"foo*bar"},
-												   {uniqueId: 2, value:"bar*foo"}, 
+												   {uniqueId: 2, value:"bar*foo"},
 												   {uniqueId: 3, value:"BAR*foo"},
 												   {uniqueId: 4, value:"BARBananafoo"}
 												 ]
 										}
 								 });
-			
+
 			var d = new doh.Deferred();
 			function completed(items, request){
 				t.assertEqual(1, items.length);
@@ -1735,20 +1736,20 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() patternMatch_caseInsensitive",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test pattern matching of a pattern case-insensitively
-			//	description:
+			// description:
 			//		Function to test pattern matching of a pattern case-insensitively
 
-			var store = new datastore({data: { identifier: "uniqueId", 
+			var store = new datastore({data: { identifier: "uniqueId",
 											  items: [ {uniqueId: 1, value:"foo*bar"},
-												   {uniqueId: 2, value:"bar*foo"}, 
+												   {uniqueId: 2, value:"bar*foo"},
 												   {uniqueId: 3, value:"BAR*foo"},
 												   {uniqueId: 4, value:"BARBananafoo"}
 												 ]
 										}
 								 });
-			
+
 			var d = new doh.Deferred();
 			function completed(items, request){
 				t.assertEqual(items.length, 2);
@@ -1778,14 +1779,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortNumeric",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting numerically.
-			//	description:
+			// description:
 			//		Function to test sorting numerically.
-			
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											  items: [ {uniqueId: 0, value:"fo|o*b.ar"},
-												   {uniqueId: 1, value:"ba|r*foo"}, 
+												   {uniqueId: 1, value:"ba|r*foo"},
 												   {uniqueId: 2, value:"boomBam"},
 												   {uniqueId: 3, value:"bit$Bite"},
 												   {uniqueId: 4, value:"ouagadogou"},
@@ -1831,14 +1832,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortNumericDescending",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting numerically.
-			//	description:
+			// description:
 			//		Function to test sorting numerically.
 
-			var store = new datastore({data: { identifier: "uniqueId", 
+			var store = new datastore({data: { identifier: "uniqueId",
 											  items: [ {uniqueId: 0, value:"fo|o*b.ar"},
-												   {uniqueId: 1, value:"ba|r*foo"}, 
+												   {uniqueId: 1, value:"ba|r*foo"},
 												   {uniqueId: 2, value:"boomBam"},
 												   {uniqueId: 3, value:"bit$Bite"},
 												   {uniqueId: 4, value:"ouagadogou"},
@@ -1883,14 +1884,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortNumericWithCount",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting numerically in descending order, returning only a specified number of them.
-			//	description:
+			// description:
 			//		Function to test sorting numerically in descending order, returning only a specified number of them.
-		
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 0, value:"fo|o*b.ar"},
-												  {uniqueId: 1, value:"ba|r*foo"}, 
+												  {uniqueId: 1, value:"ba|r*foo"},
 												  {uniqueId: 2, value:"boomBam"},
 												  {uniqueId: 3, value:"bit$Bite"},
 												  {uniqueId: 4, value:"ouagadogou"},
@@ -1903,7 +1904,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												]
 									   }
 								});
-			
+
 			var d = new doh.Deferred();
 			function completed(items, request){
 				t.assertEqual(items.length, 5);
@@ -1924,12 +1925,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
+
 			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
-		
+
 			var sortAttributes = [{attribute: "uniqueId", descending: true}];
 			store.fetch({onComplete: completed, onError: error, sort: sortAttributes, count: 5});
 			return d;
@@ -1938,14 +1939,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortAlphabetic",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting alphabetic ordering.
-			//	description:
+			// description:
 			//		Function to test sorting alphabetic ordering.
-		
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 0, value:"abc"},
-												  {uniqueId: 1, value:"bca"}, 
+												  {uniqueId: 1, value:"bca"},
 												  {uniqueId: 2, value:"abcd"},
 												  {uniqueId: 3, value:"abcdefg"},
 												  {uniqueId: 4, value:"lmnop"},
@@ -1955,11 +1956,11 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												  {uniqueId: 8, value:""},
 												  {uniqueId: 9, value:"seaweed"},
 												  {uniqueId: 10, value:"123abc"}
-		
+
 												]
 									   }
 								});
-			
+
 			var d = new doh.Deferred();
 			function completed(items, request){
 				//Output should be in this order...
@@ -1991,12 +1992,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
-			function error(error, request) {
+
+			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
-		
+
 			var sortAttributes = [{attribute: "value"}];
 			store.fetch({onComplete: completed, onError: error, sort: sortAttributes});
 			return d;
@@ -2005,14 +2006,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortAlphabeticDescending",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting alphabetic ordering in descending mode.
-			//	description:
+			// description:
 			//		Function to test sorting alphabetic ordering in descending mode.
-		
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 0, value:"abc"},
-												  {uniqueId: 1, value:"bca"}, 
+												  {uniqueId: 1, value:"bca"},
 												  {uniqueId: 2, value:"abcd"},
 												  {uniqueId: 3, value:"abcdefg"},
 												  {uniqueId: 4, value:"lmnop"},
@@ -2022,7 +2023,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												  {uniqueId: 8, value:""},
 												  {uniqueId: 9, value:"seaweed"},
 												  {uniqueId: 10, value:"123abc"}
-		
+
 												]
 									   }
 								});
@@ -2059,12 +2060,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
-			function error(error, request) {
+
+			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
-		
+
 			var sortAttributes = [{attribute: "value", descending: true}];
 			store.fetch({onComplete: completed, onError: error, sort: sortAttributes});
 			return d;
@@ -2073,14 +2074,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortDate",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting date.
-			//	description:
+			// description:
 			//		Function to test sorting date.
-		
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 0, value: new Date(0)},
-												  {uniqueId: 1, value: new Date(100)}, 
+												  {uniqueId: 1, value: new Date(100)},
 												  {uniqueId: 2, value:new Date(1000)},
 												  {uniqueId: 3, value:new Date(2000)},
 												  {uniqueId: 4, value:new Date(3000)},
@@ -2090,11 +2091,11 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												  {uniqueId: 8, value:new Date(7000)},
 												  {uniqueId: 9, value:new Date(8000)},
 												  {uniqueId: 10, value:new Date(9000)}
-		
+
 												]
 									   }
 								});
-			
+
 			var d = new doh.Deferred();
 			function completed(items,request){
 				var orderedArray =	[0,100,1000,2000,3000,4000,5000,6000,7000,8000,9000];
@@ -2114,12 +2115,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
+
 			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
-		
+
 			var sortAttributes = [{attribute: "value"}];
 			store.fetch({onComplete: completed, onError: error, sort: sortAttributes});
 			return d;
@@ -2128,14 +2129,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortDateDescending",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting date in descending order.
-			//	description:
+			// description:
 			//		Function to test sorting date in descending order.
-		
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 0, value: new Date(0)},
-												  {uniqueId: 1, value: new Date(100)}, 
+												  {uniqueId: 1, value: new Date(100)},
 												  {uniqueId: 2, value:new Date(1000)},
 												  {uniqueId: 3, value:new Date(2000)},
 												  {uniqueId: 4, value:new Date(3000)},
@@ -2145,11 +2146,11 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												  {uniqueId: 8, value:new Date(7000)},
 												  {uniqueId: 9, value:new Date(8000)},
 												  {uniqueId: 10, value:new Date(9000)}
-		
+
 												]
 									   }
 								});
-		
+
 			var d = new doh.Deferred();
 			function completed(items,request){
 				var orderedArray =	[0,100,1000,2000,3000,4000,5000,6000,7000,8000,9000];
@@ -2170,12 +2171,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
+
 			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
-		
+
 			var sortAttributes = [{attribute: "value", descending: true}];
 			store.fetch({onComplete: completed, onError: error, sort: sortAttributes});
 			return d;
@@ -2184,14 +2185,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortMultiple",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting on multiple attributes.
-			//	description:
+			// description:
 			//		Function to test sorting on multiple attributes.
-			
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 1, value:"fo|o*b.ar"},
-												  {uniqueId: 2, value:"ba|r*foo"}, 
+												  {uniqueId: 2, value:"ba|r*foo"},
 												  {uniqueId: 3, value:"boomBam"},
 												  {uniqueId: 4, value:"bit$Bite"},
 												  {uniqueId: 5, value:"ouagadogou"},
@@ -2205,7 +2206,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												]
 									   }
 								});
-		
+
 			var d = new doh.Deferred();
 			function completed(items, request){
 				var orderedArray0 = [7,2,4,3,1,6,5,12,10,9,8,11];
@@ -2239,12 +2240,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
+
 			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
-		
+
 			var sortAttributes = [{ attribute: "value"}, { attribute: "uniqueId", descending: true}];
 			store.fetch({onComplete: completed, onError: error, sort: sortAttributes});
 			return d;
@@ -2253,14 +2254,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortMultipleSpecialComparator",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting on multiple attributes with a custom comparator.
-			//	description:
+			// description:
 			//		Function to test sorting on multiple attributes with a custom comparator.
 
-			var store = new datastore({data: { identifier: "uniqueId", 
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 1, status:"CLOSED"},
-												  {uniqueId: 2,  status:"OPEN"}, 
+												  {uniqueId: 2,  status:"OPEN"},
 												  {uniqueId: 3,  status:"PENDING"},
 												  {uniqueId: 4,  status:"BLOCKED"},
 												  {uniqueId: 5,  status:"CLOSED"},
@@ -2274,25 +2275,25 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												]
 									   }
 								});
-		
-		
+
+
 			store.comparatorMap = {};
-			store.comparatorMap["status"] = function(a,b) { 
+			store.comparatorMap["status"] = function(a,b){
 				var ret = 0;
 				// We want to map these by what the priority of these items are, not by alphabetical.
 				// So, custom comparator.
 				var enumMap = { OPEN: 3, BLOCKED: 2, PENDING: 1, CLOSED: 0};
-				if (enumMap[a] > enumMap[b]) {
+				if (enumMap[a] > enumMap[b]){
 					ret = 1;
 				}
-				if (enumMap[a] < enumMap[b]) {
+				if (enumMap[a] < enumMap[b]){
 					ret = -1;
 				}
 				return ret;
 			};
-		
+
 			var sortAttributes = [{attribute: "status", descending: true}, { attribute: "uniqueId", descending: true}];
-		
+
 			var d = new doh.Deferred();
 			function completed(items, findResult){
 				var orderedArray = [11,6,2,12,10,4,8,7,3,9,5,1];
@@ -2311,7 +2312,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
+
 			function error(errData, request){
 				t.assertTrue(false);
 				d.errback(errData);
@@ -2323,14 +2324,14 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch() sortAlphabeticWithUndefined",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test sorting alphabetic ordering.
-			//	description:
+			// description:
 			//		Function to test sorting alphabetic ordering.
-		
-			var store = new datastore({data: { identifier: "uniqueId", 
+
+			var store = new datastore({data: { identifier: "uniqueId",
 											 items: [ {uniqueId: 0, value:"abc"},
-												  {uniqueId: 1, value:"bca"}, 
+												  {uniqueId: 1, value:"bca"},
 												  {uniqueId: 2, value:"abcd"},
 												  {uniqueId: 3, value:"abcdefg"},
 												  {uniqueId: 4, value:"lmnop"},
@@ -2340,11 +2341,11 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 												  {uniqueId: 8 },  //Deliberate undefined value
 												  {uniqueId: 9, value:"seaweed"},
 												  {uniqueId: 10, value:"123abc"}
-		
+
 												]
 									   }
 								});
-			
+
 			var d = new doh.Deferred();
 			function completed(items, request){
 				//Output should be in this order...
@@ -2364,12 +2365,12 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					d.errback(new Error("Unexpected sorting order found, sort failure."));
 				}
 			}
-		
-			function error(error, request) {
+
+			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
 			}
-		
+
 			var sortAttributes = [{attribute: "value"}];
 			store.fetch({onComplete: completed, onError: error, sort: sortAttributes});
 			return d;
@@ -2378,16 +2379,16 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: errorCondition_idCollision_inMemory",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the errors thrown when there is an id collision in the data.
 			//		Added because of tracker: #2546
-			//	description:
+			// description:
 			//		Simple test of the errors thrown when there is an id collision in the data.
 			//		Added because of tracker: #2546
 
-			var store = new datastore({	data: { identifier: "uniqueId", 
+			var store = new datastore({	data: { identifier: "uniqueId",
 																items: [{uniqueId: 12345, value:"foo"},
-																		{uniqueId: 123456, value:"bar"}, 
+																		{uniqueId: 123456, value:"bar"},
 																		{uniqueId: 12345, value:"boom"},
 																		{uniqueId: 123457, value:"bit"}
 																	]
@@ -2399,7 +2400,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				t.assertTrue(false);
 				d.callback(false);
 			}
-		
+
 			function reportError(errData, request){
 				//This is good if this fires, it is expected.
 				t.assertTrue(true);
@@ -2412,15 +2413,15 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: errorCondition_idCollision_xhr",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test of the errors thrown when there is an id collision in the data.
 			//		Added because of tracker: #2546
-			//	description:
+			// description:
 			//		Simple test of the errors thrown when there is an id collision in the data.
 			//		Added because of tracker: #2546
 
 			if(dojo.isBrowser){
-				var store = new datastore({url: dojo.moduleUrl("tests", "data/countries_idcollision.json").toString() });
+				var store = new datastore({url: require.toUrl("./countries_idcollision.json")});
 				var d = new doh.Deferred();
 				function onComplete(items, request){
 					//This is bad if this fires, this case should fail and not call onComplete.
@@ -2443,13 +2444,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
  		runTest: function(datastore, t){
 			//var store = new datastore(tests.data.readOnlyItemFileTestTemplates.testFile["countries_withDates"]);
 			var store = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries_withDates"));
-			
+
 			var d = new doh.Deferred();
 			function onItem(item){
 				t.assertTrue(item !== null);
 				var independenceDate = store.getValue(item, "independence");
 				t.assertTrue(independenceDate instanceof Date);
-				//Check to see if the value was deserialized properly.  Since the store stores in UTC/GMT, it 
+				//Check to see if the value was deserialized properly.  Since the store stores in UTC/GMT, it
 				//should also be compared in the UTC/GMT mode
 				t.assertTrue(dojo.date.stamp.toISOString(independenceDate, {zulu:true}) === "1993-05-24T00:00:00Z");
 				d.callback(true);
@@ -2465,7 +2466,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: custom_datatype_Color_SimpleMapping",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test using literal values with custom datatypes
 			var dataset = {
 				identifier:'name',
@@ -2497,7 +2498,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: custom_datatype_Color_GeneralMapping",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test using literal values with custom datatypes
 			var dataset = {
 				identifier:'name',
@@ -2508,7 +2509,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 			};
 			var store = new datastore({
 					data:dataset,
-					typeMap:{'Color': 	{	
+					typeMap:{'Color': 	{
 											type: dojo.Color,
 											deserialize: function(value){
 												return new dojo.Color(value);
@@ -2535,7 +2536,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: custom_datatype_CustomObject 0 (False) value",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test type mapping and _values that are false-like
 			var dataset = {
 				identifier:'name',
@@ -2546,7 +2547,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 			};
 			var store = new datastore({
 					data:dataset,
-					typeMap:{'tests.data.Wrapper': 	{	
+					typeMap:{'tests.data.Wrapper': 	{
 											type: tests.data.Wrapper,
 											deserialize: function(value){
 												return new tests.data.Wrapper(value);
@@ -2573,7 +2574,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: custom_datatype_CustomObject Boolean False values",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test type mapping and _values that are false-like
 			var dataset = {
 				identifier:'name',
@@ -2584,7 +2585,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 			};
 			var store = new datastore({
 					data:dataset,
-					typeMap:{'tests.data.Wrapper': 	{	
+					typeMap:{'tests.data.Wrapper': 	{
 											type: tests.data.Wrapper,
 											deserialize: function(value){
 												return new tests.data.Wrapper(value);
@@ -2611,7 +2612,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: custom_datatype_CustomObject Empty String values",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test type mapping and _values that are false-like
 			var dataset = {
 				identifier:'name',
@@ -2622,7 +2623,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 			};
 			var store = new datastore({
 					data:dataset,
-					typeMap:{'tests.data.Wrapper': 	{	
+					typeMap:{'tests.data.Wrapper': 	{
 											type: tests.data.Wrapper,
 											deserialize: function(value){
 												return new tests.data.Wrapper(value);
@@ -2649,7 +2650,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: custom_datatype_CustomObject explicit null values",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test type mapping and _values that are false-like
 			var dataset = {
 				identifier:'name',
@@ -2660,7 +2661,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 			};
 			var store = new datastore({
 					data:dataset,
-					typeMap:{'tests.data.Wrapper': 	{	
+					typeMap:{'tests.data.Wrapper': 	{
 											type: tests.data.Wrapper,
 											deserialize: function(value){
 												return new tests.data.Wrapper(value);
@@ -2687,7 +2688,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: custom_datatype_CustomObject explicit undefined value",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test type mapping and _values that are false-like
 			var dataset = {
 				identifier:'name',
@@ -2698,7 +2699,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 			};
 			var store = new datastore({
 					data:dataset,
-					typeMap:{'tests.data.Wrapper': 	{	
+					typeMap:{'tests.data.Wrapper': 	{
 											type: tests.data.Wrapper,
 											deserialize: function(value){
 												return new tests.data.Wrapper(value);
@@ -2745,16 +2746,16 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 				onComplete: onComplete,
 				onError: onError
 			});
-			
+
 			return d; // Deferred
 		}
 	},
 	{
 		name: "Read API: close (clearOnClose: true)",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test the close api properly clears the store for reload when clearOnClose is set.
-			if (dojo.isBrowser) {
+			if (dojo.isBrowser){
 				var params = tests.data.readOnlyItemFileTestTemplates.getTestData("countries");
 				params.clearOnClose = true;
 				params.urlPreventCache = true;
@@ -2776,7 +2777,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					}catch (e){
 						error = e;
 					}
-					if (error) {
+					if (error){
 						d.errback(error);
 					}else{
 						d.callback(true);
@@ -2793,9 +2794,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: close (clearOnClose: true, reset url.)",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test the close api properly clears the store for reload when clearOnClose is set.
-			if (dojo.isBrowser) {
+			if (dojo.isBrowser){
 				var params = tests.data.readOnlyItemFileTestTemplates.getTestData("countries");
 				params.clearOnClose = true;
 				params.urlPreventCache = true;
@@ -2814,8 +2815,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 						//Check some internals here.  Do not normally access these!
 						t.assertTrue(store._arrayOfAllItems.length === 0);
 						t.assertTrue(store._loadFinished === false);
-						
-						store.url = dojo.moduleUrl("tests", "data/countries_withNull.json").toString();
+
+						store.url = require.toUrl("./countries_withNull.json");
 						function onItem2 (item){
 							var err;
 							try{
@@ -2835,7 +2836,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					}catch (e){
 						error = e;
 					}
-					if (error) {
+					if (error){
 						d.errback(error);
 					}
 				}
@@ -2850,9 +2851,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: fetch, close (clearOnClose: true, reset url.)",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test the close api properly clears the store for reload when clearOnClose is set.
-			if (dojo.isBrowser) {
+			if (dojo.isBrowser){
 				var params = tests.data.readOnlyItemFileTestTemplates.getTestData("countries");
 				params.clearOnClose = true;
 				params.urlPreventCache = true;
@@ -2871,8 +2872,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 						//Check some internals here.  Do not normally access these!
 						t.assertTrue(store._arrayOfAllItems.length === 0);
 						t.assertTrue(store._loadFinished === false);
-						
-						store.url = dojo.moduleUrl("tests", "data/countries_withNull.json").toString();
+
+						store.url = require.toUrl("./countries_withNull.json");
 						function onComplete (items){
                             var err;
 							try{
@@ -2894,7 +2895,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					}catch (e){
 						error = e;
 					}
-					if (error) {
+					if (error){
 						d.errback(error);
 					}
 				}
@@ -2909,9 +2910,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: close (clearOnClose: true, reset _jsonFileUrl.)",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test the close api properly clears the store for reload when clearOnClose is set.
-			if (dojo.isBrowser) {
+			if (dojo.isBrowser){
 				var params = tests.data.readOnlyItemFileTestTemplates.getTestData("countries");
 				params.clearOnClose = true;
 				params.urlPreventCache = true;
@@ -2930,8 +2931,8 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 						//Check some internals here.  Do not normally access these!
 						t.assertTrue(store._arrayOfAllItems.length === 0);
 						t.assertTrue(store._loadFinished === false);
-						
-						store._jsonFileUrl = dojo.moduleUrl("tests", "data/countries_withNull.json").toString();
+
+						store._jsonFileUrl = require.toUrl("./countries_withNull.json");
 						function onItem2 (item){
 							var err;
 							try{
@@ -2951,7 +2952,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					}catch (e){
 						error = e;
 					}
-					if (error) {
+					if (error){
 						d.errback(error);
 					}
 				}
@@ -2966,9 +2967,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: close (clearOnClose: false)",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test the close api properly clears the store for reload when clearOnClose is set.
-			if (dojo.isBrowser) {
+			if (dojo.isBrowser){
 				var params = tests.data.readOnlyItemFileTestTemplates.getTestData("countries");
 				params.urlPreventCache = true;
 				var store = new datastore(params);
@@ -2989,7 +2990,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					}catch (e){
 						error = e;
 					}
-					if (error) {
+					if (error){
 						d.errback(error);
 					}else{
 						d.callback(true);
@@ -3006,13 +3007,13 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: close (clearOnClose: true, reset data.)",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Function to test that clear on close and reset of data works.
-			//	description:
+			// description:
 			//		Function to test that clear on close and reset of data works.
-			var store = new datastore({data: { identifier: "uniqueId", 
+			var store = new datastore({data: { identifier: "uniqueId",
 											  items: [ {uniqueId: 1, value:"foo*bar"},
-												   {uniqueId: 2, value:"bar*foo"}, 
+												   {uniqueId: 2, value:"bar*foo"},
 												   {uniqueId: 3, value:"boomBam"},
 												   {uniqueId: 4, value:"bit$Bite"},
 												   {uniqueId: 5, value:"ouagadogou"},
@@ -3031,9 +3032,10 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 
 				//Set the store clearing options and the new data
 				store.clearOnClose = true;
-				store.data = { identifier: "uniqueId", 
-					items: [ {uniqueId: 1, value:"foo*bar"},
-						{uniqueId: 2, value:"bar*foo"}, 
+				store.data = { identifier: "uniqueId",
+					items: [
+						{uniqueId: 1, value:"foo*bar"},
+						{uniqueId: 2, value:"bar*foo"},
 						{uniqueId: 3, value:"boomBam"},
 						{uniqueId: 4, value:"bit$Bite"},
 						{uniqueId: 5, value:"ouagadogou"},
@@ -3043,7 +3045,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 						{uniqueId: 9, value:"jfq4@#!$!@Rf14r14i5u"}
 					]
 				};
-                store.close();
+				store.close();
 
 				//Do the next fetch and verify that the next item you get is not
 				//a reference to the same item (data cleared and reloaded.
@@ -3058,9 +3060,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 					}catch(e){
 						d.errback(e);
 					}
-				}
+				};
 				store.fetch({query: {value: "bar\*foo"}, onComplete: secondComplete, onError: error});
-			}
+			};
 			function error(error, request){
 				t.assertTrue(false);
 				d.errback(error);
@@ -3074,7 +3076,7 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
  		runTest: function(datastore, t){
 			var arrayOfItems = [
 				{name:"Kermit", color:"green"},
-				{name:"Miss Piggy", likes:"Kermit"}, 
+				{name:"Miss Piggy", likes:"Kermit"},
 				{name:"Beaker", hairColor:"red"}
 			];
 			var store = new datastore({data:{items:arrayOfItems}});
@@ -3127,9 +3129,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Read API: functionConformance",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test read API conformance.  Checks to see all declared functions are actual functions on the instances.
-			//	description:
+			// description:
 			//		Simple test read API conformance.  Checks to see all declared functions are actual functions on the instances.
 			var testStore = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 			var readApi = new dojo.data.api.Read();
@@ -3155,9 +3157,9 @@ tests.data.readOnlyItemFileTestTemplates.testTemplates = [
 	{
 		name: "Identity API: functionConformance",
  		runTest: function(datastore, t){
-			//	summary: 
+			// summary:
 			//		Simple test identity API conformance.  Checks to see all declared functions are actual functions on the instances.
-			//	description:
+			// description:
 			//		Simple test identity API conformance.  Checks to see all declared functions are actual functions on the instances.
 			var testStore = new datastore(tests.data.readOnlyItemFileTestTemplates.getTestData("countries"));
 			var identityApi = new dojo.data.api.Identity();

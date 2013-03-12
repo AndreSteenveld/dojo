@@ -1,5 +1,10 @@
-define("tests/data", ["dojo", "tests/data/utils", "tests/data/ItemFileReadStore", "tests/data/ItemFileWriteStore"], function(dojo) {
-  dojo.config.usePlainJson = true;
+define([
+	"../main",
+	"./data/utils",
+	"./data/ItemFileReadStore",
+	"./data/ItemFileWriteStore",
+	"./data/ObjectStore"], function(dojo){
+		dojo.config.usePlainJson = true;
 });
 
 

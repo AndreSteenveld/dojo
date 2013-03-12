@@ -1,42 +1,33 @@
+<!DOCTYPE html>
 <html>
 	<head>
-		<title>testing dojo.query()</title>
+		<title>testing dojo/_base/query</title>
 		<style type="text/css">
 			@import "../../resources/dojo.css";
 		</style>
-		<script type="text/javascript" src="../../dojo.js" 
-			djConfig="isDebug: true, debugAtAllCosts: false, popup: false, noFirebugLite: true"></script>
-		<!--
-		<script type="text/javascript" src="../_base/query.js"></script>
-		-->
-		<script type="text/javascript" src="../../../util/doh/runner.js"></script>
+		<script type="text/javascript" src="../../dojo.js" data-dojo-config="isDebug: true"></script>
 		<script type="text/javascript">
-			dojo.require("doh.runner");
-			dojo.require("dojo.io.iframe");
-
-			function createDocument(xml){
-				var fauxXhr = { responseText: xml };
-				if("DOMParser" in dojo.global){
-					var parser = new DOMParser();
-					fauxXhr.responseXML = parser.parseFromString(xml, "text/xml");
+			require(["dojo", "doh", "dojo/io/iframe", "dojo/domReady!"], function(dojo, doh){
+				function createDocument(xml){
+					var fauxXhr = { responseText: xml };
+					if("DOMParser" in dojo.global){
+						var parser = new DOMParser();
+						fauxXhr.responseXML = parser.parseFromString(xml, "text/xml");
+					}
+					// kludge: use dojo.xhr contentHandler for XML to process IE XMLDOC as needed
+					return dojo._contentHandlers["xml"](fauxXhr); // DOMDocument
 				}
-				// kludge: use dojo.xhr contentHandler for XML to process IE XMLDOC as needed
-				return dojo._contentHandlers["xml"](fauxXhr); // DOMDocument
-			}
 
-			dojo.addOnLoad(function(){
+				// Legacy tests for dojo/_base/query.  Replaced by dojo/tests/query/query.html.
+				// TODO: remove in 2.0.
 				doh.register("t", 
 					[
-						// "doh.t(false, 'howdy!')",
-						// "doh.f(true, 'howdy!')",
-						// "doh.e(Error, window, function(){ throw new Error(); })",
-
 						// basic sanity checks
 						"doh.is(4, (dojo.query('h3')).length);",
 						"doh.is(1, (dojo.query('h1:first-child')).length);",
 						"doh.is(2, (dojo.query('h3:first-child')).length);",
 						"doh.is(1, (dojo.query('#t')).length);",
-						"doh.is(1, (dojo.query('#bug')).length);",
+						//"doh.is(1, (dojo.query('#bug')).length);",
 						"doh.is(4, (dojo.query('#t h3')).length);",
 						"doh.is(1, (dojo.query('div#t')).length);",
 						"doh.is(4, (dojo.query('div#t h3')).length);",
@@ -87,10 +78,11 @@
 						"doh.is(1, (dojo.query('[foo$=\"thud\"]')).length);",
 						"doh.is(1, (dojo.query('[foo$=thud]')).length);",
 						"doh.is(1, (dojo.query('[foo$=\"thudish\"]')).length);",
+						"doh.is(1, (dojo.query('[id$=\\'55555\\']')).length);",
 						"doh.is(1, (dojo.query('#t [foo$=thud]')).length);",
 						"doh.is(1, (dojo.query('#t [ title $= thud ]')).length);",
 						"doh.is(0, (dojo.query('#t span[ title $= thud ]')).length);",
-						"doh.is(1, (dojo.query('[foo|=\"bar\"]')).length);",
+						"doh.is(2, (dojo.query('[foo|=\"bar\"]')).length);",
 						"doh.is(1, (dojo.query('[foo|=\"bar-baz\"]')).length);",
 						"doh.is(0, (dojo.query('[foo|=\"baz\"]')).length);",
 						"doh.is(dojo.byId('_foo'), dojo.query('.foo:nth-child(2)')[0]);",
@@ -98,6 +90,7 @@
 
 						// descendant selectors
 						"doh.is(3, dojo.query('>', 'container').length);",
+						"doh.is(0, dojo.query('> .not-there').length);",
 						"doh.is(3, dojo.query('> *', 'container').length);",
 						"doh.is(2, dojo.query('> [qux]', 'container').length);",
 						"doh.is('child1', dojo.query('> [qux]', 'container')[0].id);",
@@ -175,6 +168,27 @@
 						"doh.is(dojo.byId('radio2'), dojo.query('#t2 > input[type=radio]:checked')[0]);",
 						"doh.is(2, dojo.query('#t2select option:checked').length);",
 						
+						// special characters in attribute values
+						function attrSpecialChars(){
+							// bug 10651
+							doh.is(1, dojo.query('option[value=a+b]', 'attrSpecialChars').length, "value=a+b");
+							doh.is(1, dojo.query('option[value=a~b]', 'attrSpecialChars').length, "value=a~b");
+							doh.is(1, dojo.query('option[value=a^b]', 'attrSpecialChars').length, "value=a^b");
+							doh.is(1, dojo.query('option[value=\"a+b\"]', 'attrSpecialChars').length, "value=\"a^b\"");
+							doh.is(1, dojo.query('option[value=\"a~b\"]', 'attrSpecialChars').length, "value=\"a~b\"");
+							doh.is(1, dojo.query('option[value=\"a^b\"]', 'attrSpecialChars').length, "value=\"a^b\"");
+
+							// selector with substring that contains equals sign (bug 7479)
+							doh.is(1, dojo.query("a[href*='foo=bar']", 'attrSpecialChars').length, "a[href*='foo=bar']");
+
+							// selector with substring that contains brackets (bug 9193, 11189, 13084)
+							// note: inner quotes don't work in second dojo.query(), not sure why
+							doh.is(1, dojo.query('input[name="data[foo][bar]"]', 'attrSpecialChars').length, "data[foo][bar]");
+							doh.is(1, dojo.query('input[name=data\\[foo\\]\\[bar\\]]', 'attrSpecialChars').length, "data\\[foo\\]\\[bar\\]");
+							doh.is(1, dojo.query('input[name="foo\\[0\\].bar"]', 'attrSpecialChars').length, "foo[0].bar");
+							doh.is(1, dojo.query('input[name="test[0]"]', 'attrSpecialChars').length, "test[0]");
+						},
+
 						// check for correct document order
 						function domOrder() {
 							var inputs = dojo.query(".upperclass .lowerclass input");
@@ -249,8 +263,8 @@
 						function xml_attrs(){
 							var doc = createDocument([
 								"<ResultSet>",
-									"<RESULT thinger='blah'>Two</RESULT>",
-									"<RESULT thinger='gadzooks'>Two</RESULT>",
+									"<RESULT thinger='blah'>ONE</RESULT>",
+									"<RESULT thinger='gadzooks'><CHILD>Two</CHILD></RESULT>",
 								"</ResultSet>"
 							].join(""));
 							var de = doc.documentElement;
@@ -259,6 +273,7 @@
 							doh.is(0, dojo.query("RESULT[THINGER]", de).length, "result elements with attrs (wrong)");
 							doh.is(2, dojo.query("RESULT[thinger]", de).length, "result elements with attrs");
 							doh.is(1, dojo.query("RESULT[thinger=blah]", de).length, "result elements with attr value");
+							doh.is(1, dojo.query("RESULT > CHILD", de).length, "Using child operator");
 						},
 						function sort(){
 							var i = dojo.query("div");
@@ -267,12 +282,12 @@
 						}
 					]
 				);
-				doh.run();
+				doh.runOnLoad();
 			});
 		</script>
 	</head>
 	<body class="upperclass">
-		<h1>testing dojo.query()</h1>
+		<h1>Back-compat tests for dojo.query()</h1>
 		<div id="t" class="lowerclass">
 			<h3>h3 <span>span</span> endh3 </h3>
 			<!-- comment to throw things off -->
@@ -319,6 +334,34 @@
 					<p class="two subP"><a class="subA">two</a></p>
 				</div>
 			</div>
+		</div>
+		<div id='other'>
+		  <div id='abc55555'></div>
+		  <div id='abd55555efg'></div>
+		  <div id='55555abc'></div>
+		  <div id='1'></div>
+		  <div id='2c'></div>
+		  <div id='3ch'></div>
+		  <div id='4chr'></div>
+		  <div id='5char'></div>
+		  <div id='6chars'></div>
+		</div>
+		
+		<div id="attrSpecialChars">
+			<select name="special">
+				<!-- tests for special characters in attribute values (characters that are part of query syntax) -->
+				<option value="a+b">1</option>
+				<option value="a~b">2</option>
+				<option value="a^b">3</option>
+			</select>
+
+			<!-- tests for quotes in attribute values -->
+			<a href="foo=bar">hi</a>
+			<!-- tests for brackets in attribute values -->
+			<input name="data[foo][bar]">
+			<!-- attribute name with a dot, goes down separate code path -->
+			<input name="foo[0].bar">
+			<input name="test[0]">
 		</div>
 	</body>
 </html>

@@ -1,15 +1,11 @@
-dojo.provide("tests.cldr");
-
-dojo.require("dojo.cldr.supplemental");
-dojo.require("dojo.cldr.monetary");
-
-tests.register("tests.cldr", 
-	[
+define(["doh/main", "../cldr/supplemental", "../cldr/monetary"], function(doh, supplemental){
+	doh.register("tests.cldr", [
 		function test_date_getWeekend(t){
-			t.is(6, dojo.cldr.supplemental.getWeekend('en-us').start);
-			t.is(0, dojo.cldr.supplemental.getWeekend('en-us').end);
-			t.is(5, dojo.cldr.supplemental.getWeekend('he-il').start);
-			t.is(6, dojo.cldr.supplemental.getWeekend('he-il').end);
+			t.is(6, supplemental.getWeekend('en-us').start);
+			t.is(0, supplemental.getWeekend('en-us').end);
+			t.is(5, supplemental.getWeekend('he-il').start);
+			t.is(6, supplemental.getWeekend('he-il').end);
 		}
-	]
-);
+	]);
+});
+

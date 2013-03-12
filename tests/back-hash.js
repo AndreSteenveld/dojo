@@ -1,10 +1,6 @@
-dojo.provide("tests.back-hash");
-
-dojo.require("dojo.back");
-
-(function(){
-	tests.register("tests.back.hash", [
-		function getAndSet(t) {
+define(["doh/main", "../back", "dojo/_base/array"], function(doh, back, array){
+	doh.register("tests.back.hash", [
+		function getAndSet(t){
 			var cases = [
 				"test",
 				"test with spaces",
@@ -18,12 +14,11 @@ dojo.require("dojo.back");
 				"extra&instring",
 				"#leadinghash"
 			];
-			var b = dojo.back;
 			function verify(s){
-				dojo.back.setHash(s);
-				t.is(s, dojo.back.getHash(s));
+				back.setHash(s);
+				t.is(s, back.getHash(s));
 			}
-			dojo.forEach(cases, verify);
+			array.forEach(cases, verify);
 		}
 	]);
-})();
+});

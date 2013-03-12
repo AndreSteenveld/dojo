@@ -2,13 +2,13 @@ define({ root:
 
 //begin v1.x content
 {
-	"USD_symbol": "US$", 
-	"CAD_symbol": "CA$", 
-	"GBP_symbol": "£", 
-	"HKD_symbol": "HK$", 
-	"JPY_symbol": "JP¥", 
-	"AUD_symbol": "AU$", 
-	"CNY_symbol": "CN¥", 
+	"USD_symbol": "US$",
+	"CAD_symbol": "CA$",
+	"GBP_symbol": "£",
+	"HKD_symbol": "HK$",
+	"JPY_symbol": "JP¥",
+	"AUD_symbol": "A$",
+	"CNY_symbol": "CN¥",
 	"EUR_symbol": "€"
 }
 //end v1.x content
@@ -22,6 +22,7 @@ define({ root:
 	"en": true,
 	"en-au": true,
 	"en-ca": true,
+	"en-gb": true,
 	"es": true,
 	"fi": true,
 	"fr": true,
@@ -34,6 +35,7 @@ define({ root:
 	"nl": true,
 	"pl": true,
 	"pt": true,
+	"pt-pt": true,
 	"ro": true,
 	"ru": true,
 	"sk": true,

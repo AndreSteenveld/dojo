@@ -1,14 +1,16 @@
-define("dojo/regexp", ["dojo"], function(dojo) {
-dojo.getObject("regexp", true, dojo);
+define(["./_base/kernel", "./_base/lang"], function(dojo, lang){
 
-/*=====
-dojo.regexp = {
-	// summary: Regular expressions and Builder resources
+// module:
+//		dojo/regexp
+
+var regexp = {
+	// summary:
+	//		Regular expressions and Builder resources
 };
-=====*/
+lang.setObject("dojo.regexp", regexp);
 
-dojo.regexp.escapeString = function(/*String*/str, /*String?*/except){
-	//	summary:
+regexp.escapeString = function(/*String*/str, /*String?*/except){
+	// summary:
 	//		Adds escape sequences for special characters in regular expressions
 	// except:
 	//		a String with special characters to be left unescaped
@@ -21,10 +23,10 @@ dojo.regexp.escapeString = function(/*String*/str, /*String?*/except){
 	}); // String
 };
 
-dojo.regexp.buildGroupRE = function(/*Object|Array*/arr, /*Function*/re, /*Boolean?*/nonCapture){
-	//	summary:
+regexp.buildGroupRE = function(/*Object|Array*/arr, /*Function*/re, /*Boolean?*/nonCapture){
+	// summary:
 	//		Builds a regular expression that groups subexpressions
-	//	description:
+	// description:
 	//		A utility function used by some of the RE generators. The
 	//		subexpressions are constructed by the function, re, in the second
 	//		parameter.  re builds one subexpression for each elem in the array
@@ -34,7 +36,7 @@ dojo.regexp.buildGroupRE = function(/*Object|Array*/arr, /*Function*/re, /*Boole
 	//		A single value or an array of values.
 	// re:
 	//		A function. Takes one parameter and converts it to a regular
-	//		expression. 
+	//		expression.
 	// nonCapture:
 	//		If true, uses non-capturing match, otherwise matches are retained
 	//		by regular expression. Defaults to false
@@ -52,17 +54,17 @@ dojo.regexp.buildGroupRE = function(/*Object|Array*/arr, /*Function*/re, /*Boole
 	}
 
 	 // join the REs as alternatives in a RE group.
-	return dojo.regexp.group(b.join("|"), nonCapture); // String
+	return regexp.group(b.join("|"), nonCapture); // String
 };
 
-dojo.regexp.group = function(/*String*/expression, /*Boolean?*/nonCapture){
+regexp.group = function(/*String*/expression, /*Boolean?*/nonCapture){
 	// summary:
 	//		adds group match to expression
 	// nonCapture:
 	//		If true, uses non-capturing match, otherwise matches are retained
-	//		by regular expression. 
+	//		by regular expression.
 	return "(" + (nonCapture ? "?:":"") + expression + ")"; // String
 };
 
-return dojo.regexp;
+return regexp;
 });

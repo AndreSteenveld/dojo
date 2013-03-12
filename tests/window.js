@@ -1,11 +1,6 @@
-dojo.provide("tests.window");
-
-// Run viewport related functions test
-
-try{
-	doh.registerUrl("tests.window.viewport", dojo.moduleUrl("dojo", "tests/window/viewport.html"));
-	doh.registerUrl("tests.window.viewportQuirks", dojo.moduleUrl("dojo", "tests/window/viewportQuirks.html"));
-	doh.registerUrl("tests.window.scroll", dojo.moduleUrl("dojo", "tests/window/test_scroll.html"), 99999999);
-}catch(e){
-	doh.debug(e);
-}
+define(["dojo/sniff", "doh/main", "require"], function(has, doh, require){
+	doh.register("tests.window.viewport", require.toUrl("./window/viewport.html"));
+	// IE9+ cannot handle quirks mode in test runner, see #14321
+	has("ie") >= 9 || doh.register("tests.window.viewportQuirks", require.toUrl("./window/viewportQuirks.html"));
+	doh.register("tests.window.test_scroll", require.toUrl("./window/test_scroll.html"), 99999999);
+});

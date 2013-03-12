@@ -1,10 +1,8 @@
-dojo.provide("tests.uacss");
+define(["dojo/sniff", "doh", "require"], function(has, doh, require){
 
-// Run tests for sniffer browser and setting corresponding class name on <html>
+	// IE9+ cannot handle quirks mode in test runner, see #14321
+	has("ie") >= 9 || doh.register("tests.uacss.sniffQuirks", require.toUrl("./uacss/sniffQuirks.html"));
+	doh.register("tests.uacss.sniffStandards", require.toUrl("./uacss/sniffStandards.html"));
 
-try{
-	doh.registerUrl("tests.uacss.sniffQuirks", dojo.moduleUrl("dojo", "tests/uacss/sniffQuirks.html"));
-	doh.registerUrl("tests.uacss.sniffStandards", dojo.moduleUrl("dojo", "tests/uacss/sniffStandards.html"));
-}catch(e){
-	doh.debug(e);
-}
+});
+
